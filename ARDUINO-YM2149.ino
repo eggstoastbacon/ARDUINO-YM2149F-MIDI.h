@@ -731,182 +731,180 @@ else if (chan == 13) // MIDI Channel 14
 }
 }
 
+/**
+ * @brief Stops a MIDI note for a specified channel.
+ *
+ * This function resets the note and period for the specified MIDI channel
+ * and sends commands to stop the sound associated with that note.
+ *
+ * @param note The MIDI note number to stop.
+ * @param chan The MIDI channel number corresponding to the note.
+ */
 void stopNote(byte note, byte chan)
 {
-  if (chan == 0 && note == noteA)
-  {
-   
-    
-    noteA = periodA = 0;
-    cli();
-    send_data(0x00, 0);
-    send_data(0x01, 0);  
-    sei();
-  
-  }
-  else if (chan == 1 && note == noteB)
-  {
-   
-    
-    noteB = periodB = 0;
-    cli();
-    send_data(0x02, 0);
-    send_data(0x03, 0);
-    sei();
-  }
-  else if (chan == 2 && note == noteC)
-  {
-   
-    
-    noteC = periodC = 0;
-    cli();
-    send_data(0x04, 0);
-    send_data(0x05, 0);
-    sei();
-  }
- else if (chan == 3 && note == noteA)
-  {
-  
-    
-    noteA = periodA = 0;
-    noteA = periodB = 0;
-    cli();
-    send_data(0x00, 0);
-    send_data(0x01, 0);
-    send_data(0x02, 0);
-    send_data(0x03, 0);
-    sei();
-  }
- else if (chan == 4 && note == noteA)
-  {
-  
-    
-    noteA = periodA = 0;
-    noteB = periodB = 0;
-    noteC = periodC = 0;
-    cli();
-    send_data(0x00, 0);
-    send_data(0x01, 0);
-    send_data(0x02, 0);
-    send_data(0x03, 0);
-    send_data(0x04, 0);
-    send_data(0x05, 0);
-    sei();
-  }
- else if (chan == 5 && note == noteA)
-  {
-    
-    
-    noteA = periodA = 0;
-    cli();
-    send_data(0x0D, 0);
-    send_data(0x08, AmaxVolume);
-    sei();
-  }
- else if (chan == 6 && note == noteA)
-  {
-   
-    
-    noteA = periodA = 0;
-    cli();
-    send_data(0x0D, 0);
-    send_data(0x08, AmaxVolume);
-    sei();
-  }
- else if (chan == 7 && note == noteA)
-  {
-   
-    
-    noteA = periodA = 0;
-    noteB = periodB = 0;
-    cli();
-    send_data(0x02, 0);
-    send_data(0x03, 0);
-    send_data(0x0D, 0);
-    send_data(0x08, AmaxVolume);
-    sei();
-  }
-   else if (chan == 8 && note == noteA)
-  {
-   
-    
-    noteA = periodA = 0;
-    noteB = periodB = 0;
-    cli();
-    send_data(0x02, 0);
-    send_data(0x03, 0);
-    send_data(0x0D, 0);
-    send_data(0x0B, 0);
-    send_data(0x0C, 0);
-    send_data(0x08, AmaxVolume);
-    sei();
-  }
-   else if (chan == 10 && note == noteA)
-  {
-    noteA = periodA = 0;
-    cli();
-    send_data(0x00, 0);
-    send_data(0x01, 0);  
-    sei();
-  
-  }
-    else if (chan == 11 && note == noteA)
-  {
-cli(); // Disable interrupts
+    // Check if the channel is 0 (MIDI Channel 1)
+    if (chan == 0 && note == noteA) {
+        // Stop note A
+        noteA = periodA = 0; // Reset note and period
+        cli(); // Disable interrupts
+        send_data(0x00, 0); // Stop Channel 1 frequency LSB
+        send_data(0x01, 0); // Stop Channel 1 frequency MSB  
+        sei(); // Enable interrupts
+    }
+    // Check if the channel is 1 (MIDI Channel 2)
+    else if (chan == 1 && note == noteB) {
+        // Stop note B
+        noteB = periodB = 0; // Reset note and period
+        cli(); // Disable interrupts
+        send_data(0x02, 0); // Stop Channel 2 frequency LSB
+        send_data(0x03, 0); // Stop Channel 2 frequency MSB
+        sei(); // Enable interrupts
+    }
+    // Check if the channel is 2 (MIDI Channel 3)
+    else if (chan == 2 && note == noteC) {
+        // Stop note C
+        noteC = periodC = 0; // Reset note and period
+        cli(); // Disable interrupts
+        send_data(0x04, 0); // Stop Channel 3 frequency LSB
+        send_data(0x05, 0); // Stop Channel 3 frequency MSB
+        sei(); // Enable interrupts
+    }
+    // Check if the channel is 3 (MIDI Channel 4)
+    else if (chan == 3 && note == noteA) {
+        // Stop note A for channel 4
+        noteA = periodA = 0; // Reset note and period
+        noteB = periodB = 0; // Stop note B as well
+        cli(); // Disable interrupts
+        send_data(0x00, 0); // Stop Channel 1 frequency LSB
+        send_data(0x01, 0); // Stop Channel 1 frequency MSB
+        send_data(0x02, 0); // Stop Channel 2 frequency LSB
+        send_data(0x03, 0); // Stop Channel 2 frequency MSB
+        sei(); // Enable interrupts
+    }
+    // Check if the channel is 4 (MIDI Channel 5)
+    else if (chan == 4 && note == noteA) {
+        // Stop note A for channel 5
+        noteA = periodA = 0; // Reset note and period
+        noteB = periodB = 0; // Stop note B
+        noteC = periodC = 0; // Stop note C
+        cli(); // Disable interrupts
+        send_data(0x00, 0); // Stop Channel 1 frequency LSB
+        send_data(0x01, 0); // Stop Channel 1 frequency MSB
+        send_data(0x02, 0); // Stop Channel 2 frequency LSB
+        send_data(0x03, 0); // Stop Channel 2 frequency MSB
+        send_data(0x04, 0); // Stop Channel 3 frequency LSB
+        send_data(0x05, 0); // Stop Channel 3 frequency MSB
+        sei(); // Enable interrupts
+    }
+    // Check if the channel is 5 (MIDI Channel 6)
+    else if (chan == 5 && note == noteA) {
+        // Stop note A for channel 6
+        noteA = periodA = 0; // Reset note and period
+        cli(); // Disable interrupts
+        send_data(0x0D, 0); // Stop envelope effect
+        send_data(0x08, AmaxVolume); // Set maximum volume
+        sei(); // Enable interrupts
+    }
+    // Check if the channel is 6 (MIDI Channel 7)
+    else if (chan == 6 && note == noteA) {
+        // Stop note A for channel 7
+        noteA = periodA = 0; // Reset note and period
+        cli(); // Disable interrupts
+        send_data(0x0D, 0); // Stop envelope effect
+        send_data(0x08, AmaxVolume); // Set maximum volume
+        sei(); // Enable interrupts
+    }
+    // Check if the channel is 7 (MIDI Channel 8)
+    else if (chan == 7 && note == noteA) {
+        // Stop note A for channel 8
+        noteA = periodA = 0; // Reset note and period
+        noteB = periodB = 0; // Stop note B
+        cli(); // Disable interrupts
+        send_data(0x02, 0); // Stop Channel 2 frequency LSB
+        send_data(0x03, 0); // Stop Channel 2 frequency MSB
+        send_data(0x0D, 0); // Stop envelope effect
+        send_data(0x08, AmaxVolume); // Set maximum volume
+        sei(); // Enable interrupts
+    }
+    // Check if the channel is 8 (MIDI Channel 9)
+    else if (chan == 8 && note == noteA) {
+        // Stop note A for channel 9
+        noteA = periodA = 0; // Reset note and period
+        noteB = periodB = 0; // Stop note B
+        cli(); // Disable interrupts
+        send_data(0x02, 0); // Stop Channel 2 frequency LSB
+        send_data(0x03, 0); // Stop Channel 2 frequency MSB
+        send_data(0x0D, 0); // Stop envelope effect
+        send_data(0x0B, 0); // Stop Channel 3 frequency LSB
+        send_data(0x0C, 0); // Stop Channel 3 frequency MSB
+        send_data(0x08, AmaxVolume); // Set maximum volume
+        sei(); // Enable interrupts
+    }
+    // Check if the channel is 10 (MIDI Channel 11)
+    else if (chan == 10 && note == noteA) {
+        // Stop note A for channel 11
+        noteA = periodA = 0; // Reset note and period
+        cli(); // Disable interrupts
+        send_data(0x00, 0); // Stop Channel 1 frequency LSB
+        send_data(0x01, 0); // Stop Channel 1 frequency MSB  
+        sei(); // Enable interrupts
+    }
+    // Check if the channel is 11 (MIDI Channel 12)
+    else if (chan == 11 && note == noteA) {
+        cli(); // Disable interrupts
 
-// Reset note periods
-noteA = periodA = 0;
-noteB = periodB = 0;
-noteC = periodC = 0;
+        // Reset note periods
+        noteA = periodA = 0;
+        noteB = periodB = 0;
+        noteC = periodC = 0;
 
-// Stop the envelope effect for all channels
-send_data(0x08, 0x00); // Turn envelope mode off
+        // Stop the envelope effect for all channels
+        send_data(0x08, 0x00); // Turn envelope mode off
 
-// Send zero to all frequency registers to stop the sound
-send_data(0x00, 0); // Channel 1 frequency LSB
-send_data(0x01, 0); // Channel 1 frequency MSB
-send_data(0x02, 0); // Channel 2 frequency LSB
-send_data(0x03, 0); // Channel 2 frequency MSB
-send_data(0x04, 0); // Channel 3 frequency LSB
-send_data(0x05, 0); // Channel 3 frequency MSB
-send_data(0x0B, 0); 
-send_data(0x0C, 0); 
-sei(); // Enable interrupts
+        // Send zero to all frequency registers to stop the sound
+        send_data(0x00, 0); // Channel 1 frequency LSB
+        send_data(0x01, 0); // Channel 1 frequency MSB
+        send_data(0x02, 0); // Channel 2 frequency LSB
+        send_data(0x03, 0); // Channel 2 frequency MSB
+        send_data(0x04, 0); // Channel 3 frequency LSB
+        send_data(0x05, 0); // Channel 3 frequency MSB
+        send_data(0x0B, 0); // Stop envelope register
+        send_data(0x0C, 0); // Stop envelope register
+        sei(); // Enable interrupts
+    }
+    // Check if the channel is 12 (MIDI Channel 13)
+    else if (chan == 12 && note == noteA) {
+        cli(); // Disable interrupts
 
-  }
-  else if (chan == 12 && note == noteA)
-  {
-cli(); // Disable interrupts
+        // Reset note periods
+        noteA = periodA = 0;
+        noteB = periodB = 0;
+        noteC = periodC = 0;
 
-// Reset note periods
-noteA = periodA = 0;
-noteB = periodB = 0;
-noteC = periodC = 0;
+        // Stop the envelope effect for all channels
+        send_data(0x08, 0x00); // Turn envelope mode off
 
-// Stop the envelope effect for all channels
-send_data(0x08, 0x00); // Turn envelope mode off
+        // Send zero to all frequency registers to stop the sound
+        send_data(0x00, 0); // Channel 1 frequency LSB
+        send_data(0x01, 0); // Channel 1 frequency MSB
+        send_data(0x02, 0); // Channel 2 frequency LSB
+        send_data(0x03, 0); // Channel 2 frequency MSB
+        send_data(0x04, 0); // Channel 3 frequency LSB
+        send_data(0x05, 0); // Channel 3 frequency MSB
+        send_data(0x0B, 0); // Stop envelope register
+        send_data(0x0C, 0); // Stop envelope register
 
-// Send zero to all frequency registers to stop the sound
-send_data(0x00, 0); // Channel 1 frequency LSB
-send_data(0x01, 0); // Channel 1 frequency MSB
-send_data(0x02, 0); // Channel 2 frequency LSB
-send_data(0x03, 0); // Channel 2 frequency MSB
-send_data(0x04, 0); // Channel 3 frequency LSB
-send_data(0x05, 0); // Channel 3 frequency MSB
-send_data(0x0B, 0); 
-send_data(0x0C, 0); 
-
-sei(); // Enable interrupts
-  }
-  else if (chan == 13 && note == noteC)
-  {
-    cli();
-    noteC = periodC = 0;
-    send_data(0x00, 0);
-    send_data(0x01, 0);
-    send_data(0x08, 0x00); // Turn envelope mode off
-    sei();
-  }
+        sei(); // Enable interrupts
+    }
+    // Check if the channel is 13 (MIDI Channel 14)
+    else if (chan == 13 && note == noteC) {
+        cli(); // Disable interrupts
+        noteC = periodC = 0; // Reset note and period
+        send_data(0x00, 0); // Stop Channel 1 frequency LSB
+        send_data(0x01, 0); // Stop Channel 1 frequency MSB
+        send_data(0x08, 0x00); // Turn envelope mode off
+        sei(); // Enable interrupts
+    }
 }
 
 void playDigidrum(byte index, byte velo)
