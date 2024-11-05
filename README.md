@@ -82,6 +82,8 @@ The code includes detailed comments to help you create custom presets. Code rela
 
 - **Pitch Bend**: Pitch bend is supported on all channels except Channel 10 (sample channel).
 
+- **Noise**: CH. 14 is for noise and after playing noise every other channel will have some. Reset the device to turn it off.
+
 - **4 bit Samples**: Includes five short drum samples on MIDI Channel 10, with an option to add or replace them using the included Python script.
 
 - **Programming and MIDI Mode**: Use the toggle switch to switch between MIDI mode and programming mode. Programming mode is for flashing new code.
