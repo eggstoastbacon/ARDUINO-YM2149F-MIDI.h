@@ -1,5 +1,3 @@
-# YM2149F ARDUINO
-
 ![Project Logo](ym2149f-logo.png) <!-- Logo soon -->
 
 ## Project Details
