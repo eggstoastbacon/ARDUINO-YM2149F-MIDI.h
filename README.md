@@ -14,6 +14,7 @@ This project re-designs the hardware and software of the YM2149F for Arduino, in
 - Functional orientation will be horizontal.
 - 3D printed bottom shell (will be open source when it is done).
 - Open source board gerber (coming soon).
+- Parts list (coming soon).
 - All chips should be socketed for easy replacement.
 
 ## Project History
