@@ -94,21 +94,19 @@ The code includes detailed comments to help you create custom presets. Code rela
 - CH. 9: Voices 2 **Voice(A and B)** (No MIDI velocity): **Gritty / Great Bass**. Play concurrently with any preset with voices (C).
 - CH. 10: Drum Samples *See Note to Sample Map. Play concurrently with any preset with voices (A, B and C).
 
-### *Note Sample Map
+### *Note Sample Map (CH. 10)
 
-Note-MIDI Value
+Note/MIDI Value/Code Value
 
-C3-60
+C3/60/PROGMEM const char s4[]: Dog Yap
 
-C#3-61
+C#3/61/PROGMEM const char s3[]: Bass Thing
 
-D3-62
+D3/62/PROGMEM const char s2[]: Hi-Hat
 
-D#3-63
+D#3/63/PROGMEM const char s1[]: Snare
 
-E3-64
-
-F3-65
+E3-64/PROGMEM const char s0[]: Kick Drum
 
 ## Contacts and Resources
 
