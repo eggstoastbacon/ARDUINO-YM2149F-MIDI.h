@@ -657,25 +657,25 @@ else if (chan == 8) { // MIDI Channel 9
     startMillis = currentMillis; // Reset screen timeout
 }
 else if (chan == 10) { // MIDI Channel 11 Clicks and Pops
-    noteA = note;
+    noteA = note; // Set note for Channel A
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
-    periodA = tp[note - 12] * pitchBendFactor;
+    periodA = envTp[note] * pitchBendFactor; // Get period for note A
     byte LSB = (periodA & 0x00FF); // Get LSB of period A
-    byte MSB = ((periodA & 0x0F00) >> 8); // Get MSB of period A
+    byte MSB = ((periodA >> 8) & 0x000F); // Get MSB of period A
 
     cli(); // Disable interrupts
-    send_data(0x00, LSB); // Send LSB to register 0x00
-    send_data(0x01, MSB); // Send MSB to register 0x01
     send_data(0x08, 0x10); // Enable envelope mode
-    send_data(0x0D, 0b00011111); // Set attack and sustain
+    send_data(0x00, LSB); // Send LSB of period A
+    send_data(0x01, MSB); // Send MSB of period A
+    send_data(0x0D, 0b00111000); // Set attack and sustain
     sei(); // Enable interrupts
 
-    // Update display for Clicks and Pops
+    // Update display for Channel A
     u8x8.setFont(u8x8_font_chroma48medium8_r);
-    u8x8.clearLine(9);
-    u8x8.drawString(0, 9, "[10]CP");
-    u8x8.setCursor(7, 9);
-    u8x8.print(noteA);
+    u8x8.clearLine(5);
+    u8x8.drawString(0, 5, "[6]A");
+    u8x8.setCursor(7, 5);
+    u8x8.print(noteC);
     startMillis = currentMillis; // Reset screen timeout
 }
 else if (chan == 11) // MIDI Channel 12
@@ -752,25 +752,26 @@ else if (chan == 12) // MIDI Channel 13
 }
 else if (chan == 13) // MIDI Channel 14
 {
-    noteC = note; // Set note for Channel C
+    noteA = note;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
-    periodC = envTp[note] * pitchBendFactor; // Get period for note C
-    byte LSB = (periodC & 0x00FF); // Get LSB of period C
-    byte MSB = ((periodC >> 8) & 0x000F); // Get MSB of period C
+    periodA = tp[note - 12] * pitchBendFactor;
+    byte LSB = (periodA & 0x00FF); // Get LSB of period A
+    byte MSB = ((periodA & 0x0F00) >> 8); // Get MSB of period A
 
     cli(); // Disable interrupts
-    send_data(0x08, 0x10); // Enable envelope mode
-    send_data(0x00, LSB); // Send LSB of period C
-    send_data(0x01, MSB); // Send MSB of period C
-    send_data(0x0D, 0b00111000); // Set attack and sustain
+    send_data(0x06, LSB); // Send LSB to register 0x00
+    send_data(0x07, MSB); // Send MSB to register 0x01
+    send_data(0x09, volume); // Set volume based on velocity
+    //send_data(0x08, 0x10); // Enable envelope mode
+    //send_data(0x0D, 0b00011000); // Set attack and sustain
     sei(); // Enable interrupts
 
-    // Update display for Channel A
+    // Update display for Clicks and Pops
     u8x8.setFont(u8x8_font_chroma48medium8_r);
-    u8x8.clearLine(5);
-    u8x8.drawString(0, 5, "[6]A");
-    u8x8.setCursor(7, 5);
-    u8x8.print(noteC);
+    u8x8.clearLine(9);
+    u8x8.drawString(0, 9, "[10]CP");
+    u8x8.setCursor(7, 9);
+    u8x8.print(noteA);
     startMillis = currentMillis; // Reset screen timeout
 }
 }
@@ -792,7 +793,7 @@ void stopNote(byte note, byte chan)
         noteA = periodA = 0; // Reset note and period
         cli(); // Disable interrupts
         send_data(0x00, 0); // Stop Channel 1 frequency LSB
-        send_data(0x01, 0); // Stop Channel 1 frequency MSB  
+        send_data(0x01, 0); // Stop Channel 1 frequency MSB
         sei(); // Enable interrupts
     }
     // Check if the channel is 1 (MIDI Channel 2)
@@ -886,11 +887,11 @@ void stopNote(byte note, byte chan)
     }
     // Check if the channel is 10 (MIDI Channel 11)
     else if (chan == 10 && note == noteA) {
-        // Stop note A for channel 11
-        noteA = periodA = 0; // Reset note and period
         cli(); // Disable interrupts
+        noteA = periodA = 0; // Reset note and period
         send_data(0x00, 0); // Stop Channel 1 frequency LSB
-        send_data(0x01, 0); // Stop Channel 1 frequency MSB  
+        send_data(0x01, 0); // Stop Channel 1 frequency MSB
+        send_data(0x08, 0); // Turn envelope mode off
         sei(); // Enable interrupts
     }
     // Check if the channel is 11 (MIDI Channel 12)
@@ -904,7 +905,6 @@ void stopNote(byte note, byte chan)
 
         // Stop the envelope effect for all channels
         send_data(0x08, 0x00); // Turn envelope mode off
-
         // Send zero to all frequency registers to stop the sound
         send_data(0x00, 0); // Channel 1 frequency LSB
         send_data(0x01, 0); // Channel 1 frequency MSB
@@ -941,12 +941,15 @@ void stopNote(byte note, byte chan)
         sei(); // Enable interrupts
     }
     // Check if the channel is 13 (MIDI Channel 14)
-    else if (chan == 13 && note == noteC) {
+    else if (chan == 13 && note == noteA) {
+        // Stop note A for channel 11
         cli(); // Disable interrupts
-        noteC = periodC = 0; // Reset note and period
-        send_data(0x00, 0); // Stop Channel 1 frequency LSB
-        send_data(0x01, 0); // Stop Channel 1 frequency MSB
-        send_data(0x08, 0x00); // Turn envelope mode off
+        send_data(0x06, 0x00); // Stop Channel
+        send_data(0x07, 0x00); // Stop Channel
+        send_data(0x08, 0x00); // Stop Channel
+        send_data(0x09, 0x00); // Stop Channel
+        send_data(0x0A, 0x00); // Stop Channel
+        send_data(0x0B, 0x00); // Stop Channel
         sei(); // Enable interrupts
     }
 }
