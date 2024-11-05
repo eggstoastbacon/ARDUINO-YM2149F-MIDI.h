@@ -81,7 +81,15 @@ The code includes detailed comments to help you create custom presets. Code rela
 
 - **Programming and MIDI Mode**: Use the toggle switch to switch between MIDI mode and programming mode. Programming mode is for flashing new code.
 
-##
+## Presets (Each preset is on a different MIDI Channel)
+
+- CH. 1: Voices 1 **Voice(A)** (MIDI velocity enabled): **Default Voice**, Ch. 1-3 can be played concurrently.
+- CH. 2: Voices 1 **Voice(A)** (MIDI velocity enabled): **Default Voice**, Ch. 1-3 can be played concurrently.
+- CH. 3: Voices 1 **Voice(A)** (MIDI velocity enabled): **Default Voice**, Ch. 1-3 can be played concurrently.
+- CH. 4: Voices 2 **Voices(A and B)** (MIDI velocity enabled): **Gritty / Modulated**, Can be played concurrently with any preset with voices on (C).
+- CH. 5: Voices 3 **Voices(A, B and C)** (No MIDI velocity): **Gritty / Modulated**, Cannot be played concurrently with other presets.
+- CH. 6: Voices 1 **Voice(A)** (No MIDI velocity): **Gritty / Horn-Like / Modulated**, Can be played concurrently with any preset with voices on (B and C).
+- CH. 7: Voices 1 **Voice(A)** (No MIDI velocity): **Gritty / Detuned**, Can be played concurrently with any preset with voices on (B and C).
 
 ## Contacts and Resources
 
