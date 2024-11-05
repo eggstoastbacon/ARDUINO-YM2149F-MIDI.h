@@ -10,7 +10,7 @@
  * Replaced 2 samples for Channel 10 with smaller samples.
  * Added comments to playNote code.
  * Remapped velocity 1-127 to 64-127 and implemented velocity examples in MIDI CH. 1 and 4. 
- * Reserved for future progress.
+ * Future progress will be in commit messages.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
