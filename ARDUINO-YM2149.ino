@@ -4,7 +4,7 @@
  * Original code developed by yukimizake.
  * Video demonstration: Soon.
  * Schematics: Soon.
- * Based on re-factored code by Dansfing / dansfing.uk
+ * Based on re-factored code by Dansfing / dansfing.uk (https://dansfing.uk/YM_v2_1b/YM_MIDI_lib_Screen_buttons/YM_MIDI_lib_Screen_buttons.ino)
  * Updated PCB design and modifications for 2024 by crunchypotato for HobbyChop.
  * OLED display not initially supported in this version but the pins are available on the PCB headers.
  * Replaced 2 samples for Channel 10 with smaller samples.
