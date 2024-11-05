@@ -5,7 +5,7 @@
 This project re-designs the hardware and software of the YM2149F for Arduino, inspired by Dansfing’s 2.1a version, which is driven by an ATMEGA328P chip and includes a CH430e TTL for USB programming. The original code was initially developed by Yukimizake, whose work inspired Dansfing. This version introduces several key changes:
 
 - Relocates all user interface elements and inputs/outputs to the front of the board.
-- Replaces the DIN5 connector with 3.5mm TRS.
+- Replaces the DIN5 connector with only 3.5mm TRS to conserve space.
 - Adds more default sound presets.
 - Reduces some larger samples to free up code space.
 - Introduces MIDI-responsive velocity and pitch bend, with plans to support envelope control.
