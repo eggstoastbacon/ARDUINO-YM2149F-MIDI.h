@@ -6,10 +6,12 @@
  * Schematics: Soon.
  * Based on re-factored code by Dansfing / dansfing.uk
  * Updated PCB design and modifications for 2024 by crunchypotato for HobbyChop.
+ * Goal is to help others configure this chip for their own sound and use preferences.
  * OLED display not initially supported in this version but the pins are available on the PCB headers.
  * Replaced 2 samples for Channel 10 with smaller samples.
+ * Added example preset sounds for channel 8, 9, 11, 12, 13 and 14.
  * Added comments to playNote code.
- * Remapped velocity 1-127 to 64-127 and implemented velocity examples in MIDI CH. 1 and 4. 
+ * Remapped velocity 1-127 to 64-127 and implemented velocity examples in MIDI CH. 1, 2, 3 and 4. 
  * Reserved for future progress.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -393,7 +395,7 @@ void playNote(byte note, byte velo, byte chan) {
         cli(); // Disable interrupts
         send_data(0x00, LSB); // Send LSB to register 0x00
         send_data(0x01, MSB); // Send MSB to register 0x01
-        send_data(0x08, volume); // Set volume based on velocity
+        send_data(0x08, volume); // comment to disable volume based on velocity
         sei(); // Enable interrupts
         // Update display for Channel A
         u8x8.setFont(u8x8_font_chroma48medium8_r);
@@ -414,7 +416,7 @@ void playNote(byte note, byte velo, byte chan) {
         arpeggioCounter = 0; // Reset arpeggio counter
         send_data(0x02, LSB); // Send LSB to register 0x02
         send_data(0x03, MSB); // Send MSB to register 0x03
-        // send_data(0x09, volume); // Uncomment to set volume based on velocity
+        send_data(0x09, volume); // comment to disable volume based on velocity
         sei(); // Enable interrupts
         // Update display for Channel B
         u8x8.setFont(u8x8_font_chroma48medium8_r);
@@ -434,7 +436,7 @@ void playNote(byte note, byte velo, byte chan) {
         cli(); // Disable interrupts
         send_data(0x04, LSB); // Send LSB to register 0x04
         send_data(0x05, MSB); // Send MSB to register 0x05
-        // send_data(0x0A, volume); // Uncomment to set volume based on velocity
+        send_data(0x0A, volume); // comment to disable volume based on velocity
         sei(); // Enable interrupts
         // Update display for Channel C
         u8x8.setFont(u8x8_font_chroma48medium8_r);
