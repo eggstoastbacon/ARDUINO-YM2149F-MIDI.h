@@ -83,9 +83,9 @@ The code includes detailed comments to help you create custom presets. Code rela
 
 ## Presets (Each preset is on a different MIDI Channel)
 
-- CH. 1: Voices 1 **Voice(A)** (MIDI velocity enabled): **Default Voice**. Ch. 1-3 can be played concurrently.
-- CH. 2: Voices 1 **Voice(A)** (MIDI velocity enabled): **Default Voice**. Ch. 1-3 can be played concurrently.
-- CH. 3: Voices 1 **Voice(A)** (MIDI velocity enabled): **Default Voice**. Ch. 1-3 can be played concurrently.
+- CH. 1: Voices 1 **Voice(A)** (MIDI velocity enabled): **Default Voice**. Play concurrently with any preset with voices (B and C).
+- CH. 2: Voices 1 **Voice(B)** (MIDI velocity enabled): **Default Voice**. Play concurrently with any preset with voices (A and C).
+- CH. 3: Voices 1 **Voice(C)** (MIDI velocity enabled): **Default Voice**. Play concurrently with any preset with voices (A and B).
 - CH. 4: Voices 2 **Voices(A and B)** (MIDI velocity enabled): **Gritty / Modulated**. Play concurrently with any preset with voices (C).
 - CH. 5: Voices 3 **Voices(A, B and C)** (No MIDI velocity): **Gritty / Modulated**. Cannot play concurrently with other presets.
 - CH. 6: Voices 1 **Voice(A)** (No MIDI velocity): **Gritty / Horn-Like / Modulated**. Play concurrently with any preset with voices (B and C).
