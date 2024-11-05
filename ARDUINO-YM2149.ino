@@ -523,8 +523,8 @@ else if (chan == 4) {
     noteC = note; // Set the note for Channel C
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
     int periodA = (tp[note] - 12) * pitchBendFactor; // Retrieve the period for note A
-    int periodB = (tp[note] + detuneValue) * pitchBendFactor  ; // Apply detune for note B
-    int periodC = (tp[note] - detuneValue) * pitchBendFactor ; // Apply detune for note C
+    int periodB = (tp[note] * pitchBendFactor) + detuneValue; // Retrieve the period for note B
+    int periodC = tp[note] - detuneValue; // Retrieve the period for note C
 
     byte ALSB = (periodA & 0x00FF); // Get the LSB of period A
     byte AMSB = ((periodA >> 8) & 0x000F); // Get the MSB of period A
