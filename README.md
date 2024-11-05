@@ -54,6 +54,7 @@ Control Interface: It uses a simple data and address bus interface, making it re
 3. Run the Python script and copy the output.
 
 The script will generate 'PROGMEM const char' values and 'const int' length values for YM2149 code samples. You can paste these over existing values or create new ones. Keep in mind that samples must be short due to limited space.
+The code size cannot exceed 31.5 KB, the maximum code space for the ATMEGA328P.
 
 ## Usage
 
