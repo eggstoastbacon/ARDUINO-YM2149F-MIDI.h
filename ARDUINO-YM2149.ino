@@ -92,6 +92,11 @@ float pitchBendRange = 16384.0; // multiple of 8192.0, the smaller the more the 
 //velocity
 int velocityValue = 127;
 
+//envelop
+byte envelopeShape = 0;
+const byte envelopeShapes[] = {
+};
+
 //Fast pin switching macros
 #define CLR(x,y) (x&=(~(1<<y)))
 #define SET(x,y) (x|=(1<<y))
@@ -108,6 +113,8 @@ int velocityValue = 127;
 #define __RLED__ 0
 #define __GLED__ 1
 #define __BLED__ 2
+
+#define CLEAR(port, pin) (port &= ~(1 << pin))
 
 const int ledPin = 13;
 
@@ -334,13 +341,21 @@ void loop() {
     getSerialByte();
     getSerialByte();
   }
-  else if (commandMSB == 0xB0) // Control change
-  {
-    byte controller = getSerialByte();
-    byte value = getSerialByte();
+ else if (commandMSB == 0xB0) // Control change WIP
+  { 
     
-    if (controller == 0x01) setDetune(value);
-    if (controller == 0x07) setChannelVolume(value, midiChannel);
+    byte controlNumber = getSerialByte(); // Read the second byte (control number)
+    byte controlValue = getSerialByte();  // Read the third byte (value)
+    if (controlNumber == 1) {
+        // Map the mod wheel value (0-127) to the defined envelope shapes (0-10 for this example)
+        // You can adjust the mapping range based on the number of shapes you have
+        //int shapeIndex = map(controlValue, 0, 127, 0, sizeof(envelopeShapes) / sizeof(envelopeShapes[0]) - 1);
+        // envelopeShape = envelopeShapes[shapeIndex]; // Set the envelopeShape based on the mod wheel value// Adjust frequency based on pitch bend
+        // Calculate the period based on pitch bend value
+        //playNote(noteA, velocityValue, midiChannel, pitchBendValue, envelopeShape);
+        //playNote(noteB, velocityValue, midiChannel, pitchBendValue, envelopeShape);
+        //playNote(noteC, velocityValue, midiChannel, pitchBendValue, envelopeShape)
+  }
   }
   else if (commandMSB == 0xC0) // Program change
   {
@@ -352,6 +367,7 @@ void loop() {
   }
   else if (commandMSB == 0xE0) // Pitch bend
   { 
+    SET(__LEDPORT__, __LED__);
     byte pitchBendLSB = getSerialByte();
     byte pitchBendMSB = getSerialByte();
     pitchBendValue = ((pitchBendMSB << 7) | pitchBendLSB) - 8192; // Adjust to -8192 to +8191 range
@@ -361,6 +377,7 @@ void loop() {
         playNote(noteA, velocityValue, midiChannel, pitchBendValue);
         playNote(noteB, velocityValue, midiChannel, pitchBendValue);
         playNote(noteC, velocityValue, midiChannel, pitchBendValue);
+   CLEAR(__LEDPORT__, __LED__); 
   }
 }
 
