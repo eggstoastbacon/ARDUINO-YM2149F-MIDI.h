@@ -52,12 +52,12 @@ Control Interface: It uses a simple data and address bus interface, making it re
 
 ## Installation
 
-'ARDUINO-YM2149.ino' - for the hardware:
+**ARDUINO-YM2149.ino** - for the hardware:
 
 1. Clone this repository.
 2. Connect the USB-C cable to your computer and use the Arduino IDE set to Arduino Uno to program the chip with the .ino file.
 
-'ym2149-wave.py' - creating your own samples:
+**ym2149-wave.py** - creating your own samples:
 
 1. Prepare a short WAV sample using a program like Audacity.
 2. Modify the 'path to .wav' in the script to point to the location of your .wav file.
