@@ -587,7 +587,7 @@ else if (chan == 6) { // MIDI Channel 7
     send_data(0x08, 0x10); // Enable envelope mode
     send_data(0x0B, LSB); // Send LSB to register 0x0B
     send_data(0x0C, MSB); // Send MSB to register 0x0C
-    send_data(0x0D, 0b00001000); // Set attack and sustain
+    send_data(0x0D, 0b00001010); // Set attack and sustain
     sei(); // Enable interrupts
 
     // Update display for Channel A
