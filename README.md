@@ -103,7 +103,7 @@ The code includes detailed comments to help you create custom presets. Code rela
 - CH. 11: Voices 1 **Voices(A)** (No MIDI velocity): **Small Voice / Modem Tones**. Play concurrently with any preset with voices (B and C).
 - CH. 12: Voices 3 **Voices(A, B and C)** (No MIDI velocity): **Gritty / Great Bass / Modulation**. Cannot play concurrently with other presets.
 - CH. 13: Voices 3 **Voices(A, B and C)** (No MIDI velocity): **Heavy Modulation**. Cannot play concurrently with other presets.
-- CH. 14: Noise (MIDI velocity enabled): Will play noise and give every other channel with noise, to get rid of noise you will need to reset the device.
+- CH. 14: Noise (MIDI velocity enabled): Will play noise and give every other channel with noise, to get rid of noise reset the device.
 - CH. 15: Empty
 - CH. 16: Empty
 
