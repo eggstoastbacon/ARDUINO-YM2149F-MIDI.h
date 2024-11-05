@@ -85,6 +85,9 @@ boolean arpeggioFlipMe = false;
 
 byte defaultLevel = 10;
 
+//pitch bend
+float pitchBendRange = 16384.0; // multiple of 8192.0, the smaller the more the bend range.
+
 //Fast pin switching macros
 #define CLR(x,y) (x&=(~(1<<y)))
 #define SET(x,y) (x|=(1<<y))
@@ -230,25 +233,25 @@ void setup(){
   //say hello
   //This is the bleep played on power on.
       ////note/velo/channel
-playNote(78, 127, 1);  // F#5
+playNote(78, 127, 1, 0);  // F#5
 delay(30);             // Shorter delay for chiptune feel
-playNote(76, 127, 1);  // E5
+playNote(76, 127, 1, 0);  // E5
 delay(30);
-playNote(74, 127, 1);  // D5
+playNote(74, 127, 1, 0);  // D5
 delay(30);
-playNote(72, 127, 1);  // C5
+playNote(72, 127, 1, 0);  // C5
 delay(30);
-playNote(70, 127, 1);  // B4
+playNote(70, 127, 1, 0);  // B4
 delay(30);
-playNote(69, 127, 1);  // A4
+playNote(69, 127, 1, 0);  // A4
 delay(30);
-playNote(67, 127, 1);  // G4
+playNote(67, 127, 1, 0);  // G4
 delay(30);
-playNote(65, 127, 1);  // F4
+playNote(65, 127, 1, 0);  // F4
 delay(30);
-playNote(64, 127, 1);  // E4
+playNote(64, 127, 1, 0);  // E4
 delay(30);
-playNote(62, 127, 1);  // D4
+playNote(62, 127, 1, 0);  // D4
 delay(30);
 stopNote(62, 1);       // Stop D4       // Stop D4
 // playDigidrum(59, 127);// Sample
@@ -306,7 +309,7 @@ void loop() {
     if (velo != 0 && midiChannel == 0x09)
       playDigidrum(note, velo);
     else if (velo != 0)
-      playNote(note, velo, midiChannel);
+      playNote(note, velo, midiChannel, 0);
     else if (velo == 0)
       stopNote(note, midiChannel);
   }
@@ -335,6 +338,17 @@ void loop() {
   {
     byte pitchBendLSB = getSerialByte();
     byte pitchBendMSB = getSerialByte();
+            // Combine LSB and MSB to create the 14-bit pitch bend value
+        int pitchBendValue = (pitchBendMSB << 7) | pitchBendLSB;
+
+        // Center the pitch bend value around 8192
+        pitchBendValue -= 8192; // Adjust to range of -8192 to +8191
+        pitchBendValue = -pitchBendValue; // Make it right side up
+        // Now you can use pitchBendValue as needed
+        // For example, you might want to replay the note with the new pitch bend value
+        playNote(noteA, 127, midiChannel, pitchBendValue);
+        playNote(noteB, 127, midiChannel, pitchBendValue);
+        playNote(noteC, 127, midiChannel, pitchBendValue);
   }
 }
 
@@ -365,10 +379,12 @@ void setChannelVolume(byte value, byte chan)
 }
 
 // MIDI Note and Volume Playback
-void playNote(byte note, byte velo, byte chan) {
+void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
+
     // Check if the note value is within the valid range
     if (note < 24) return; // Invalid note, exit function
-    SET(__LEDPORT__,__LED__);
+    SET(__LEDPORT__, __LED__);
+
     // Ensure velocity is within the valid range
     if (velo < 0) {
         velo = 0; // Ensure velocity does not go below 0
@@ -387,14 +403,18 @@ void playNote(byte note, byte velo, byte chan) {
     // Handle MIDI Channel 1
     if (chan == 0) {
         noteA = note; // Set the note for Channel A
-        periodA = tp[note]; // Retrieve the period for the note
+
+        float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
+          // Calculate the period based on pitch bend value
+        periodA = tp[note] * pitchBendFactor; // Adjust the period based on pitch bend
         byte LSB = (periodA & 0x00FF); // Get the LSB of the period
         byte MSB = ((periodA & 0x0F00) >> 8); // Get the MSB of the period
         cli(); // Disable interrupts
         send_data(0x00, LSB); // Send LSB to register 0x00
         send_data(0x01, MSB); // Send MSB to register 0x01
-        send_data(0x08, volume); // comment to disable volume based on velocity
+        send_data(0x08, volume); // Send volume based on velocity
         sei(); // Enable interrupts
+
         // Update display for Channel A
         u8x8.setFont(u8x8_font_chroma48medium8_r);
         u8x8.drawString(0, 0, "[1]A");
@@ -406,8 +426,9 @@ void playNote(byte note, byte velo, byte chan) {
     }
     // Handle MIDI Channel 2
     else if (chan == 1) {
-        noteB = note; // Set the note for Channel B
-        periodB = tp[note]; // Retrieve the period for the note
+        noteB = note; // Set the note for Channel B       // Calculate the period based on pitch bend value
+        float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
+        periodB = tp[note] * pitchBendFactor; 
         byte LSB = (periodB & 0x00FF); // Get the LSB of the period
         byte MSB = ((periodB >> 8) & 0x000F); // Get the MSB of the period
         cli(); // Disable interrupts
@@ -428,7 +449,8 @@ void playNote(byte note, byte velo, byte chan) {
     // Handle MIDI Channel 3
     else if (chan == 2) {
         noteC = note; // Set the note for Channel C
-        periodC = tp[note]; // Retrieve the period for the note
+        float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
+        periodC = tp[note] * pitchBendFactor; // Retrieve the period for the note
         byte LSB = (periodC & 0x00FF); // Get the LSB of the period
         byte MSB = ((periodC >> 8) & 0x000F); // Get the MSB of the period
         cli(); // Disable interrupts
@@ -450,8 +472,9 @@ void playNote(byte note, byte velo, byte chan) {
         if (mm3 == 0) {
             noteA = note; // Set the note for Channel A
             noteB = note; // Set the note for Channel B
-            periodA = tp[note]; // Retrieve the period for note A
-            periodB = tp[note] + detuneValue; // Apply detune for note B
+            float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
+            periodA = tp[note] * pitchBendFactor; // Retrieve the period for note A
+            periodB = tp[note] + detuneValue * pitchBendFactor; // Apply detune for note B
             
             byte ALSB = (periodA & 0x00FF); // Get the LSB of period A
             byte AMSB = ((periodA >> 8) & 0x000F); // Get the MSB of period A
@@ -481,10 +504,10 @@ else if (chan == 4) {
     noteA = note; // Set the note for Channel A
     noteB = note; // Set the note for Channel B
     noteC = note; // Set the note for Channel C
-
-    periodA = tp[note - 12]; // Retrieve the period for note A
-    periodB = tp[note] + detuneValue; // Apply detune for note B
-    periodC = tp[note] - detuneValue; // Apply detune for note C
+    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
+    periodA = tp[note - 12]  * pitchBendFactor; // Retrieve the period for note A
+    periodB = tp[note] + detuneValue * pitchBendFactor; // Apply detune for note B
+    periodC = tp[note] - detuneValue * pitchBendFactor; // Apply detune for note C
 
     byte ALSB = (periodA & 0x00FF); // Get the LSB of period A
     byte AMSB = ((periodA >> 8) & 0x000F); // Get the MSB of period A
@@ -514,7 +537,8 @@ else if (chan == 4) {
 }
 else if (chan == 5) { // MIDI Channel 6
     noteA = note;
-    periodA = envTp[note];
+    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
+    periodA = envTp[note] * pitchBendFactor;
 
     byte LSB = (periodA & 0x00FF); // Get LSB of period A
     byte MSB = ((periodA >> 8) & 0x000F); // Get MSB of period A
@@ -536,7 +560,8 @@ else if (chan == 5) { // MIDI Channel 6
 }
 else if (chan == 6) { // MIDI Channel 7
     noteA = note;
-    periodA = envTp[note];
+    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
+    periodA = envTp[note]  * pitchBendFactor;
 
     byte LSB = (periodA & 0x00FF); // Get LSB of period A
     byte MSB = ((periodA >> 8) & 0x000F); // Get MSB of period A
@@ -559,8 +584,9 @@ else if (chan == 6) { // MIDI Channel 7
 else if (chan == 7) { // MIDI Channel 8
     noteA = note;
     noteB = note;
-    periodA = envTp[note];
-    periodB = (tp[note - 12] + detuneValue) << 1; // Apply detune and shift
+    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
+    periodA = envTp[note]  * pitchBendFactor;
+    periodB = ((tp[note - 12] + detuneValue) << 1)* pitchBendFactor ; // Apply detune and shift
 
     byte LSB = (periodA & 0x00FF); // Get LSB of period A
     byte MSB = ((periodA >> 8) & 0x000F); // Get MSB of period A
@@ -587,8 +613,9 @@ else if (chan == 7) { // MIDI Channel 8
 else if (chan == 8) { // MIDI Channel 9
     noteA = note;
     noteB = note;
-    periodA = envTp[note];
-    periodB = tp[note - 24]; // Retrieve period for note B
+    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
+    periodA = envTp[note]  * pitchBendFactor;
+    periodB = tp[note - 24]  * pitchBendFactor; // Retrieve period for note B
 
     byte LSB = (periodA & 0x00FF); // Get LSB of period A
     byte MSB = ((periodA >> 8) & 0x000F); // Get MSB of period A
@@ -614,8 +641,8 @@ else if (chan == 8) { // MIDI Channel 9
 }
 else if (chan == 10) { // MIDI Channel 11 Clicks and Pops
     noteA = note;
-    periodA = tp[note - 12];
-
+    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
+    periodA = tp[note - 12]  * pitchBendFactor;
     byte LSB = (periodA & 0x00FF); // Get LSB of period A
     byte MSB = ((periodA & 0x0F00) >> 8); // Get MSB of period A
 
@@ -639,10 +666,10 @@ else if (chan == 11) // MIDI Channel 12
     noteA = note; // Set note for Channel A
     noteB = note; // Set note for Channel B
     noteC = note; // Set note for Channel C
-    
-    periodA = tp[note - 12]; // Get period for note A
-    periodB = tp[note + 12]; // Get period for note B
-    periodC = tp[note];      // Get period for note C
+    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
+    periodA = tp[note - 12]  * pitchBendFactor; // Get period for note A
+    periodB = tp[note + 12]  * pitchBendFactor; // Get period for note B
+    periodC = tp[note]  * pitchBendFactor;      // Get period for note C
     
     byte ALSB = (periodA & 0x00FF); // Get LSB of period A
     byte AMSB = ((periodA >> 8) & 0x000F); // Get MSB of period A
@@ -675,10 +702,10 @@ else if (chan == 12) // MIDI Channel 13
     noteA = note; // Set note for Channel A
     noteB = note; // Set note for Channel B
     noteC = note; // Set note for Channel C
-    
-    periodA = tp[note - 12]; // Get period for note A    
-    periodB = tp[note - 12]; // Get period for note B
-    periodC = tp[note];      // Get period for note C
+    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
+    periodA = tp[note - 12] * pitchBendFactor; // Get period for note A    
+    periodB = tp[note - 12] * pitchBendFactor; // Get period for note B
+    periodC = tp[note] * pitchBendFactor;      // Get period for note C
     
     byte ALSB = (periodA & 0x00FF); // Get LSB of period A
     byte AMSB = ((periodA >> 8) & 0x000F); // Get MSB of period A
@@ -709,8 +736,8 @@ else if (chan == 12) // MIDI Channel 13
 else if (chan == 13) // MIDI Channel 14
 {
     noteC = note; // Set note for Channel C
-    periodC = envTp[note]; // Get period for note C
-    
+    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
+    periodC = envTp[note] * pitchBendFactor; // Get period for note C
     byte LSB = (periodC & 0x00FF); // Get LSB of period C
     byte MSB = ((periodC >> 8) & 0x000F); // Get MSB of period C
 
