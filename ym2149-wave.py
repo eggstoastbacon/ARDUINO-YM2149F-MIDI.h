@@ -1,6 +1,8 @@
 import numpy as np
 from scipy.io import wavfile
 
+# If your sample output is too slow or too fast try exporting your .wav file at different frequencies.
+
 def convert_pcm_to_array(filename, output_range=(0, 15)):
     # Step 1: Read the PCM file (assuming it's a WAV file)
     sample_rate, data = wavfile.read(filename)
@@ -24,3 +26,5 @@ def convert_pcm_to_array(filename, output_range=(0, 15)):
 
 # Use the function
 convert_pcm_to_array('path to .wav')
+
+# Outputs 'PROGMEM const char' values and 'const int' length value for YM2149 code samples.
