@@ -90,18 +90,18 @@ The code includes detailed comments to help you create custom presets. Code rela
 
 ## Presets (Each preset is on a different MIDI Channel)
 
-- CH. 1: Voices 1 **Voice(A)** (MIDI velocity enabled): **Default Voice**. Play concurrently with any preset with voices (B and C).
-- CH. 2: Voices 1 **Voice(B)** (MIDI velocity enabled): **Default Voice**. Play concurrently with any preset with voices (A and C).
-- CH. 3: Voices 1 **Voice(C)** (MIDI velocity enabled): **Default Voice**. Play concurrently with any preset with voices (A and B).
+- CH. 1: Voices 1 **Voices(A)** (MIDI velocity enabled): **Default Voice**. Play concurrently with any preset with voices (B and C).
+- CH. 2: Voices 1 **Voices(B)** (MIDI velocity enabled): **Default Voice**. Play concurrently with any preset with voices (A and C).
+- CH. 3: Voices 1 **Voices(C)** (MIDI velocity enabled): **Default Voice**. Play concurrently with any preset with voices (A and B).
 - CH. 4: Voices 2 **Voices(A and B)** (MIDI velocity enabled): **Gritty / Modulated**. Play concurrently with any preset with voices (C).
 - CH. 5: Voices 3 **Voices(A, B and C)** (No MIDI velocity): **Gritty / Modulated**. Cannot play concurrently with other presets.
-- CH. 6: Voices 1 **Voice(A)** (No MIDI velocity): **Gritty / Horn-Like / Modulated**. Play concurrently with any preset with voices (B and C).
-- CH. 7: Voices 1 **Voice(A)** (No MIDI velocity): **Gritty / Detuned**. Play concurrently with any preset with voices (B and C).
-- CH. 8: Voices 2 **Voice(A and B)** (No MIDI velocity): **Gritty / Modulated / Great Bass**. Play concurrently with any preset with voices (C).
-- CH. 9: Voices 2 **Voice(A and B)** (No MIDI velocity): **Gritty / Great Bass**. Play concurrently with any preset with voices (C).
+- CH. 6: Voices 1 **Voices(A)** (No MIDI velocity): **Gritty / Horn-Like / Modulated**. Play concurrently with any preset with voices (B and C).
+- CH. 7: Voices 1 **Voices(A)** (No MIDI velocity): **Gritty / Detuned**. Play concurrently with any preset with voices (B and C).
+- CH. 8: Voices 2 **Voices(A and B)** (No MIDI velocity): **Gritty / Modulated / Great Bass**. Play concurrently with any preset with voices (C).
+- CH. 9: Voices 2 **Voices(A and B)** (No MIDI velocity): **Gritty / Great Bass**. Play concurrently with any preset with voices (C).
 - CH. 10: Drum Samples *See Note to Sample Map. Play concurrently with any preset with voices (A, B and C).
-- CH. 11: Voices 1 **Voice(A)** (No MIDI velocity): **Small Voice / Modem Tones**. Play concurrently with any preset with voices (B and C).
-- CH. 12: Voices 3 **Voice(A, B and C)** (No MIDI velocity): **Gritty / Great Bass / Modulation**. Cannot play concurrently with other presets.
+- CH. 11: Voices 1 **Voices(A)** (No MIDI velocity): **Small Voice / Modem Tones**. Play concurrently with any preset with voices (B and C).
+- CH. 12: Voices 3 **Voices(A, B and C)** (No MIDI velocity): **Gritty / Great Bass / Modulation**. Cannot play concurrently with other presets.
 - CH. 13: Voices 3 **Voices(A, B and C)** (No MIDI velocity): **Heavy Modulation**. Cannot play concurrently with other presets.
 - CH. 14: Noise (MIDI velocity enabled): Will play noise and give every other channel with noise, to get rid of noise you will need to reset the device.
 - CH. 15: Empty
