@@ -94,7 +94,7 @@ The code includes detailed comments to help you create custom presets. Code rela
 - CH. 9: Voices 2 **Voice(A and B)** (No MIDI velocity): **Gritty / Great Bass**. Play concurrently with any preset with voices (C).
 - CH. 10: Drum Samples *See Note to Sample Map. Play concurrently with any preset with voices (A, B and C).
 
-*Note Sample Map
+### *Note Sample Map
 
 Note-MIDI Value
 
