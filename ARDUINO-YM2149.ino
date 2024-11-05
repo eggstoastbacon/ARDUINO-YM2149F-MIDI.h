@@ -12,7 +12,7 @@
  * Added example preset sounds for channel 8, 9, 11, 12, 13 and 14.
  * Added comments to playNote code.
  * Remapped velocity 1-127 to 64-127 and implemented velocity examples in MIDI CH. 1, 2, 3 and 4. 
- * Reserved for future progress.
+ * Added back blinky LED code.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -990,7 +990,7 @@ void resetYM()
 
 void send_data(unsigned char address, unsigned char data)
 {
-
+  SET(__LEDPORT__,__LED__);
   boolean value[8];
   
   //put address in a 8-bit array
