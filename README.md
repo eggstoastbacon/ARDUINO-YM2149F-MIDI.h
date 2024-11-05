@@ -1,4 +1,4 @@
-![Project Logo](ym2149f-logo.png) <!-- Logo soon -->
+![Project Logo](ym2149f-logo.png)
 
 ## Project Details
 
@@ -17,6 +17,8 @@ This project re-designs the hardware and software of the YM2149F for Arduino, in
 - Open source board gerber (coming soon).
 - Parts list (coming soon).
 - All chips should be socketed for easy replacement.
+
+![Board Layout](ym2149f-board-layout.png)
 
 ## Project History
 
