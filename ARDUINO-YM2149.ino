@@ -13,6 +13,8 @@
  * Added comments to playNote code.
  * Remapped velocity 1-127 to 64-127 and implemented velocity examples in MIDI CH. 1, 2, 3 and 4. 
  * Added back blinky LED code.
+ * 
+ * Additional changes will be noted in commit comments.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
