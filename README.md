@@ -80,6 +80,9 @@ The code includes detailed comments to help you create custom presets. Code rela
 ## Contacts and Resources
 
 Discord: https://discord.gg/32wfnbkCtE
+
 Dansfing's builds and code: https://dansfing.uk
+
 Yukimizake build and code: https://electronicfields.wordpress.com/2012/04/09/ym2149-sound-generator-arduino-fast-pin-switching
+
 Lab Rat Warfare: https://www.youtube.com/@LabRatWarfare
