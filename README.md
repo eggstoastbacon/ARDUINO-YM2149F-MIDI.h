@@ -101,7 +101,7 @@ The code includes detailed comments to help you create custom presets. Code rela
 - CH. 9: Voices 2 **Voice(A and B)** (No MIDI velocity): **Gritty / Great Bass**. Play concurrently with any preset with voices (C).
 - CH. 10: Drum Samples *See Note to Sample Map. Play concurrently with any preset with voices (A, B and C).
 - CH. 11: Voices 1 **Voice(A)** (No MIDI velocity): **Small Voice / Modem Tones**. Play concurrently with any preset with voices (B and C).
-- CH. 12: Voices 2 **Voice(A, B and C)** (No MIDI velocity): **Gritty / Great Bass / Modulation**. Cannot play concurrently with other presets.
+- CH. 12: Voices 3 **Voice(A, B and C)** (No MIDI velocity): **Gritty / Great Bass / Modulation**. Cannot play concurrently with other presets.
 - CH. 13: Voices 3 **Voices(A, B and C)** (No MIDI velocity): **Heavy Modulation**. Cannot play concurrently with other presets.
 - CH. 14: Noise (MIDI velocity enabled): Will play noise and give every other channel with noise, to get rid of noise you will need to reset the device.
 - CH. 15: Empty
