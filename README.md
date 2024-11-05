@@ -4,13 +4,16 @@
 
 This project re-designs the hardware and software of the YM2149F for Arduino, inspired by Dansfing’s 2.1a version, which is driven by an ATMEGA328P chip and includes a CH430e TTL for USB programming. The original code was initially developed by Yukimizake, whose work inspired Dansfing. This version introduces several key changes:
 
-Relocates all user interface elements and inputs/outputs to the front of the board.
-Replaces the DIN5 connector with 3.5mm TRS.
-Adds more default sound presets.
-Reduces some larger samples to free up code space.
-Introduces MIDI-responsive velocity and pitch bend, with plans to support envelope control.
-Simplifies the process for converting and adding new samples.
-Backwards compatibility with Dansfing 2.1a minus the display board.
+- Relocates all user interface elements and inputs/outputs to the front of the board.
+- Replaces the DIN5 connector with 3.5mm TRS.
+- Adds more default sound presets.
+- Reduces some larger samples to free up code space.
+- Introduces MIDI-responsive velocity and pitch bend, with plans to support envelope control.
+- Simplifies the process for converting and adding new samples.
+- Backwards compatibility with Dansfing 2.1a minus the display board.
+- Functional orientation will be horizontal.
+- 3D printed bottom shell.
+- All chips should be socketed for easy replacement.
 
 ## Project History
 
@@ -81,6 +84,8 @@ The code includes detailed comments to help you create custom presets. Code rela
 Discord: https://discord.gg/32wfnbkCtE
 
 Dansfing's builds and code: https://dansfing.uk
+
+Dansfing USB MIDI YM2149, simple to build. (You may be able to get a pre-built USB MIDI for sale from Dansfing): https://dansfing.uk/ym2149f.php
 
 Yukimizake build and code: https://electronicfields.wordpress.com/2012/04/09/ym2149-sound-generator-arduino-fast-pin-switching
 
