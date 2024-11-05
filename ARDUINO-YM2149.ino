@@ -89,6 +89,9 @@ byte defaultLevel = 10;
 int pitchBendValue = 0;
 float pitchBendRange = 16384.0; // multiple of 8192.0, the smaller the more the bend range.
 
+//velocity
+int velocityValue = 127;
+
 //Fast pin switching macros
 #define CLR(x,y) (x&=(~(1<<y)))
 #define SET(x,y) (x|=(1<<y))
@@ -306,12 +309,24 @@ void loop() {
   {
     byte note = getSerialByte();
     byte velo = getSerialByte();
+    if (velo < 0) {
+        velo = 0; // Ensure velocity does not go below 0
+    } else if (velo > 127) {
+        velo = 127; // Ensure velocity does not exceed 127
+    }
+    // Remap the velocity to the desired range
+    if (velo <= 1) {
+        velo = 64; // Map 0-1 to 64
+    } else {
+        velo = 64 + (velo / 2); // Map 2-127 to 65-127
+    }
+    velocityValue = velo;
     // Ifi ts Midi channel 10 we trigger samples using the playDigidrum(); function. 
     if (velo != 0 && midiChannel == 0x09)
       playDigidrum(note, velo);
-    else if (velo != 0)
-      playNote(note, velo, midiChannel, 0);
-    else if (velo == 0)
+    else if (velo != 64)
+    playNote(note, velo, midiChannel, pitchBendValue);
+    else if (velo == 64)
       stopNote(note, midiChannel);
   }
   else if (commandMSB == 0xA0) // Key pressure
@@ -336,16 +351,16 @@ void loop() {
     byte pressure = getSerialByte();
   }
   else if (commandMSB == 0xE0) // Pitch bend
-  {
+  { 
     byte pitchBendLSB = getSerialByte();
     byte pitchBendMSB = getSerialByte();
     pitchBendValue = ((pitchBendMSB << 7) | pitchBendLSB) - 8192; // Adjust to -8192 to +8191 range
     pitchBendValue = -pitchBendValue; // Invert to correct direction
         // Now you can use pitchBendValue as needed
         // For example, you might want to replay the note with the new pitch bend value
-        playNote(noteA, 127, midiChannel, pitchBendValue);
-        playNote(noteB, 127, midiChannel, pitchBendValue);
-        playNote(noteC, 127, midiChannel, pitchBendValue);
+        playNote(noteA, velocityValue, midiChannel, pitchBendValue);
+        playNote(noteB, velocityValue, midiChannel, pitchBendValue);
+        playNote(noteC, velocityValue, midiChannel, pitchBendValue);
   }
 }
 
@@ -383,18 +398,7 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
     SET(__LEDPORT__, __LED__);
 
     // Ensure velocity is within the valid range
-    if (velo < 0) {
-        velo = 0; // Ensure velocity does not go below 0
-    } else if (velo > 127) {
-        velo = 127; // Ensure velocity does not exceed 127
-    }
 
-    // Remap the velocity to the desired range
-    if (velo <= 1) {
-        velo = 64; // Map 0-1 to 64
-    } else {
-        velo = 64 + (velo / 2); // Map 2-127 to 65-127
-    }
     byte volume = map(velo, 0, 127, 0, 15); // Scale velocity to volume range (0-15)
 
     // Handle MIDI Channel 1
