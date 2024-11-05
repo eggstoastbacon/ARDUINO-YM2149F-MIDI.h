@@ -12,7 +12,8 @@ This project re-designs the hardware and software of the YM2149F for Arduino, in
 - Simplifies the process for converting and adding new samples.
 - Backwards compatibility with Dansfing 2.1a minus the display board.
 - Functional orientation will be horizontal.
-- 3D printed bottom shell.
+- 3D printed bottom shell (will be open source when it is done).
+- Open source board gerber (coming soon).
 - All chips should be socketed for easy replacement.
 
 ## Project History
@@ -78,6 +79,8 @@ The code includes detailed comments to help you create custom presets. Code rela
 - **4 bit Samples**: Includes five short drum samples on MIDI Channel 10, with an option to add or replace them using the included Python script.
 
 - **Programming and MIDI Mode**: Use the toggle switch to switch between MIDI mode and programming mode. Programming mode is for flashing new code.
+
+##
 
 ## Contacts and Resources
 
