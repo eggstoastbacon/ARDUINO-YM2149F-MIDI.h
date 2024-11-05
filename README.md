@@ -19,6 +19,7 @@ This project re-designs the hardware and software of the YM2149F for Arduino, in
 - All chips should be socketed for easy replacement.
 
 PCB Layout:
+
 ![Board Layout](ym2149f-board-layout.png)
 
 ## Project History
