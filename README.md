@@ -90,6 +90,25 @@ The code includes detailed comments to help you create custom presets. Code rela
 - CH. 5: Voices 3 **Voices(A, B and C)** (No MIDI velocity): **Gritty / Modulated**. Cannot play concurrently with other presets.
 - CH. 6: Voices 1 **Voice(A)** (No MIDI velocity): **Gritty / Horn-Like / Modulated**. Play concurrently with any preset with voices (B and C).
 - CH. 7: Voices 1 **Voice(A)** (No MIDI velocity): **Gritty / Detuned**. Play concurrently with any preset with voices (B and C).
+- CH. 8: Voices 2 **Voice(A and B)** (No MIDI velocity): **Gritty / Modulated / Great Bass**. Play concurrently with any preset with voices (C).
+- CH. 9: Voices 2 **Voice(A and B)** (No MIDI velocity): **Gritty / Great Bass**. Play concurrently with any preset with voices (C).
+- CH. 10: Drum Samples *See Note to Sample Map. Play concurrently with any preset with voices (A, B and C).
+
+*Note Sample Map
+
+Note-MIDI Value
+
+C3-60
+
+C#3-61
+
+D3-62
+
+D#3-63
+
+E3-64
+
+F3-65
 
 ## Contacts and Resources
 
