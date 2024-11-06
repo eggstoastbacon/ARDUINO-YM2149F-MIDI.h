@@ -91,11 +91,13 @@ float pitchBendRange = 16384.0; // multiple of 8192.0, the smaller the more the 
 
 //velocity
 int velocityValue = 127;
-
+int velocityStatus = 0;
 //envelop
 byte envelopeShape = 0;
 const byte envelopeShapes[] = {
 };
+
+int controlValue4;
 
 //Fast pin switching macros
 #define CLR(x,y) (x&=(~(1<<y)))
@@ -314,20 +316,34 @@ void loop() {
   }
   else if (commandMSB == 0x90) //Note on
   {
-    byte note = getSerialByte();
-    byte velo = getSerialByte();
-    if (velo < 0) {
-        velo = 0; // Ensure velocity does not go below 0
-    } else if (velo > 127) {
-        velo = 127; // Ensure velocity does not exceed 127
-    }
-    // Remap the velocity to the desired range
-    if (velo <= 1) {
-        velo = 64; // Map 0-1 to 64
-    } else {
-        velo = 64 + (velo / 2); // Map 2-127 to 65-127
-    }
-    velocityValue = velo;
+byte note = getSerialByte();
+byte velo = getSerialByte();
+
+// Ensure velocity is within the valid range (0-127)
+if (velo < 0) {
+    velo = 0; // Ensure velocity does not go below 0
+} else if (velo > 127) {
+    velo = 127; // Ensure velocity does not exceed 127
+}
+
+// Remap the velocity to the desired range
+//if (velo <= 1) {
+//    velo = 64; // Map 0-1 to 64
+//} else {
+//    velo = 64 + (velo / 2); // Map 2-127 to 65-127
+//}
+
+// Apply controlValue4 adjustment (1 = most sensitive, 127 = least sensitive)
+if (controlValue4 == 0) {
+    velo = 127; // Full velocity if CC4 is 0
+} else {
+    // Rescale the velocity based on controlValue4
+    // If controlValue4 is 1 (most sensitive), velocity will closely match the input
+    // If controlValue4 is 127 (least sensitive), velocity will be less sensitive
+    velo = map(velo, 0, 127, map(controlValue4, 127, 1, 64, 127), 127);
+}
+
+velocityValue = velo;  // Store the final velocity value
     // Ifi ts Midi channel 10 we trigger samples using the playDigidrum(); function. 
     if (velo != 0 && midiChannel == 0x09)
       playDigidrum(note, velo);
@@ -335,26 +351,19 @@ void loop() {
     playNote(note, velo, midiChannel, pitchBendValue);
     else if (velo == 64)
       stopNote(note, midiChannel);
-  }
+  } 
   else if (commandMSB == 0xA0) // Key pressure
   {
     getSerialByte();
     getSerialByte();
   }
- else if (commandMSB == 0xB0) // Control change WIP
+ else if (command >= 0xB0 && command <= 0xBF) // Control change WIP
   { 
     
     byte controlNumber = getSerialByte(); // Read the second byte (control number)
     byte controlValue = getSerialByte();  // Read the third byte (value)
-    if (controlNumber == 1) {
-        // Map the mod wheel value (0-127) to the defined envelope shapes (0-10 for this example)
-        // You can adjust the mapping range based on the number of shapes you have
-        //int shapeIndex = map(controlValue, 0, 127, 0, sizeof(envelopeShapes) / sizeof(envelopeShapes[0]) - 1);
-        // envelopeShape = envelopeShapes[shapeIndex]; // Set the envelopeShape based on the mod wheel value// Adjust frequency based on pitch bend
-        // Calculate the period based on pitch bend value
-        //playNote(noteA, velocityValue, midiChannel, pitchBendValue, envelopeShape);
-        //playNote(noteB, velocityValue, midiChannel, pitchBendValue, envelopeShape);
-        //playNote(noteC, velocityValue, midiChannel, pitchBendValue, envelopeShape)
+  if (controlNumber == 4) {
+  controlValue4 = controlValue;
   }
   }
   else if (commandMSB == 0xC0) // Program change
@@ -413,9 +422,7 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
     // Check if the note value is within the valid range
     if (note < 24) return; // Invalid note, exit function
     SET(__LEDPORT__, __LED__);
-
     // Ensure velocity is within the valid range
-
     byte volume = map(velo, 0, 127, 0, 15); // Scale velocity to volume range (0-15)
 
     // Handle MIDI Channel 1
@@ -540,6 +547,9 @@ else if (chan == 4) {
     send_data(0x03, BMSB); // Send MSB of period B to register 0x03
     send_data(0x04, CLSB); // Send LSB of period C to register 0x04
     send_data(0x05, CMSB); // Send MSB of period C to register 0x05
+    send_data(0x08, volume); // Set volume based on velocity for Channel A
+    send_data(0x09, volume); // Set volume based on velocity for Channel B
+    send_data(0x0A, volume); // Set volume based on velocity for Channel C
     sei(); // Enable interrupts
 
     // Update display for Channel ABC
@@ -614,6 +624,7 @@ else if (chan == 7) { // MIDI Channel 8
     send_data(0x02, BLSB); // Send LSB of period B
     send_data(0x03, BMSB); // Send MSB of period B
     send_data(0x08, 0x10); // Enable envelope mode
+    send_data(0x09, volume); // Enable envelope mode
     send_data(0x0B, LSB); // Send LSB of period A
     send_data(0x0C, MSB); // Send MSB of period A
     send_data(0x0D, 0b00001100); // Set attack and sustain
@@ -643,6 +654,7 @@ else if (chan == 8) { // MIDI Channel 9
     send_data(0x02, BLSB); // Send LSB of period B
     send_data(0x03, BMSB); // Send MSB of period B
     send_data(0x08, 0x10); // Enable envelope mode
+    send_data(0x09, volume); // Enable envelope mode
     send_data(0x0B, LSB); // Send LSB of period A
     send_data(0x0C, MSB); // Send MSB of period A
     send_data(0x0D, 0b00001110); // Set attack and sustain
@@ -704,6 +716,7 @@ else if (chan == 11) // MIDI Channel 12
     send_data(0x01, AMSB); // Send MSB of period A
     send_data(0x04, CLSB); // Send LSB of period C
     send_data(0x05, CMSB); // Send MSB of period C
+    
     sei(); // Enable interrupts
 
     // Update display for Channel ABC
