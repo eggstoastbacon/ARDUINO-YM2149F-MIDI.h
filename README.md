@@ -89,8 +89,10 @@ The code includes detailed comments to help you create custom presets. Code rela
 - **Programming and MIDI Mode**: Use the toggle switch to switch between MIDI mode and programming mode. Programming mode is for flashing new code.
 
 ## CC
-Pitch Wheel - Putch Bend
+Pitch Wheel - Pitch Bend
+
 CC4 - Velocity Sensitivity, 0 = Off, 1 - 127 Adjust Range (1 has the least sensitivity)
+
 
 ## Presets (Each preset is on a different MIDI Channel)
 
