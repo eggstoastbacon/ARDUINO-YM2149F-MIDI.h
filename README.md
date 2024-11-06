@@ -91,6 +91,8 @@ The code includes detailed comments to help you create custom presets. Code rela
 ## CC
 Pitch Wheel - Pitch Bend
 
+CC1 - Detune +-64
+
 CC4 - Velocity Sensitivity, 0 = Off, 1 - 127 Adjust Range (1 has the least sensitivity)
 
 
