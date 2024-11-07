@@ -1,5 +1,5 @@
 /*
- * Arduino YM2149 MIDI Synth v0.7
+ * Arduino YM2149 MIDI Synth v0.5
  * 
  * Original code developed by yukimizake.
  * Video demonstration: Soon.
@@ -96,6 +96,10 @@ byte pattern1[] = {0, 7, 12};          // Up
 byte pattern2[] = {12, 7, 0};          // Down
 byte pattern3[] = {0, 12, 7, 0};       // Up and down
 byte pattern4[] = {0, 4, 7, 12, 7};    // Custom pattern
+byte pattern5[] = {0, 4, 7, 12};       // Up with a pause on 4th
+byte pattern6[] = {12, 4, 7, 0};       // Down with a pause on 4th
+byte pattern7[] = {0, 7, 4, 12, 7};    // Up with a twist on 4th and 7th
+byte pattern8[] = {0, 12, 4, 7, 12};   // Up and down with a full octave spread
 
 byte* currentPattern = pattern1; // Pointer to the currently active pattern
 byte arpeggioLength = sizeof(pattern1); // Length of the active pattern
@@ -381,23 +385,39 @@ velocityValue = velo;  // Store the final velocity value
   }
   if (controlNumber == 5) {
     controlValue5 = controlValue; }
-  if (controlNumber == 6) { 
+if (controlNumber == 6) { 
     switch (controlValue) {
-        case 0 ... 31:
+        case 0 ... 15:
             currentPattern = pattern1;
             arpeggioLength = sizeof(pattern1);
             break;
-        case 32 ... 63:
+        case 16 ... 31:
             currentPattern = pattern2;
             arpeggioLength = sizeof(pattern2);
             break;
-        case 64 ... 95:
+        case 32 ... 47:
             currentPattern = pattern3;
             arpeggioLength = sizeof(pattern3);
             break;
-        case 96 ... 127:
+        case 48 ... 63:
             currentPattern = pattern4;
             arpeggioLength = sizeof(pattern4);
+            break;
+        case 64 ... 79:
+            currentPattern = pattern5;
+            arpeggioLength = sizeof(pattern5);
+            break;
+        case 80 ... 95:
+            currentPattern = pattern6;
+            arpeggioLength = sizeof(pattern6);
+            break;
+        case 96 ... 111:
+            currentPattern = pattern7;
+            arpeggioLength = sizeof(pattern7);
+            break;
+        case 112 ... 127:
+            currentPattern = pattern8;
+            arpeggioLength = sizeof(pattern8);
             break;
     }
 }
