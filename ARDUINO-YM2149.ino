@@ -8,8 +8,6 @@
  * Updated PCB design and modifications for 2024 by crunchypotato for HobbyChop.
  * OLED display not initially supported in this version but the pins are available on the PCB headers.
  * Replaced 2 samples for Channel 10 with smaller samples.
- * Added comments to playNote code.
- * Remapped velocity 1-127 to 64-127 and implemented velocity examples in MIDI CH. 1 and 4. 
  * Future progress will be in commit messages.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,10 +27,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <Arduino.h>
-#include <U8x8lib.h>
-
-//U8X8_SSD1306_128X64_NONAME_HW_I2C u8x8(/* reset=*/ U8X8_PIN_NONE);         
-U8X8_SH1106_128X64_NONAME_HW_I2C u8x8(/* reset=*/ U8X8_PIN_NONE);
 
 //Port settings
 const int ad0 = 8;
@@ -124,12 +118,6 @@ int controlValue6;
 #define __LEDPORT__ PORTB
 #define __LED__ 5
 
-#define __RGBLEDPORT__ PORTC
-#define __RGBLEDDDR__ DDRC
-#define __RLED__ 0
-#define __GLED__ 1
-#define __BLED__ 2
-
 #define CLEAR(port, pin) (port &= ~(1 << pin))
 
 const int ledPin = 13;
@@ -173,7 +161,6 @@ ISR(TIMER1_COMPA_vect)
   if (sampleCounter < sampleLength) //send current sample
   {
     send_data(0x0A, pgm_read_byte_near(sampleOffset + sampleCounter++));
-    if ((sampleLength - sampleCounter) == 1) CLR(__RGBLEDPORT__,__BLED__);
   }
   
   timerTicks++;
@@ -209,17 +196,6 @@ const unsigned long periodS = 250;  //1 second - the value is a number of millis
 //////////////////////////////////////////////////////////
 
 void setup(){
-  startMillis = millis();  //initial start time for screen blank
-  startMillisS = millis();  //initial start time for sample blank
-  u8x8.begin();
-  u8x8.setPowerSave(0);
-   u8x8.setFont(u8x8_font_chroma48medium8_r);
-  u8x8.drawString(0,0,"v2.1a Oct 22"); 
-  u8x8.setFont(u8x8_font_px437wyse700a_2x2_r);
-   //u8x8.setFont(u8x8_font_chroma48medium8_r);
-   u8x8.drawString(1,2,"YM2149F");
-   //u8x8.drawString(4,4,"MIDI");
-   u8x8.drawString(3,6,"Synth");
   //init pins
   pinMode(ad0, OUTPUT);
   pinMode(ad1, OUTPUT);
@@ -233,10 +209,7 @@ void setup(){
   pinMode(pinBDIR, OUTPUT);
   pinMode(pinYMReset, OUTPUT);
   pinMode(ledPin, OUTPUT);
-   pinMode(buttonPin, INPUT);
-//digitalWrite(buttonPin, HIGH );
-  
- // __RGBLEDDDR__ |= ( 1 << __RLED__ | 1 << __GLED__ | 1 << __BLED__); //led pins as output
+  pinMode(buttonPin, INPUT);
   
   resetYM();
   
@@ -281,43 +254,10 @@ delay(30);
 playNote(62, 127, 1, 0);  // D4
 delay(30);
 stopNote(62, 1);       // Stop D4       // Stop D4
-// playDigidrum(59, 127);// Sample
-  delay(4000);
-   u8x8.clearDisplay();
-
-  // u8x8.clearLine(7);
-  
-    //  u8x8.setCursor(0,7);
-   //  u8x8.print(analogRead(A1));
 }//END OF SETUP
 
 // Main Loop
 void loop() {
-     //u8x8.setCursor(0,7);
-     //u8x8.print(analogRead(A1));
-     currentMillis = millis();  //get the current "time" (actually the number of milliseconds since the program started)
-  if (currentMillis - startMillis >= period)  //test whether the period has elapsed
-  {
-     u8x8.clearDisplay();
-     //if so, change the state of the LED.  Uses a neat trick to change the state
-    startMillis = currentMillis;  //IMPORTANT reset timer for screen.
-  }
-
-   currentMillisS = millis();  //get the current "time" (actually the number of milliseconds since the program started)
-  if (currentMillisS - startMillisS >= periodS)  //test whether the period has elapsed
-  {
-      u8x8.setCursor(13,0);
-     u8x8.print("   ");
-      u8x8.setCursor(13,1);
-     u8x8.print("   ");
-      u8x8.setCursor(13,2);
-     u8x8.print("   ");
-      u8x8.setCursor(13,3);
-     u8x8.print("   ");
-      u8x8.setCursor(13,4);
-     u8x8.print("   ");
-     startMillisS = currentMillisS;  //IMPORTANT reset timer for screen.
-  }
   byte command = getSerialByte();
   byte commandMSB  = command & 0xF0;
   byte midiChannel = command & 0x0F;
@@ -467,15 +407,6 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
         send_data(0x01, MSB); // Send MSB to register 0x01
         send_data(0x08, volume); // Send volume based on velocity
         sei(); // Enable interrupts
-
-        // Update display for Channel A
-        u8x8.setFont(u8x8_font_chroma48medium8_r);
-        u8x8.drawString(0, 0, "[1]A");
-        u8x8.setCursor(7, 0);
-        u8x8.print(noteA);
-        u8x8.setCursor(10, 0);
-        u8x8.print(volume);
-        startMillis = currentMillis; // Reset screen timeout
     }
     // Handle MIDI Channel 2
     else if (chan == 1) {
@@ -492,14 +423,6 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
         send_data(0x03, MSB); // Send MSB to register 0x03
         send_data(0x09, volume); // comment to disable volume based on velocity
         sei(); // Enable interrupts
-        // Update display for Channel B
-        u8x8.setFont(u8x8_font_chroma48medium8_r);
-        u8x8.drawString(0, 1, "[2] B");
-        u8x8.setCursor(7, 1);
-        u8x8.print(noteB);
-        u8x8.setCursor(10, 1);
-        u8x8.print(volume);
-        startMillis = currentMillis; // Reset screen timeout
     }
     // Handle MIDI Channel 3
     else if (chan == 2) {
@@ -515,14 +438,6 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
         send_data(0x05, MSB); // Send MSB to register 0x05
         send_data(0x0A, volume); // comment to disable volume based on velocity
         sei(); // Enable interrupts
-        // Update display for Channel C
-        u8x8.setFont(u8x8_font_chroma48medium8_r);
-        u8x8.drawString(0, 2, "[3] C");
-        u8x8.setCursor(7, 2);
-        u8x8.print(noteC);
-        u8x8.setCursor(10, 2);
-        u8x8.print(volume);
-        startMillis = currentMillis; // Reset screen timeout
     }
     // Handle MIDI Channel 4
     else if (chan == 3) {
@@ -548,15 +463,6 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
             send_data(0x08, volume); // Set volume based on velocity for Channel A
             send_data(0x09, volume); // Set volume based on velocity for Channel B
             sei(); // Enable interrupts
-            // Update display for Channel AB
-            u8x8.setFont(u8x8_font_chroma48medium8_r);
-            u8x8.clearLine(3);
-            u8x8.drawString(0, 3, "[4]AB");
-            u8x8.setCursor(7, 3);
-            u8x8.print(noteA);
-            u8x8.setCursor(10, 3);
-            u8x8.print(volume);
-            startMillis = currentMillis; // Reset screen timeout
         }
     }
     // Handle MIDI Channel 5
@@ -591,16 +497,6 @@ else if (chan == 4) {
     send_data(0x09, volume); // Set volume based on velocity for Channel B
     send_data(0x0A, volume); // Set volume based on velocity for Channel C
     sei(); // Enable interrupts
-
-    // Update display for Channel ABC
-    u8x8.setFont(u8x8_font_chroma48medium8_r);
-    u8x8.clearLine(4);
-    u8x8.drawString(0, 4, "[5]ABC");
-    u8x8.setCursor(7, 4);
-    u8x8.print(noteA);
-    u8x8.setCursor(10, 4);
-    u8x8.print(volume);
-    startMillis = currentMillis; // Reset screen timeout
 }
 else if (chan == 5) { // MIDI Channel 6
     noteActiveA = 1;
@@ -621,14 +517,6 @@ else if (chan == 5) { // MIDI Channel 6
     send_data(0x0C, MSB); // Send MSB to register 0x0C
     send_data(0x0D, 0b00001000); // Set attack and sustain
     sei(); // Enable interrupts
-
-    // Update display for Channel A
-    u8x8.setFont(u8x8_font_chroma48medium8_r);
-    u8x8.clearLine(5);
-    u8x8.drawString(0, 5, "[6]A");
-    u8x8.setCursor(7, 5);
-    u8x8.print(noteA);
-    startMillis = currentMillis; // Reset screen timeout
 }
 else if (chan == 6) { // MIDI Channel 7
     noteActiveA = 1;
@@ -642,18 +530,11 @@ else if (chan == 6) { // MIDI Channel 7
 
     cli(); // Disable interrupts
     send_data(0x08, 0x10); // Enable envelope mode
+    send_data(0x09, 127); // Enable velocity volume
     send_data(0x0B, LSB); // Send LSB to register 0x0B
     send_data(0x0C, MSB); // Send MSB to register 0x0C
     send_data(0x0D, 0b00001010); // Set attack and sustain
     sei(); // Enable interrupts
-
-    // Update display for Channel A
-    u8x8.setFont(u8x8_font_chroma48medium8_r);
-    u8x8.clearLine(6);
-    u8x8.drawString(0, 6, "[7]A");
-    u8x8.setCursor(7, 6);
-    u8x8.print(noteA);
-    startMillis = currentMillis; // Reset screen timeout
 }
 else if (chan == 7) { // MIDI Channel 8
     noteActiveA = 1;
@@ -679,14 +560,6 @@ else if (chan == 7) { // MIDI Channel 8
     send_data(0x0C, MSB); // Send MSB of period A
     send_data(0x0D, 0b00001100); // Set attack and sustain
     sei(); // Enable interrupts
-
-    // Update display for Channel AB
-    u8x8.setFont(u8x8_font_chroma48medium8_r);
-    u8x8.clearLine(7);
-    u8x8.drawString(0, 7, "[8]AB");
-    u8x8.setCursor(7, 7);
-    u8x8.print(noteA);
-    startMillis = currentMillis; // Reset screen timeout
 }
 else if (chan == 8) { // MIDI Channel 9
     noteActiveA = 1;
@@ -712,14 +585,6 @@ else if (chan == 8) { // MIDI Channel 9
     send_data(0x0C, MSB); // Send MSB of period A
     send_data(0x0D, 0b00001110); // Set attack and sustain
     sei(); // Enable interrupts
-
-    // Update display for Channel AB
-    u8x8.setFont(u8x8_font_chroma48medium8_r);
-    u8x8.clearLine(7);
-    u8x8.drawString(0, 7, "[8]AB");
-    u8x8.setCursor(7, 7);
-    u8x8.print(noteA);
-    startMillis = currentMillis; // Reset screen timeout
 }
 else if (chan == 10) { // MIDI Channel 11 Clicks and Pops
     noteActiveA = 1;
@@ -732,18 +597,11 @@ else if (chan == 10) { // MIDI Channel 11 Clicks and Pops
 
     cli(); // Disable interrupts
     send_data(0x08, 0x10); // Enable envelope mode
+    send_data(0x09, 127); // Enable velocity volume
     send_data(0x00, LSB); // Send LSB of period A
     send_data(0x01, MSB); // Send MSB of period A
     send_data(0x0D, 0b00111000); // Set attack and sustain
     sei(); // Enable interrupts
-
-    // Update display for Channel A
-    u8x8.setFont(u8x8_font_chroma48medium8_r);
-    u8x8.clearLine(5);
-    u8x8.drawString(0, 5, "[6]A");
-    u8x8.setCursor(7, 5);
-    u8x8.print(noteC);
-    startMillis = currentMillis; // Reset screen timeout
 }
 else if (chan == 11) // MIDI Channel 12
 {
@@ -774,17 +632,8 @@ else if (chan == 11) // MIDI Channel 12
     send_data(0x00, ALSB); // Send LSB of period A
     send_data(0x01, AMSB); // Send MSB of period A
     send_data(0x04, CLSB); // Send LSB of period C
-    send_data(0x05, CMSB); // Send MSB of period C
-    
+    send_data(0x05, CMSB); // Send MSB of period C    
     sei(); // Enable interrupts
-
-    // Update display for Channel ABC
-    u8x8.setFont(u8x8_font_chroma48medium8_r);
-    u8x8.clearLine(4);
-    u8x8.drawString(0, 4, "[5]ABC");
-    u8x8.setCursor(7, 4);
-    u8x8.print(noteA);
-    startMillis = currentMillis; // Reset screen timeout
 }
 else if (chan == 12) // MIDI Channel 13
 {
@@ -817,14 +666,6 @@ else if (chan == 12) // MIDI Channel 13
     send_data(0x05, CMSB); // Send MSB of period C
     send_data(0x0D, 0b00101100); // Set attack and sustain
     sei(); // Enable interrupts
-
-    // Update display for Channel ABC
-    u8x8.setFont(u8x8_font_chroma48medium8_r);
-    u8x8.clearLine(4);
-    u8x8.drawString(0, 4, "[5]ABC");
-    u8x8.setCursor(7, 4);
-    u8x8.print(noteA);
-    startMillis = currentMillis; // Reset screen timeout
 }
 else if (chan == 13) // MIDI Channel 14
 {
@@ -842,14 +683,6 @@ else if (chan == 13) // MIDI Channel 14
     //send_data(0x08, 0x10); // Enable envelope mode
     //send_data(0x0D, 0b00011000); // Set attack and sustain
     sei(); // Enable interrupts
-
-    // Update display for Clicks and Pops
-    u8x8.setFont(u8x8_font_chroma48medium8_r);
-    u8x8.clearLine(9);
-    u8x8.drawString(0, 9, "[10]CP");
-    u8x8.setCursor(7, 9);
-    u8x8.print(noteA);
-    startMillis = currentMillis; // Reset screen timeout
 }
 }
 
@@ -932,11 +765,11 @@ void stopNote(byte note, byte chan)
         noteActiveA = 0;
         noteA = periodA = 0; // Reset note and period
         cli(); // Disable interrupts
-    send_data(0x00, 0);
-    send_data(0x01, 0);
-    send_data(0x08, 0); 
-    send_data(0x0B, 0); // Send LSB to register 0x0B
-    send_data(0x0C, 0); // Send MSB to register 0x0C
+        send_data(0x00, 0);
+        send_data(0x01, 0);
+        send_data(0x08, 0); 
+        send_data(0x0B, 0); // Send LSB to register 0x0B
+        send_data(0x0C, 0); // Send MSB to register 0x0C
         send_data(0x08, AmaxVolume); // Set maximum volume
         sei(); // Enable interrupts
     }
@@ -984,18 +817,16 @@ void stopNote(byte note, byte chan)
     }
     // Check if the channel is 10 (MIDI Channel 11)
     else if (chan == 10 && note == noteA) {
-        cli(); // Disable interrupts
         noteActiveA = 0;
         noteA = periodA = 0; // Reset note and period
+        cli(); // Disable interrupts
         send_data(0x00, 0); // Stop Channel 1 frequency LSB
         send_data(0x01, 0); // Stop Channel 1 frequency MSB
         send_data(0x08, 0); // Turn envelope mode off
         sei(); // Enable interrupts
     }
     // Check if the channel is 11 (MIDI Channel 12)
-    else if (chan == 11 && note == noteA) {
-        cli(); // Disable interrupts
-        
+    else if (chan == 11 && note == noteA) {        
         noteActiveA = 0;
         noteActiveB = 0;
         noteActiveC = 0;
@@ -1003,7 +834,7 @@ void stopNote(byte note, byte chan)
         noteA = periodA = 0;
         noteB = periodB = 0;
         noteC = periodC = 0;
-
+        cli(); // Disable interrupts
         // Stop the envelope effect for all channels
         send_data(0x08, 0x00); // Turn envelope mode off
         // Send zero to all frequency registers to stop the sound
@@ -1015,12 +846,11 @@ void stopNote(byte note, byte chan)
         send_data(0x05, 0); // Channel 3 frequency MSB
         send_data(0x0B, 0); // Stop envelope register
         send_data(0x0C, 0); // Stop envelope register
+        send_data(0x0D, 0); // Stop envelope register
         sei(); // Enable interrupts
     }
     // Check if the channel is 12 (MIDI Channel 13)
     else if (chan == 12 && note == noteA) {
-        cli(); // Disable interrupts
-
         noteActiveA = 0;
         noteActiveB = 0;
         noteActiveC = 0;
@@ -1028,10 +858,9 @@ void stopNote(byte note, byte chan)
         noteA = periodA = 0;
         noteB = periodB = 0;
         noteC = periodC = 0;
-
+        cli(); // Disable interrupts
         // Stop the envelope effect for all channels
         send_data(0x08, 0x00); // Turn envelope mode off
-
         // Send zero to all frequency registers to stop the sound
         send_data(0x00, 0); // Channel 1 frequency LSB
         send_data(0x01, 0); // Channel 1 frequency MSB
@@ -1041,7 +870,6 @@ void stopNote(byte note, byte chan)
         send_data(0x05, 0); // Channel 3 frequency MSB
         send_data(0x0B, 0); // Stop envelope register
         send_data(0x0C, 0); // Stop envelope register
-
         sei(); // Enable interrupts
     }
     // Check if the channel is 13 (MIDI Channel 14)
@@ -1069,9 +897,6 @@ void playDigidrum(byte index, byte velo)
     sampleLength = s0Length;
     sampleCounter = 0;
     sei();
-      u8x8.setCursor(13,0);
-     u8x8.print("[1]");
-     startMillisS = currentMillisS;  //IMPORTANT reset timer for screen.
   }
   else if (index == 63)
   {
@@ -1081,9 +906,6 @@ void playDigidrum(byte index, byte velo)
     sampleLength = s1Length;
     sampleCounter = 0;
     sei();
-      u8x8.setCursor(13,1);
-     u8x8.print("[2]");
-     startMillisS = currentMillisS;  //IMPORTANT reset timer for screen.
   }
   else if (index == 62)
   {
@@ -1093,9 +915,6 @@ void playDigidrum(byte index, byte velo)
     sampleLength = s2Length;
     sampleCounter = 0;
     sei();
-       u8x8.setCursor(13,2);
-     u8x8.print("[3]");
-     startMillisS = currentMillisS;  //IMPORTANT reset timer for screen.
   }
   else if (index == 61)
   {
@@ -1105,9 +924,6 @@ void playDigidrum(byte index, byte velo)
     sampleLength = s3Length;
     sampleCounter = 0;
     sei();
-       u8x8.setCursor(13,3);
-     u8x8.print("[4]");
-     startMillisS = currentMillisS;  //IMPORTANT reset timer for screen.
   }
   else if (index == 60)
   {
@@ -1117,9 +933,6 @@ void playDigidrum(byte index, byte velo)
     sampleLength = s4Length;
     sampleCounter = 0;
     sei();
-      u8x8.setCursor(13,4);
-     u8x8.print("[5]");
-     startMillisS = currentMillisS;  //IMPORTANT reset timer for screen.
   }
 }
 
