@@ -4,7 +4,7 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
     if (note < 24) return; // Invalid note, exit function
     SET(__LEDPORT__, __LED__);
     // Ensure velocity is within the valid range
-    byte volume = map(velo, 0, 127, 0, 15); // Scale velocity to volume range (0-15)
+    volume = map(velo, 0, 127, 0, 15); // Scale velocity to volume range (0-15)
 
     // Handle MIDI Channel 1
     if (chan == 0) {
