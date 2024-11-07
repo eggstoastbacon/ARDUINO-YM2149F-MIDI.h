@@ -127,7 +127,7 @@ CC8 - Preset Bank Change, 1-64 Bank A or 65-127 Bank B
 - CH. 4: Voices 2 **Voices(A and B)** (MIDI velocity enabled): **Gritty / Modulated**. Play concurrently with any preset with voices (C).
 - CH. 5: Voices 3 **Voices(A, B and C)** (No MIDI velocity): **Gritty / Modulated**. Cannot play concurrently with other presets.
 - CH. 6: Voices 1 **Voices(A)** (No MIDI velocity): **Gritty / Horn-Like / Modulated**. Play concurrently with any preset with voices (B and C).
-- CH. 7: Voices 1 **Voices(A)** (No MIDI velocity): **Gritty / Detuned**. Play concurrently with any preset with voices (B and C).
+- CH. 7: Voices 2 **Voices(A and C)** (No MIDI velocity): **Gritty / Very Bassy**. Play concurrently with any preset with voices (B).
 - CH. 8: Voices 2 **Voices(A and B)** (No MIDI velocity): **Gritty / Modulated / Great Bass**. Play concurrently with any preset with voices (C).
 - CH. 9: Voices 2 **Voices(A and B)** (No MIDI velocity): **Gritty / Great Bass**. Play concurrently with any preset with voices (C).
 - CH. 10: Drum Samples *See Note to Sample Map. Play concurrently with any preset with voices (A, B and C).
