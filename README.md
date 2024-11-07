@@ -73,7 +73,7 @@ The code includes detailed comments to help you create custom presets. Code rela
 
 ## Features
 
-- **MIDI TRS**: MIDI IN and MIDI Thru via 3.5mm TRS ports, with MIDI Thru available on all 16 MIDI channels.
+- **MIDI TRS**: MIDI IN via 3.5mm TRS port. MIDI thru in the future.
 
 - **14 Presets**: Each MIDI channel up to Channel 14 has its own dedicated preset.
 
