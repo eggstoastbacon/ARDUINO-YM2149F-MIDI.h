@@ -98,7 +98,7 @@ CC4 - Velocity Sensitivity, 0 = Off, 1 - 127 Adjust Range (1 has the least sensi
 
 CC5 - Arpeggiate Rate
 
-CC6 - Arpeggiate Preset
+CC6 - 8 Arpeggiate Patterns
 
 CC8 - Preset Bank Change, 1-64 Bank A or 65-127 Bank B
 
