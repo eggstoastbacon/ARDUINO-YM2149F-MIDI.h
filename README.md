@@ -96,11 +96,28 @@ CC1 - Detune +-64
 
 CC4 - Velocity Sensitivity, 0 = Off, 1 - 127 Adjust Range (1 has the least sensitivity)
 
-CC5 - Arpeggiate Rate
+CC5 - Arpeggiation Rate
 
-CC6 - 8 Arpeggiate Patterns
+CC6 - 8 Arpeggiation Patterns
 
 CC8 - Preset Bank Change, 1-64 Bank A or 65-127 Bank B
+
+## Arpetation Patterns
+1. Up
+
+2. Down
+
+3. Up and down
+
+4. Custom pattern
+
+5. Up with a pause on 4th
+
+6. Down with a pause on 4th
+
+7. Up with a twist on 4th and 7th
+
+8. Up and down with a full octave spread
 
 ## Presets (Each preset is on a different MIDI Channel)
 
