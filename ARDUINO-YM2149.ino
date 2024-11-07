@@ -1,5 +1,5 @@
 /*
- * Arduino YM2149 MIDI Synth v0.5
+ * Arduino YM2149 MIDI Synth v0.8
  * 
  * Original code developed by yukimizake.
  * Video demonstration: Soon.
@@ -112,7 +112,11 @@ byte defaultLevel = 10;
 int pitchBendValue = 0;
 float pitchBendRange = 16384.0; // multiple of 8192.0, the smaller the more the bend range.
 
+//volume
+byte volume;
+
 //velocity
+byte velo;
 int velocityValue = 127;
 int velocityStatus = 0;
 //envelop
@@ -204,6 +208,7 @@ ISR(TIMER1_COMPA_vect)
         byte MSB = ((periodA & 0x0F00) >> 8); // Get the MSB of the period
         send_data(0x00, LSB); // Send LSB to register 0x00
         send_data(0x01, MSB); // Send MSB to register 0x01
+        send_data(0x08, volume); // Send volume based on velocity
         arpeggioCounter++;
         if (arpeggioCounter == arpeggioLength) arpeggioCounter = 0;
   }
@@ -216,7 +221,7 @@ ISR(TIMER1_COMPA_vect)
         byte MSB = ((periodB >> 8) & 0x000F);
         send_data(0x02, LSB);
         send_data(0x03, MSB);
-        
+        send_data(0x08, volume); // Send volume based on velocity
         arpeggioCounter++;
         if (arpeggioCounter == arpeggioLength) arpeggioCounter = 0;
   }
@@ -229,7 +234,7 @@ ISR(TIMER1_COMPA_vect)
         byte MSB = ((periodC >> 8) & 0x000F);
         send_data(0x04, LSB);
         send_data(0x05, MSB);
-        
+        send_data(0x08, volume); // Send volume based on velocity
         arpeggioCounter++;
         if (arpeggioCounter == arpeggioLength) arpeggioCounter = 0;
   }
@@ -318,7 +323,7 @@ void loop() {
   else if (commandMSB == 0x90) //Note on
   {
 byte note = getSerialByte();
-byte velo = getSerialByte();
+velo = getSerialByte();
 
 // Ensure velocity is within the valid range (0-127)
 if (velo < 0) {
@@ -383,6 +388,8 @@ velocityValue = velo;  // Store the final velocity value
   if (noteActiveC == 1 & detuneActiveC == 1 && setBankB == true) {
   playNoteB(noteC, velocityValue, midiChannel, pitchBendValue); }
   }
+  if (controlNumber == 4) {
+    controlValue4 = controlValue; }
   if (controlNumber == 5) {
     controlValue5 = controlValue; }
 if (controlNumber == 6) { 
