@@ -10,7 +10,7 @@
  * Replaced 2 samples for Channel 10 with smaller samples.
  * Added comments to playNote code.
  * Remapped velocity 1-127 to 64-127 and implemented velocity examples in MIDI CH. 1 and 4. 
- * Future progress will be in commit messages. 
+ * Future progress will be in commit messages.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,9 @@
 #include <Arduino.h>
 
 void playNote(byte note, byte velocity, byte channel, int detune);
+void playNoteB(byte note, byte velocity, byte channel, int detune);
 void stopNote();
+void stopNoteB();
 
 //Port settings
 const int ad0 = 8;
@@ -49,6 +51,9 @@ const int pinYMReset = 12;
 
 // Buttons on Analogue Pin A1
 #define buttonPin A1       // analog input pin to use as a digital input
+
+//banks
+bool setBankB;
   
 //voicing
 byte noteA = 0;
@@ -186,19 +191,6 @@ ISR(TIMER1_COMPA_vect)
     }
   }
 }
-int buttonPress;
-int last_buttonPress;
-// Stuff to blank the screen so it does not burn out.
-unsigned long startMillis;  //some global variables available anywhere in the program
-unsigned long currentMillis;
-const unsigned long period = 120000;  //2 minutes - the value is a number of milliseconds before screen blanks
-// Stuff to clear the sample play notication.
-unsigned long startMillisS;  //some global variables available anywhere in the program
-unsigned long currentMillisS;
-const unsigned long periodS = 250;  //1 second - the value is a number of milliseconds before sample notification blanks
-//////////////////////////////////////////////////////////
-// I want to add another timer to listen for button presses or knob movement
-//////////////////////////////////////////////////////////
 
 void setup(){
   //init pins
@@ -270,9 +262,13 @@ void loop() {
   if (commandMSB == 0x80) //Note off
   {
     byte note = getSerialByte();
-    getSerialByte(); //discard 3rd byte
-    stopNote(note, midiChannel);
+    if (setBankB == false) {
+      stopNote(note, midiChannel);
+    } else if (setBankB == true) {
+      stopNoteB(note, midiChannel);
+    }
   }
+
   else if (commandMSB == 0x90) //Note on
   {
 byte note = getSerialByte();
@@ -306,10 +302,14 @@ velocityValue = velo;  // Store the final velocity value
     // Ifi ts Midi channel 10 we trigger samples using the playDigidrum(); function. 
     if (velo != 0 && midiChannel == 0x09)
       playDigidrum(note, velo);
-    else if (velo != 64)
+    else if (velo != 64 && setBankB == false)
     playNote(note, velo, midiChannel, pitchBendValue);
-    else if (velo == 64)
-      stopNote(note, midiChannel);
+    else if (velo != 64 && setBankB == true)
+    playNoteB(note, velo, midiChannel, pitchBendValue);
+    else if (velo == 64 && setBankB == false)
+    stopNote(note, midiChannel);
+    else if (velo == 64 && setBankB == true)
+    stopNoteB(note, midiChannel);
   } 
   else if (commandMSB == 0xA0) // Key pressure
   {
@@ -324,15 +324,21 @@ velocityValue = velo;  // Store the final velocity value
   if (controlNumber == 1) {
   controlValue1 = controlValue;
   detuneValue = map(controlValue1, 0, 127, -64, 63);
-  if (noteActiveA == 1 & detuneActiveA == 1) {
-  playNote(noteA, velocityValue, midiChannel, pitchBendValue); }
-  if (noteActiveB == 1 & detuneActiveB == 1) {
-  playNote(noteB, velocityValue, midiChannel, pitchBendValue); }
-  if (noteActiveC == 1 & detuneActiveC == 1) {
+  if (noteActiveA == 1 & detuneActiveA == 1 && setBankB == false) {
+  playNote(noteA, velocityValue, midiChannel, pitchBendValue && setBankB == false); }
+  if (noteActiveB == 1 & detuneActiveB == 1 && setBankB == false) {
+  playNote(noteB, velocityValue, midiChannel, pitchBendValue && setBankB == false); }
+  if (noteActiveC == 1 & detuneActiveC == 1 && setBankB == false) {
   playNote(noteC, velocityValue, midiChannel, pitchBendValue); }
+    if (noteActiveA == 1 & detuneActiveA == 1 && setBankB == true) {
+  playNoteB(noteA, velocityValue, midiChannel, pitchBendValue && setBankB == true); }
+  if (noteActiveB == 1 & detuneActiveB == 1 && setBankB == true) {
+  playNoteB(noteB, velocityValue, midiChannel, pitchBendValue && setBankB == true); }
+  if (noteActiveC == 1 & detuneActiveC == 1 && setBankB == true) {
+  playNoteB(noteC, velocityValue, midiChannel, pitchBendValue); }
   }
-  if (controlNumber == 4) {
-  controlValue4 = controlValue;
+  if (controlNumber == 8) {
+  if (controlValue > 64){setBankB = true;} else {setBankB = false;}
   }
   }
   else if (commandMSB == 0xC0) // Program change
@@ -352,12 +358,18 @@ velocityValue = velo;  // Store the final velocity value
     pitchBendValue = -pitchBendValue; // Invert to correct direction
         // Now you can use pitchBendValue as needed
         // For example, you might want to replay the note with the new pitch bend value
-        if (noteActiveA == 1) {
+        if (noteActiveA == 1 && setBankB == false) {
         playNote(noteA, velocityValue, midiChannel, pitchBendValue); }
-        if (noteActiveB == 1) {
+        if (noteActiveB == 1 && setBankB == false) {
         playNote(noteB, velocityValue, midiChannel, pitchBendValue); }
-        if (noteActiveC == 1) {
+        if (noteActiveC == 1 && setBankB == false) {
         playNote(noteC, velocityValue, midiChannel, pitchBendValue); }
+        if (noteActiveA == 1 && setBankB == true) {
+        playNoteB(noteA, velocityValue, midiChannel, pitchBendValue); }
+        if (noteActiveB == 1 && setBankB == true) {
+        playNoteB(noteB, velocityValue, midiChannel, pitchBendValue); }
+        if (noteActiveC == 1 && setBankB == true) {
+        playNoteB(noteC, velocityValue, midiChannel, pitchBendValue); }
    CLEAR(__LEDPORT__, __LED__); 
   }
 }
