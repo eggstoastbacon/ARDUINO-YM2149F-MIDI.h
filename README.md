@@ -7,6 +7,7 @@ This project re-designs the hardware and software of the YM2149F for Arduino, in
 - Relocates all user interface elements and inputs/outputs to the front of the board.
 - Replaces the DIN5 connector with only 3.5mm TRS to conserve space.
 - Adds more default sound presets.
+- Switch between preset banks with CC-8 ( 1-64 selects Bank A, 64 > is Bank B )
 - Reduces some larger samples to free up code space.
 - Introduces MIDI-responsive velocity and pitch bend, with plans to support envelope control.
 - Ability to add noise coloring to presets easily.
