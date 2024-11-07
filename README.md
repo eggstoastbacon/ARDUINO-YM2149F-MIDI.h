@@ -96,6 +96,11 @@ CC1 - Detune +-64
 
 CC4 - Velocity Sensitivity, 0 = Off, 1 - 127 Adjust Range (1 has the least sensitivity)
 
+CC5 - Arpeggiate Rate
+
+CC6 - Arpeggiate Preset
+
+CC8 - Preset Bank Change, 1-64 Bank A or 65-127 Bank B
 
 ## Presets (Each preset is on a different MIDI Channel)
 
