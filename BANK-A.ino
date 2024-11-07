@@ -10,6 +10,8 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
     if (chan == 0) {
         noteActiveA = 1;
         detuneActiveA = 0;
+        arpeggioFlipMe = true;
+        arpeggioCounter = 0; // Reset arpeggio counter
         noteA = note; // Set the note for Channel A
         float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
           // Calculate the period based on pitch bend value
@@ -26,13 +28,14 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
     else if (chan == 1) {
         noteActiveB = 1;
         detuneActiveB = 0;
+        arpeggioFlipMe = true;
+        arpeggioCounter = 0; // Reset arpeggio counter
         noteB = note; // Set the note for Channel B       // Calculate the period based on pitch bend value
         float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
         int periodB = tp[note] * pitchBendFactor; 
         byte LSB = (periodB & 0x00FF); // Get the LSB of the period
         byte MSB = ((periodB >> 8) & 0x000F); // Get the MSB of the period
         cli(); // Disable interrupts
-        arpeggioCounter = 0; // Reset arpeggio counter
         send_data(0x02, LSB); // Send LSB to register 0x02
         send_data(0x03, MSB); // Send MSB to register 0x03
         send_data(0x09, volume); // comment to disable volume based on velocity
@@ -42,6 +45,8 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
     else if (chan == 2) {
         noteActiveC = 1;
         detuneActiveC = 0;
+        arpeggioFlipMe = true;
+        arpeggioCounter = 0; // Reset arpeggio counter
         noteC = note; // Set the note for Channel C
         float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
         int periodC = tp[note] * pitchBendFactor; // Retrieve the period for the note
@@ -59,6 +64,8 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
             noteActiveA = 1;
             noteActiveB = 1;
             detuneActiveB = 1;
+            arpeggioFlipMe = true;
+            arpeggioCounter = 0; // Reset arpeggio counter
             noteA = note; // Set the note for Channel A
             noteB = note; // Set the note for Channel B
             float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
@@ -85,6 +92,8 @@ else if (chan == 4) {
     noteActiveB = 1;
     noteActiveC = 1;
     detuneActiveC = 1;
+    arpeggioFlipMe = true;
+    arpeggioCounter = 0; // Reset arpeggio counter
     noteA = note; // Set the note for Channel A
     noteB = note; // Set the note for Channel B
     noteC = note; // Set the note for Channel C
@@ -116,6 +125,8 @@ else if (chan == 5) { // MIDI Channel 6
     noteActiveA = 1;
     detuneActiveA = 0;
     noteA = note;
+    arpeggioFlipMe = true;
+    arpeggioCounter = 0; // Reset arpeggio counter
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
     periodA = envTp[note + detuneValue] * pitchBendFactor;
 
@@ -136,6 +147,8 @@ else if (chan == 6) { // MIDI Channel 7
     noteActiveA = 1;
     detuneActiveA = 0;
     noteA = note;
+    arpeggioFlipMe = true;
+    arpeggioCounter = 0; // Reset arpeggio counter
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
     periodA = (envTp[note]) * pitchBendFactor;
 
@@ -156,6 +169,8 @@ else if (chan == 7) { // MIDI Channel 8
     detuneActiveC = 1;
     noteA = note;
     noteB = note;
+    arpeggioFlipMe = true;
+    arpeggioCounter = 0; // Reset arpeggio counter
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
     periodA = envTp[note]  * pitchBendFactor;
     periodB = ((tp[note - 12] + detuneValue) << 1)* pitchBendFactor ; // Apply detune and shift
@@ -181,6 +196,8 @@ else if (chan == 8) { // MIDI Channel 9
     detuneActiveB = 0;
     noteA = note;
     noteB = note;
+    arpeggioFlipMe = true;
+    arpeggioCounter = 0; // Reset arpeggio counter
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
     periodA = envTp[note] * pitchBendFactor;
     periodB = tp[note - 24] * pitchBendFactor; // Retrieve period for note B
@@ -202,19 +219,33 @@ else if (chan == 8) { // MIDI Channel 9
 }
 else if (chan == 10) { // MIDI Channel 11 Clicks and Pops
     noteActiveA = 1;
+    noteActiveC = 1;
     detuneActiveA = 0;
     noteA = note; // Set note for Channel A
+    noteC = note; // Set note for Channel C
+    arpeggioFlipMe = true;
+    arpeggioCounter = 0; // Reset arpeggio counter
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
     periodA = envTp[note] * pitchBendFactor; // Get period for note A
+    periodC = tp[note] * pitchBendFactor; // Get period for note C
     byte LSB = (periodA & 0x00FF); // Get LSB of period A
     byte MSB = ((periodA >> 8) & 0x000F); // Get MSB of period A
+    byte CLSB = (periodC & 0x00FF); // Get LSB of period C
+    byte CMSB = ((periodC >> 8) & 0x000F); // Get MSB of period C
 
     cli(); // Disable interrupts
     send_data(0x08, 0x10); // Enable envelope mode
-    send_data(0x09, 127); // Enable velocity volume
+    send_data(0x0D, 0b00001110); // Set attack and sustain
+    send_data(0x04, CLSB); // Send LSB of period C
+    send_data(0x05, CMSB); // Send MSB of period C 
+    send_data(0x09, volume); // Enable velocity volume
+    //send_data(0x0D, 0); // Stop envelope effect
+    send_data(0x0D, 0b00011100); // Set attack and sustain
     send_data(0x00, LSB); // Send LSB of period A
     send_data(0x01, MSB); // Send MSB of period A
-    send_data(0x0D, 0b00111000); // Set attack and sustain
+    
+ //   send_data(0x08, 0); // Enable envelope mode
+ //   send_data(0x0D, 0); // Stop envelope effect
     sei(); // Enable interrupts
 }
 else if (chan == 11) // MIDI Channel 12
@@ -226,6 +257,8 @@ else if (chan == 11) // MIDI Channel 12
     noteA = note; // Set note for Channel A
     noteB = note; // Set note for Channel B
     noteC = note; // Set note for Channel C
+    arpeggioFlipMe = true;
+    arpeggioCounter = 0; // Reset arpeggio counter
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
     periodA = tp[note - 12] * pitchBendFactor; // Get period for note A
     periodB = tp[note + 12] * pitchBendFactor; // Get period for note B
@@ -258,6 +291,8 @@ else if (chan == 12) // MIDI Channel 13
     noteA = note; // Set note for Channel A
     noteB = note; // Set note for Channel B
     noteC = note; // Set note for Channel C
+    arpeggioFlipMe = true;
+    arpeggioCounter = 0; // Reset arpeggio counter
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
     periodA = tp[note - 12] * pitchBendFactor; // Get period for note A    
     periodB = tp[note - 12] * pitchBendFactor; // Get period for note B
@@ -285,6 +320,8 @@ else if (chan == 13) // MIDI Channel 14
 {
     noteActiveA = 1;
     noteA = note;
+    arpeggioFlipMe = true;
+    arpeggioCounter = 0; // Reset arpeggio counter
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
     periodA = tp[note - 12] * pitchBendFactor;
     byte LSB = (periodA & 0x00FF); // Get LSB of period A
@@ -316,6 +353,7 @@ void stopNote(byte note, byte chan)
         // Stop note A 
         noteActiveA = 0;
         noteA = periodA = 0; // Reset note and period
+        arpeggioFlipMe = false;
         cli(); // Disable interrupts
         send_data(0x00, 0); // Stop Channel 1 frequency LSB
         send_data(0x01, 0); // Stop Channel 1 frequency MSB
@@ -326,6 +364,7 @@ void stopNote(byte note, byte chan)
         // Stop note B
         noteActiveB = 0;
         noteB = periodB = 0; // Reset note and period
+        arpeggioFlipMe = false;
         cli(); // Disable interrupts
         send_data(0x02, 0); // Stop Channel 2 frequency LSB
         send_data(0x03, 0); // Stop Channel 2 frequency MSB
@@ -336,6 +375,7 @@ void stopNote(byte note, byte chan)
         // Stop note C
         noteActiveC = 0;
         noteC = periodC = 0; // Reset note and period
+        arpeggioFlipMe = false;
         cli(); // Disable interrupts
         send_data(0x04, 0); // Stop Channel 3 frequency LSB
         send_data(0x05, 0); // Stop Channel 3 frequency MSB
@@ -364,6 +404,7 @@ void stopNote(byte note, byte chan)
         noteA = periodA = 0; // Reset note and period
         noteB = periodB = 0; // Stop note B
         noteC = periodC = 0; // Stop note C
+        arpeggioFlipMe = false;
         cli(); // Disable interrupts
         send_data(0x00, 0); // Stop Channel 1 frequency LSB
         send_data(0x01, 0); // Stop Channel 1 frequency MSB
@@ -378,13 +419,14 @@ void stopNote(byte note, byte chan)
         // Stop note A for channel 6
         noteActiveA = 0;
         noteA = periodA = 0; // Reset note and period
+        arpeggioFlipMe = false;
         cli(); // Disable interrupts
         send_data(0x00, 0);
         send_data(0x01, 0);
-        send_data(0x08, 0); 
         send_data(0x0B, 0); // Send LSB to register 0x0B
         send_data(0x0C, 0); // Send MSB to register 0x0C
-        send_data(0x08, AmaxVolume); // Set maximum volume
+        send_data(0x0D, 0); // Stop envelope effect
+        send_data(0x08, 127); // Set maximum volume
         sei(); // Enable interrupts
     }
     // Check if the channel is 6 (MIDI Channel 7)
@@ -392,9 +434,13 @@ void stopNote(byte note, byte chan)
         // Stop note A for channel 7
         noteActiveA = 0;
         noteA = periodA = 0; // Reset note and period
+        arpeggioFlipMe = false;
         cli(); // Disable interrupts
+        send_data(0x00, 0); // Stop period A
+        send_data(0x01, 0); // Stop period A
+        send_data(0x0B, 0); // Stop period A
+        send_data(0x0C, 0); // Stop period A
         send_data(0x0D, 0); // Stop envelope effect
-        send_data(0x08, AmaxVolume); // Set maximum volume
         sei(); // Enable interrupts
     }
     // Check if the channel is 7 (MIDI Channel 8)
@@ -404,7 +450,10 @@ void stopNote(byte note, byte chan)
         noteActiveB = 0;
         noteA = periodA = 0; // Reset note and period
         noteB = periodB = 0; // Stop note B
+        arpeggioFlipMe = false;
         cli(); // Disable interrupts
+        send_data(0x00, 0); // Stop Channel 2 frequency LSB
+        send_data(0x01, 0); // Stop Channel 2 frequency MSB
         send_data(0x02, 0); // Stop Channel 2 frequency LSB
         send_data(0x03, 0); // Stop Channel 2 frequency MSB
         send_data(0x0B, 0); // Stop period A
@@ -420,7 +469,10 @@ void stopNote(byte note, byte chan)
         noteActiveB = 0;
         noteA = periodA = 0; // Reset note and period
         noteB = periodB = 0; // Stop note B
+        arpeggioFlipMe = false;
         cli(); // Disable interrupts
+        send_data(0x00, 0); // Stop Channel 2 frequency LSB
+        send_data(0x01, 0); // Stop Channel 2 frequency MSB
         send_data(0x02, 0); // Stop Channel 2 frequency LSB
         send_data(0x03, 0); // Stop Channel 2 frequency MSB
         send_data(0x0D, 0); // Stop envelope effect
@@ -432,10 +484,18 @@ void stopNote(byte note, byte chan)
     // Check if the channel is 10 (MIDI Channel 11)
     else if (chan == 10 && note == noteA) {
         noteActiveA = 0;
+        noteActiveC = 0;
         noteA = periodA = 0; // Reset note and period
+        noteC = periodC = 0; // Reset note and period
+        arpeggioFlipMe = false;
         cli(); // Disable interrupts
         send_data(0x00, 0); // Stop Channel 1 frequency LSB
         send_data(0x01, 0); // Stop Channel 1 frequency MSB
+        send_data(0x04, 0); // Stop Channel 3 frequency LSB
+        send_data(0x05, 0); // Stop Channel 3 frequency MSB
+        send_data(0x0D, 0); // Stop envelope effect
+        send_data(0x0B, 0); // Stop Channel 3 frequency LSB
+        send_data(0x0C, 0); // Stop Channel 3 frequency MSB
         send_data(0x08, 0); // Turn envelope mode off
         sei(); // Enable interrupts
     }
@@ -448,6 +508,7 @@ void stopNote(byte note, byte chan)
         noteA = periodA = 0;
         noteB = periodB = 0;
         noteC = periodC = 0;
+        arpeggioFlipMe = false;
         cli(); // Disable interrupts
         // Stop the envelope effect for all channels
         send_data(0x08, 0x00); // Turn envelope mode off
@@ -472,6 +533,7 @@ void stopNote(byte note, byte chan)
         noteA = periodA = 0;
         noteB = periodB = 0;
         noteC = periodC = 0;
+        arpeggioFlipMe = false;
         cli(); // Disable interrupts
         // Stop the envelope effect for all channels
         send_data(0x08, 0x00); // Turn envelope mode off
@@ -490,6 +552,7 @@ void stopNote(byte note, byte chan)
     else if (chan == 13 && note == noteA) {
         // Stop note A for channel 11        
         noteActiveA = 0;
+        arpeggioFlipMe = false;
         cli(); // Disable interrupts
         send_data(0x06, 0x00); // Stop Channel
         send_data(0x07, 0x00); // Stop Channel
