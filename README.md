@@ -75,7 +75,7 @@ The code includes detailed comments to help you create custom presets. Code rela
 
 - **MIDI TRS**: MIDI IN via 3.5mm TRS port. MIDI thru in the future.
 
-- **14 Presets**: Each MIDI channel up to Channel 14 has its own dedicated preset.
+- **14+ Presets**: Presets are on MIDI channels 1-14, with 2 banks of presets, for a total of 28 possible presets.
 
 - **3 Voice Polyphonic**: Three voice channels can play simultaneously as long as they’re assigned to separate registers. For example, MIDI Channels 1-3 share the same preset but operate on different voice channels, allowing all three to play at once.
 
