@@ -102,7 +102,7 @@ CC6 - 8 Arpeggiation Patterns
 
 CC8 - Preset Bank Change, 1-64 Bank A or 65-127 Bank B
 
-## Arpetation Patterns
+## Arpeggiation Patterns
 1. Up
 
 2. Down
