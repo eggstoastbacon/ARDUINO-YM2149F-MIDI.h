@@ -1,5 +1,5 @@
 /*
- * Arduino YM2149 MIDI Synth v0.5
+ * Arduino YM2149 MIDI Synth v0.7
  * 
  * Original code developed by yukimizake.
  * Video demonstration: Soon.
@@ -29,6 +29,13 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <Arduino.h>
+#include <SoftwareSerial.h>
+
+// Define MIDI output pins
+#define midiOutTX 10  // Example MIDI output pin (change to your preferred pin)
+
+// Create a SoftwareSerial object for MIDI
+SoftwareSerial midiOut(midiOutTX, -1); // RX pin is not used in this case
 
 void playNote(byte note, byte velocity, byte channel, int detune);
 void playNoteB(byte note, byte velocity, byte channel, int detune);
@@ -78,15 +85,20 @@ byte AmaxVolume = 0;
 byte BmaxVolume = 0;
 byte CmaxVolume = 0;
 
-//Detune
+//detune
 int detuneValue = 1;
 int detuneActiveA = 0;
 int detuneActiveB = 0;
 int detuneActiveC = 0;
 
 //arpeggio settings
-byte arpeggio[] = {0,7,12};
-byte arpeggioLength = 3;
+byte pattern1[] = {0, 7, 12};          // Up
+byte pattern2[] = {12, 7, 0};          // Down
+byte pattern3[] = {0, 12, 7, 0};       // Up and down
+byte pattern4[] = {0, 4, 7, 12, 7};    // Custom pattern
+
+byte* currentPattern = pattern1; // Pointer to the currently active pattern
+byte arpeggioLength = sizeof(pattern1); // Length of the active pattern
 byte arpeggioCounter = 0;
 boolean arpeggioFlipMe = false;
 
@@ -116,6 +128,8 @@ int controlValue3;
 int controlValue4;
 int controlValue5;
 int controlValue6;
+int controlValue7;
+int controlValue8;
 
 //Fast pin switching macros
 #define CLR(x,y) (x&=(~(1<<y)))
@@ -174,13 +188,26 @@ ISR(TIMER1_COMPA_vect)
   }
   
   timerTicks++;
-  if (timerTicks == 220 && false) //arpeggio on chan B
+  int arpeggioSpeed = map(controlValue5, 0, 127, 50, 1);
+
+ 
+    if (timerTicks >= arpeggioSpeed && noteActiveA == 1 && controlValue5 > 1)
   {
-    timerTicks = 0;
-    
-    if (noteB > 0)
-    {
-        periodB = tp[noteB + arpeggio[arpeggioCounter]];
+        timerTicks = 0;
+        SET(__LEDPORT__, __LED__);
+        periodA = tp[noteA + currentPattern[arpeggioCounter]];
+        byte LSB = (periodA & 0x00FF); // Get the LSB of the period
+        byte MSB = ((periodA & 0x0F00) >> 8); // Get the MSB of the period
+        send_data(0x00, LSB); // Send LSB to register 0x00
+        send_data(0x01, MSB); // Send MSB to register 0x01
+        arpeggioCounter++;
+        if (arpeggioCounter == arpeggioLength) arpeggioCounter = 0;
+  }
+   else if (timerTicks >= arpeggioSpeed && noteActiveB == 1 && controlValue5 > 1)
+  {
+        timerTicks = 0;
+        SET(__LEDPORT__, __LED__);
+         periodB = tp[noteB + currentPattern[arpeggioCounter]];
         byte LSB = ( periodB & 0x00FF);
         byte MSB = ((periodB >> 8) & 0x000F);
         send_data(0x02, LSB);
@@ -188,8 +215,21 @@ ISR(TIMER1_COMPA_vect)
         
         arpeggioCounter++;
         if (arpeggioCounter == arpeggioLength) arpeggioCounter = 0;
-    }
   }
+     else if (timerTicks >= arpeggioSpeed && noteActiveC == 1 && controlValue5 > 1)
+  {
+        timerTicks = 0;
+        SET(__LEDPORT__, __LED__);
+        periodC = tp[noteC + currentPattern[arpeggioCounter]];
+        byte LSB = ( periodC & 0x00FF);
+        byte MSB = ((periodC >> 8) & 0x000F);
+        send_data(0x04, LSB);
+        send_data(0x05, MSB);
+        
+        arpeggioCounter++;
+        if (arpeggioCounter == arpeggioLength) arpeggioCounter = 0;
+  }
+
 }
 
 void setup(){
@@ -216,15 +256,17 @@ void setup(){
   
   //serial init
   Serial.begin(31250);
+    // Start the MIDI output serial port
   
   //timer1 : sample player
   cli();
-  TCCR1A = 0; //timer reset
-  TCCR1B = 0; //timer reset
-  OCR1A = 1450; //period for 11025 kHz at 16Mhz
-  TCCR1B |= (1 << WGM12); //CTC mode
-  TCCR1B |= (1 << CS10); // timer ticks = clock ticks
-  TIMSK1 |= (1 << OCIE1A); // enable compare
+  TCCR1A = 0;           // Reset Timer1 Control Register A
+  TCCR1B = 0;           // Reset Timer1 Control Register B
+  OCR1A = 200;        // Set compare value for a ~1 Hz frequency with 256 prescaler (adjust as needed)
+  TCCR1B |= (1 << WGM12); // Enable CTC mode
+  TCCR1B |= (1 << CS12);  // Set prescaler to 256
+  TCCR1B |= (1 << CS10);  // Set prescaler to 256
+  TIMSK1 |= (1 << OCIE1A); // Enable Timer1 compare interrupt
   sei();
   
   //say hello
@@ -337,6 +379,28 @@ velocityValue = velo;  // Store the final velocity value
   if (noteActiveC == 1 & detuneActiveC == 1 && setBankB == true) {
   playNoteB(noteC, velocityValue, midiChannel, pitchBendValue); }
   }
+  if (controlNumber == 5) {
+    controlValue5 = controlValue; }
+  if (controlNumber == 6) { 
+    switch (controlValue) {
+        case 0 ... 31:
+            currentPattern = pattern1;
+            arpeggioLength = sizeof(pattern1);
+            break;
+        case 32 ... 63:
+            currentPattern = pattern2;
+            arpeggioLength = sizeof(pattern2);
+            break;
+        case 64 ... 95:
+            currentPattern = pattern3;
+            arpeggioLength = sizeof(pattern3);
+            break;
+        case 96 ... 127:
+            currentPattern = pattern4;
+            arpeggioLength = sizeof(pattern4);
+            break;
+    }
+}
   if (controlNumber == 8) {
   if (controlValue > 64){setBankB = true;} else {setBankB = false;}
   }
