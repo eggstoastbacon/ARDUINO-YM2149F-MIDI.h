@@ -109,21 +109,21 @@ CC7 - Short notes (0 = off)
 CC8 - Preset Bank Change, 1-64 Bank A or 65-127 Bank B
 
 ## Arpeggiation Patterns
-1. Up
+1. Up (0-15)
 
-2. Down
+2. Down (16-31)
 
-3. Up and down
+3. Up and down (32-47)
 
-4. Custom pattern
+4. Custom pattern (48-63)
 
-5. Up with a pause on 4th
+5. Up with a pause on 4th (64-79)
 
-6. Down with a pause on 4th
+6. Down with a pause on 4th (80-95)
 
-7. Up with a twist on 4th and 7th
+7. Up with a twist on 4th and 7th (96-111)
 
-8. Up and down with a full octave spread
+8. Up and down with a full octave spread (112-127)
 
 ## Presets (Each preset is on a different MIDI Channel)
 
