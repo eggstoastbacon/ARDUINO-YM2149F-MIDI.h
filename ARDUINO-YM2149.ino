@@ -124,12 +124,16 @@ byte envelopeShape = 0;
 const byte envelopeShapes[] = {
 };
 
-// Note Activity
+//short notes
+int noteLength = 100;
+int noteLengthDelay = 0;
+
+//note activity
 int noteActiveA = 0;
 int noteActiveB = 0;
 int noteActiveC = 0;
 
-// CC Controls
+//cc Controls
 int controlValue1;
 int controlValue2;
 int controlValue3;
@@ -341,6 +345,7 @@ if (velo < 0) {
 
 // Apply controlValue4 adjustment (1 = most sensitive, 127 = least sensitive)
 if (controlValue4 == 0) {
+noteLengthDelay = map(controlValue2, 0, 127, 20, 80); // Adjust delay range to suit your needs
     velo = 127; // Full velocity if CC4 is 0
 } else {
     // Rescale the velocity based on controlValue4
@@ -351,17 +356,30 @@ if (controlValue4 == 0) {
 
 velocityValue = velo;  // Store the final velocity value
     // Ifi ts Midi channel 10 we trigger samples using the playDigidrum(); function. 
-    if (velo != 0 && midiChannel == 0x09)
-      playDigidrum(note, velo);
-    else if (velo != 64 && setBankB == false)
+if (velo != 0 && midiChannel == 0x09) {
+    playDigidrum(note, velo);
+}
+else if (velo != 64 && setBankB == false) {
     playNote(note, velo, midiChannel, pitchBendValue);
-    else if (velo != 64 && setBankB == true)
+    if (controlValue2 > 0) {
+        delay(noteLengthDelay); // Apply delay for note length adjustment
+        stopNote(note, midiChannel); // Stop the note after delay
+    }
+}
+else if (velo != 64 && setBankB == true) {
     playNoteB(note, velo, midiChannel, pitchBendValue);
-    else if (velo == 64 && setBankB == false)
+    if (controlValue2 > 0) {
+        delay(noteLengthDelay); // Apply delay for note length adjustment
+        stopNoteB(note, midiChannel); // Stop the note after delay
+    }
+}
+else if (velo == 64 && setBankB == false) {
     stopNote(note, midiChannel);
-    else if (velo == 64 && setBankB == true)
+}
+else if (velo == 64 && setBankB == true) {
     stopNoteB(note, midiChannel);
-  } 
+}
+  }
   else if (commandMSB == 0xA0) // Key pressure
   {
     getSerialByte();
@@ -430,6 +448,9 @@ if (controlNumber == 6) {
             arpeggioLength = sizeof(pattern8);
             break;
     }
+} if (controlNumber == 2) {
+    controlValue2 = controlValue;
+    noteLength = map(controlValue, 0, 127, 300, 2000); // 10 ms for very short, up to 200 ms
 }
   if (controlNumber == 8) {
   if (controlValue > 64){setBankB = true;} else {setBankB = false;}
