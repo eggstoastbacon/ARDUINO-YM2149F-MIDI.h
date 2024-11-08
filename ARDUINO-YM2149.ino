@@ -232,8 +232,8 @@ ISR(TIMER1_COMPA_vect)
         }
 
         // Send modulated period to YM2149 channel
-        send_data(0x00, modulatedPeriodB & 0xFF); // LSB
-        send_data(0x01, (modulatedPeriodB >> 8) & 0x0F); // MSB
+        send_data(0x02, modulatedPeriodB & 0xFF); // LSB
+        send_data(0x03, (modulatedPeriodB >> 8) & 0x0F); // MSB
 
         // Update vibrato counter for oscillation
         vibratoCounter++;
@@ -250,8 +250,8 @@ ISR(TIMER1_COMPA_vect)
         }
 
         // Send modulated period to YM2149 channel
-        send_data(0x00, modulatedPeriodC & 0xFF); // LSB
-        send_data(0x01, (modulatedPeriodC >> 8) & 0x0F); // MSB
+        send_data(0x04, modulatedPeriodC & 0xFF); // LSB
+        send_data(0x05, (modulatedPeriodC >> 8) & 0x0F); // MSB
 
         // Update vibrato counter for oscillation
         vibratoCounter++;
@@ -264,8 +264,8 @@ ISR(TIMER1_COMPA_vect)
   {
         timerTicks = 0;
         SET(__LEDPORT__, __LED__);
-        periodA = tp[noteA + currentPattern[arpeggioCounter]];
-        currentArpNote = noteA + currentPattern[arpeggioCounter];
+        periodA = tp[(noteA) + currentPattern[arpeggioCounter]];
+        currentArpNote = (noteA) + currentPattern[arpeggioCounter] ;
         byte LSB = (periodA & 0x00FF); // Get the LSB of the period
         byte MSB = ((periodA & 0x0F00) >> 8); // Get the MSB of the period
         send_data(0x00, LSB); // Send LSB to register 0x00
@@ -278,7 +278,8 @@ ISR(TIMER1_COMPA_vect)
   {
         timerTicks = 0;
         SET(__LEDPORT__, __LED__);
-         periodB = tp[noteB + currentPattern[arpeggioCounter]];
+        periodB = tp[noteB + currentPattern[arpeggioCounter]];
+        currentArpNote = (noteB) + currentPattern[arpeggioCounter] ;
         byte LSB = ( periodB & 0x00FF);
         byte MSB = ((periodB >> 8) & 0x000F);
         send_data(0x02, LSB);
@@ -292,6 +293,7 @@ ISR(TIMER1_COMPA_vect)
         timerTicks = 0;
         SET(__LEDPORT__, __LED__);
         periodC = tp[noteC + currentPattern[arpeggioCounter]];
+        currentArpNote = (noteC) + currentPattern[arpeggioCounter] ;
         byte LSB = ( periodC & 0x00FF);
         byte MSB = ((periodC >> 8) & 0x000F);
         send_data(0x04, LSB);
