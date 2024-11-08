@@ -96,7 +96,7 @@ CC1 - Detune +-64
 
 CC2 - Short notes (0 = off)
 
-CC4 - Velocity Sensitivity, 0 = Off, 1 - 127 Adjust Range (1 has the least sensitivity) (0 = off)
+CC4 - Velocity Sensitivity, (0 = 0ff), 1 - 127 Adjust Range (1 has the least sensitivity) (0 = off)
 
 CC5 - Arpeggiation Rate (0 = off)
 
