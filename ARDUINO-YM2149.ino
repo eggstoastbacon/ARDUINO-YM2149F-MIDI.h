@@ -410,14 +410,14 @@ if (velo != 0 && midiChannel == 0x09) {
     playDigidrum(note, velo);
 }
 else if (velo != 64 && setBankB == false) {
-    playNote(note, velo, midiChannel, pitchBendValue);
+    playNote(note, velo, midiChannel, (pitchBendValue + detuneValue));
     if (controlValue7 > 0) {
         delay(noteLengthDelay); // Apply delay for note length adjustment
         stopNote(note, midiChannel); // Stop the note after delay
     }
 }
 else if (velo != 64 && setBankB == true) {
-    playNoteB(note, velo, midiChannel, pitchBendValue);
+    playNoteB(note, velo, midiChannel, (pitchBendValue + detuneValue));
     if (controlValue7 > 0) {
         delay(noteLengthDelay); // Apply delay for note length adjustment
         stopNoteB(note, midiChannel); // Stop the note after delay
