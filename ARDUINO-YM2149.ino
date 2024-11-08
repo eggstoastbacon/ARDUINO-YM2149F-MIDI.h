@@ -1,5 +1,5 @@
 /*
- * Arduino YM2149 MIDI Synth v0.8
+ * Arduino YM2149 MIDI Synth v0.5
  * 
  * Original code developed by yukimizake.
  * Video demonstration: Soon.
@@ -199,7 +199,7 @@ ISR(TIMER1_COMPA_vect)
   int arpeggioSpeed = map(controlValue5, 0, 127, 50, 1);
 
  
-    if (timerTicks >= arpeggioSpeed && noteActiveA == 1 && controlValue5 > 1)
+    if (timerTicks >= arpeggioSpeed && noteActiveA == 1 && controlValue5 >= 1)
   {
         timerTicks = 0;
         SET(__LEDPORT__, __LED__);
@@ -212,7 +212,7 @@ ISR(TIMER1_COMPA_vect)
         arpeggioCounter++;
         if (arpeggioCounter == arpeggioLength) arpeggioCounter = 0;
   }
-   else if (timerTicks >= arpeggioSpeed && noteActiveB == 1 && controlValue5 > 1)
+   else if (timerTicks >= arpeggioSpeed && noteActiveB == 1 && controlValue5 >= 1)
   {
         timerTicks = 0;
         SET(__LEDPORT__, __LED__);
@@ -225,7 +225,7 @@ ISR(TIMER1_COMPA_vect)
         arpeggioCounter++;
         if (arpeggioCounter == arpeggioLength) arpeggioCounter = 0;
   }
-     else if (timerTicks >= arpeggioSpeed && noteActiveC == 1 && controlValue5 > 1)
+     else if (timerTicks >= arpeggioSpeed && noteActiveC == 1 && controlValue5 >= 1)
   {
         timerTicks = 0;
         SET(__LEDPORT__, __LED__);
@@ -372,22 +372,25 @@ velocityValue = velo;  // Store the final velocity value
     
     byte controlNumber = getSerialByte(); // Read the second byte (control number)
     byte controlValue = getSerialByte();  // Read the third byte (value)
-  if (controlNumber == 1) {
-  controlValue1 = controlValue;
-  detuneValue = map(controlValue1, 0, 127, -64, 63);
-  if (noteActiveA == 1 & detuneActiveA == 1 && setBankB == false) {
-  playNote(noteA, velocityValue, midiChannel, pitchBendValue && setBankB == false); }
-  if (noteActiveB == 1 & detuneActiveB == 1 && setBankB == false) {
-  playNote(noteB, velocityValue, midiChannel, pitchBendValue && setBankB == false); }
-  if (noteActiveC == 1 & detuneActiveC == 1 && setBankB == false) {
-  playNote(noteC, velocityValue, midiChannel, pitchBendValue); }
-    if (noteActiveA == 1 & detuneActiveA == 1 && setBankB == true) {
-  playNoteB(noteA, velocityValue, midiChannel, pitchBendValue && setBankB == true); }
-  if (noteActiveB == 1 & detuneActiveB == 1 && setBankB == true) {
-  playNoteB(noteB, velocityValue, midiChannel, pitchBendValue && setBankB == true); }
-  if (noteActiveC == 1 & detuneActiveC == 1 && setBankB == true) {
-  playNoteB(noteC, velocityValue, midiChannel, pitchBendValue); }
-  }
+if (controlNumber == 1) {
+    controlValue1 = controlValue;
+    detuneValue = map(controlValue1, 0, 127, -64, 63);
+
+    // Define arrays for each note and active flags to iterate over
+    byte notes[] = {noteA, noteB, noteC};
+    bool noteActives[] = {noteActiveA, noteActiveB, noteActiveC};
+    bool detuneActives[] = {detuneActiveA, detuneActiveB, detuneActiveC};
+
+    for (int i = 0; i < 3; i++) {
+        if (noteActives[i] && detuneActives[i]) {
+            if (setBankB == false) {
+                playNote(notes[i], velocityValue, midiChannel, pitchBendValue);
+            } else {
+                playNoteB(notes[i], velocityValue, midiChannel, pitchBendValue);
+            }
+        }
+    }
+}
   if (controlNumber == 4) {
     controlValue4 = controlValue; }
   if (controlNumber == 5) {
