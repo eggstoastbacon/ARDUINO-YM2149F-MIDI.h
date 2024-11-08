@@ -94,9 +94,11 @@ Pitch Wheel - Pitch Bend
 
 CC1 - Detune +-64
 
-CC4 - Velocity Sensitivity, 0 = Off, 1 - 127 Adjust Range (1 has the least sensitivity)
+CC2 - Short notes (0 = off)
 
-CC5 - Arpeggiation Rate
+CC4 - Velocity Sensitivity, 0 = Off, 1 - 127 Adjust Range (1 has the least sensitivity) (0 = off)
+
+CC5 - Arpeggiation Rate (0 = off)
 
 CC6 - 8 Arpeggiation Patterns
 
