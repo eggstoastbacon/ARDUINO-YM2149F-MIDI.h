@@ -2,7 +2,7 @@ void playNoteB(byte note, byte velo, byte chan, int pitchBendValue) {
 
     // Check if the note value is within the valid range
     if (note < 24) return; // Invalid note, exit function
-    SET(__LEDPORT__, __LED__);
+    setPinHigh(__LEDPORT__, __LED__);
     // Ensure velocity is within the valid range
     byte volume = map(velo, 0, 127, 0, 15); // Scale velocity to volume range (0-15)
 
@@ -13,6 +13,7 @@ void playNoteB(byte note, byte velo, byte chan, int pitchBendValue) {
     noteActiveC = 1;
     detuneActiveC = 1;
     arpeggioFlipMe = true;
+    timerTicks = 0;
     arpeggioCounter = 0; // Reset arpeggio counter
     noteA = note; // Set the note for Channel A
     noteB = note; // Set the note for Channel B
@@ -46,6 +47,7 @@ void playNoteB(byte note, byte velo, byte chan, int pitchBendValue) {
         noteActiveB = 1;
         detuneActiveB = 0;
         arpeggioFlipMe = true;
+        timerTicks = 0;
         arpeggioCounter = 0; // Reset arpeggio counter
         noteB = note; // Set the note for Channel B       // Calculate the period based on pitch bend value
         float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
@@ -64,6 +66,7 @@ void playNoteB(byte note, byte velo, byte chan, int pitchBendValue) {
         noteActiveC = 1;
         detuneActiveC = 0;
         arpeggioFlipMe = true;
+        timerTicks = 0;
         arpeggioCounter = 0; // Reset arpeggio counter        
         noteC = note; // Set the note for Channel C
         float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
@@ -83,6 +86,7 @@ void playNoteB(byte note, byte velo, byte chan, int pitchBendValue) {
             noteActiveB = 1;
             detuneActiveB = 1;
             arpeggioFlipMe = true;
+            timerTicks = 0;
             arpeggioCounter = 0; // Reset arpeggio counter            
             noteA = note; // Set the note for Channel A
             noteB = note; // Set the note for Channel B
@@ -111,6 +115,7 @@ else if (chan == 4) {
     noteActiveC = 1;
     detuneActiveC = 1;
     arpeggioFlipMe = true;
+    timerTicks = 0;
     arpeggioCounter = 0; // Reset arpeggio counter    
     noteA = note; // Set the note for Channel A
     noteB = note; // Set the note for Channel B
@@ -144,6 +149,7 @@ else if (chan == 5) { // MIDI Channel 6
     detuneActiveA = 0;
     noteA = note;
     arpeggioFlipMe = true;
+    timerTicks = 0;
     arpeggioCounter = 0; // Reset arpeggio counter
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
     periodA = envTp[note + detuneValue] * pitchBendFactor;
@@ -166,6 +172,7 @@ else if (chan == 6) { // MIDI Channel 7
     detuneActiveA = 0;
     noteA = note;
     arpeggioFlipMe = true;
+    timerTicks = 0;
     arpeggioCounter = 0; // Reset arpeggio counter
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
     periodA = (envTp[note]) * pitchBendFactor;
@@ -188,6 +195,7 @@ else if (chan == 7) { // MIDI Channel 8
     noteA = note;
     noteB = note;
     arpeggioFlipMe = true;
+    timerTicks = 0;
     arpeggioCounter = 0; // Reset arpeggio counter
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
     periodA = envTp[note]  * pitchBendFactor;
@@ -215,6 +223,7 @@ else if (chan == 8) { // MIDI Channel 9
     noteA = note;
     noteB = note;
     arpeggioFlipMe = true;
+    timerTicks = 0;
     arpeggioCounter = 0; // Reset arpeggio counter
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
     periodA = envTp[note] * pitchBendFactor;
@@ -241,6 +250,7 @@ else if (chan == 10) { // MIDI Channel 11 Clicks and Pops
     noteA = note; // Set note for Channel A
     arpeggioFlipMe = true;
     arpeggioCounter = 0; // Reset arpeggio counter
+    timerTicks = 0;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
     periodA = envTp[note] * pitchBendFactor; // Get period for note A
     byte LSB = (periodA & 0x00FF); // Get LSB of period A
@@ -261,6 +271,7 @@ else if (chan == 11) // MIDI Channel 12
     noteActiveC = 1;
     detuneActiveC = 0;
     arpeggioFlipMe = true;
+    timerTicks = 0;
     arpeggioCounter = 0; // Reset arpeggio counter
     noteA = note; // Set note for Channel A
     noteB = note; // Set note for Channel B
@@ -295,6 +306,7 @@ else if (chan == 12) // MIDI Channel 13
     noteActiveC = 1;
     detuneActiveC = 0;
     arpeggioFlipMe = true;
+    timerTicks = 0;
     arpeggioCounter = 0; // Reset arpeggio counter
     noteA = note; // Set note for Channel A
     noteB = note; // Set note for Channel B
@@ -327,6 +339,7 @@ else if (chan == 13) // MIDI Channel 14
     noteActiveA = 1;
     noteA = note;
     arpeggioFlipMe = true;
+    timerTicks = 0;
     arpeggioCounter = 0; // Reset arpeggio counter
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
     periodA = tp[note - 12] * pitchBendFactor;
