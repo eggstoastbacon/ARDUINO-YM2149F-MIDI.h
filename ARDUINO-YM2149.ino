@@ -209,8 +209,8 @@ ISR(TIMER1_COMPA_vect)
         SET(__LEDPORT__, __LED__);
         int vibratoOffset = vibratoDepth * sin(vibratoCounter * vibratoRate);
         if (controlValue5 == 0) { 
-        modulatedPeriodA = tp[noteA] + vibratoOffset; } else { 
-        modulatedPeriodA = tp[currentArpNote] + vibratoOffset;  
+        modulatedPeriodA = (tp[noteA]  + detuneValue) + vibratoOffset; } else { 
+        modulatedPeriodA = (tp[currentArpNote] + detuneValue) + vibratoOffset;  
         }
 
         // Send modulated period to YM2149 channel
@@ -227,8 +227,8 @@ ISR(TIMER1_COMPA_vect)
         SET(__LEDPORT__, __LED__);
         int vibratoOffset = vibratoDepth * sin(vibratoCounter * vibratoRate);
         if (controlValue5 == 0) { 
-        modulatedPeriodB = tp[noteB] + vibratoOffset; } else { 
-        modulatedPeriodB = tp[currentArpNote] + vibratoOffset;  
+        modulatedPeriodB = (tp[noteB] + detuneValue) + vibratoOffset; } else { 
+        modulatedPeriodB = (tp[currentArpNote] + detuneValue) + vibratoOffset;  
         }
 
         // Send modulated period to YM2149 channel
@@ -245,8 +245,8 @@ ISR(TIMER1_COMPA_vect)
         SET(__LEDPORT__, __LED__);
         int vibratoOffset = vibratoDepth * sin(vibratoCounter * vibratoRate);
         if (controlValue5 == 0) { 
-        modulatedPeriodC = tp[noteC] + vibratoOffset; } else { 
-        modulatedPeriodC = tp[currentArpNote] + vibratoOffset;  
+        modulatedPeriodC = (tp[noteC]  + detuneValue) + vibratoOffset; } else { 
+        modulatedPeriodC = (tp[currentArpNote]  + detuneValue) + vibratoOffset;  
         }
 
         // Send modulated period to YM2149 channel
@@ -335,7 +335,7 @@ void setup(){
   cli();
   TCCR1A = 0;           // Reset Timer1 Control Register A
   TCCR1B = 0;           // Reset Timer1 Control Register B
-  OCR1A = 200;        // Set compare value for a ~1 Hz frequency with 256 prescaler (adjust as needed)
+  OCR1A = 150;        // Set compare value for a ~1 Hz frequency with 256 prescaler (adjust as needed)
   TCCR1B |= (1 << WGM12); // Enable CTC mode
   TCCR1B |= (1 << CS12);  // Set prescaler to 256
   TCCR1B |= (1 << CS10);  // Set prescaler to 256
