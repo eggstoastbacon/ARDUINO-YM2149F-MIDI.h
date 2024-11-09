@@ -234,7 +234,7 @@ ISR(TIMER1_COMPA_vect)
     vibratoCounter = 0;      // Reset vibrato counter immediately
     vibratoDepth = 0;        // Set vibrato depth to 0 to stop the effect
     vibratoRate = 0;         // Optionally, you can set vibrato rate to 0
-} 
+}
  int modulatedPeriodA;
  int modulatedPeriodB;
  int modulatedPeriodC;
@@ -298,6 +298,7 @@ if (vibratoCounter >= 360) vibratoCounter -= 360;  // Reset to prevent overflow
   {
         timerTicks = 0;
         setPinHigh(__LEDPORT__, __LED__);
+        if (controlValue7 <= 64) {arpMod = 1;} else {arpMod = 0;}
         periodA = tp[(noteA) + currentPattern[arpeggioCounter]];
         currentArpNote = (noteA) + currentPattern[arpeggioCounter] ;
         byte LSB = (periodA & 0x00FF); // Get the LSB of the period
@@ -313,6 +314,7 @@ if (vibratoCounter >= 360) vibratoCounter -= 360;  // Reset to prevent overflow
   {
         timerTicks = 0;
         setPinHigh(__LEDPORT__, __LED__);
+        if (controlValue7 <= 64) {arpMod = 1;} else {arpMod = 0;}
         periodB = tp[noteB + currentPattern[arpeggioCounter]];
         currentArpNote = (noteB) + currentPattern[arpeggioCounter] ;
         byte LSB = ( periodB & 0x00FF);
@@ -328,6 +330,7 @@ if (vibratoCounter >= 360) vibratoCounter -= 360;  // Reset to prevent overflow
   {
         timerTicks = 0;
         setPinHigh(__LEDPORT__, __LED__);
+        if (controlValue7 <= 64) {arpMod = 1;} else {arpMod = 0;}
         periodC = tp[noteC + currentPattern[arpeggioCounter]];
         currentArpNote = (noteC) + currentPattern[arpeggioCounter] ;
         byte LSB = ( periodC & 0x00FF);
@@ -435,7 +438,7 @@ if (velo < 0) {
 
 // Apply controlValue4 adjustment (1 = most sensitive, 127 = least sensitive)
 if (controlValue4 == 0) {
-noteLengthDelay = map(controlValue7, 0, 127, 20, 80); // Adjust delay range to suit your needs
+noteLengthDelay = map(controlValue9, 0, 127, 20, 80); // Adjust delay range to suit your needs
     velo = 127; // Full velocity if CC4 is 0
 } else {
     velo = map(velo, 0, 127, map(controlValue4, 127, 1, 64, 127), 127);
@@ -448,14 +451,14 @@ if (velo != 0 && midiChannel == 0x09) {
 }
 else if (velo != 64 && setBankB == false) {
     playNote(note, velo, midiChannel, (pitchBendValue));
-    if (controlValue7 > 0) {
+    if (controlValue9 > 0) {
         delay(noteLengthDelay); // Apply delay for note length adjustment
         stopNote(note, midiChannel); // Stop the note after delay
     }
 }
 else if (velo != 64 && setBankB == true) {
     playNoteB(note, velo, midiChannel, (pitchBendValue));
-    if (controlValue7 > 0) {
+    if (controlValue9 > 0) {
         delay(noteLengthDelay); // Apply delay for note length adjustment
         stopNoteB(note, midiChannel); // Stop the note after delay
     }
@@ -577,13 +580,14 @@ if (controlNumber == 6) {
     }
 }
 if (controlNumber == 7) {
-    controlValue7 = controlValue;
-    noteLength = map(controlValue, 0, 127, 300, 2000); // 10 ms for very short, up to 200 ms
+controlValue7 = controlValue;
 }
   if (controlNumber == 8) {
   if (controlValue > 64){setBankB = true;} else {setBankB = false;}
   }
   if (controlNumber == 9) {
+    controlValue9 = controlValue;
+    noteLength = map(controlValue, 0, 127, 300, 2000); // 10 ms for very short, up to 200 ms
   }
   }
   else if (commandMSB == 0xC0) // Program change
