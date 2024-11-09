@@ -104,9 +104,14 @@ CC5 - Arpeggiation Rate (0 = off)
 
 CC6 - 8 x Arpeggiation Patterns
 
-CC7 - Short notes (0 = off)
+CC7 - Arp Mode (Use self or use default nore)
 
-CC8 - Preset Bank Change, 1-64 Bank A or 65-127 Bank B
+CC8 - Arpeggiation Octave (0 = off | 1-21, -36 | 22-43, -24 | 44-63, -12 | 64-84, 0 | 85=105, +12 | 106-126, +24 | 127 = +36)
+
+CC9 - Preset Bank Change, 1-64 Bank A or 65-127 Bank B
+
+CC10 - Short notes (work in progress)
+
 
 ## Arpeggiation Patterns
 1. Up 
