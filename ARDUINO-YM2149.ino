@@ -93,6 +93,15 @@ byte pattern5[] = {0, 4, 7, 12};       // Up with a pause on 4th
 byte pattern6[] = {12, 4, 7, 0};       // Down with a pause on 4th
 byte pattern7[] = {0, 7, 4, 12, 7};    // Up with a twist on 4th and 7th
 byte pattern8[] = {0, 12, 4, 7, 12};   // Up and down with a full octave spread
+byte pattern9[] = {0, 3, 7, 10};       // Minor 7th chord: Root, minor third, fifth, minor seventh
+byte pattern10[] = {0, 3, 7, 10, 14};   // Minor 9th chord: Root, minor third, fifth, minor seventh, minor ninth
+byte pattern11[] = {0, 3, 7, 9};       // Minor with flat sixth: Root, minor third, fifth, flat sixth
+byte pattern12[] = {0, 5, 7, 10};      // Dominant 7th: Root, major third, fifth, minor seventh (Foxtrot)
+byte pattern13[] = {0, 7, 12};         // Root, fifth, octave - Power chord (Root-Fifth-Octave)
+byte pattern14[] = {0, 3, 7, 10};      // Root, minor third, fifth, minor seventh - Minor 7th chord
+byte pattern15[] = {0, 4, 7, 12};      // Root, major third, fifth, octave - Classic Rock
+byte pattern16[] = {0, 5, 7, 10};      // Root, fifth, minor seventh, dominant seventh - Blues progression
+
 
 byte* currentPattern = pattern1; // Pointer to the currently active pattern
 byte arpeggioLength = sizeof(pattern1); // Length of the active pattern
@@ -491,40 +500,73 @@ if (controlNumber == 3) {
     controlValue5 = controlValue; }
 if (controlNumber == 6) { 
     switch (controlValue) {
-        case 0 ... 15:
-            currentPattern = pattern1;
+        case 0 ... 7:
+            currentPattern = pattern1; // Pattern 1
             arpeggioLength = sizeof(pattern1);
             break;
-        case 16 ... 31:
-            currentPattern = pattern2;
+        case 8 ... 15:
+            currentPattern = pattern2; // Pattern 2
             arpeggioLength = sizeof(pattern2);
             break;
-        case 32 ... 47:
-            currentPattern = pattern3;
+        case 16 ... 23:
+            currentPattern = pattern3; // Pattern 3
             arpeggioLength = sizeof(pattern3);
             break;
-        case 48 ... 63:
-            currentPattern = pattern4;
+        case 24 ... 31:
+            currentPattern = pattern4; // Pattern 4
             arpeggioLength = sizeof(pattern4);
             break;
-        case 64 ... 79:
-            currentPattern = pattern5;
+        case 32 ... 39:
+            currentPattern = pattern5; // Pattern 5
             arpeggioLength = sizeof(pattern5);
             break;
-        case 80 ... 95:
-            currentPattern = pattern6;
+        case 40 ... 47:
+            currentPattern = pattern6; // Pattern 6
             arpeggioLength = sizeof(pattern6);
             break;
-        case 96 ... 111:
-            currentPattern = pattern7;
+        case 48 ... 55:
+            currentPattern = pattern7; // Pattern 7
             arpeggioLength = sizeof(pattern7);
             break;
-        case 112 ... 127:
-            currentPattern = pattern8;
+        case 56 ... 63:
+            currentPattern = pattern8; // Pattern 8
             arpeggioLength = sizeof(pattern8);
             break;
+        case 64 ... 71:
+            currentPattern = pattern9; // Pattern 9
+            arpeggioLength = sizeof(pattern9);
+            break;
+        case 72 ... 79:
+            currentPattern = pattern10; // Pattern 10
+            arpeggioLength = sizeof(pattern10);
+            break;
+        case 80 ... 87:
+            currentPattern = pattern11; // Pattern 11
+            arpeggioLength = sizeof(pattern11);
+            break;
+        case 88 ... 95:
+            currentPattern = pattern12; // Pattern 12
+            arpeggioLength = sizeof(pattern12);
+            break;
+        case 96 ... 103:
+            currentPattern = pattern13; // Pattern 13
+            arpeggioLength = sizeof(pattern13);
+            break;
+        case 104 ... 111:
+            currentPattern = pattern14; // Pattern 14
+            arpeggioLength = sizeof(pattern14);
+            break;
+        case 112 ... 119:
+            currentPattern = pattern15; // Pattern 15
+            arpeggioLength = sizeof(pattern15);
+            break;
+        case 120 ... 127:
+            currentPattern = pattern16; // Pattern 16
+            arpeggioLength = sizeof(pattern16);
+            break;
     }
-} if (controlNumber == 7) {
+}
+if (controlNumber == 7) {
     controlValue7 = controlValue;
     noteLength = map(controlValue, 0, 127, 300, 2000); // 10 ms for very short, up to 200 ms
 }
