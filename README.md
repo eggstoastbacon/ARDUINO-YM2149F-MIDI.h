@@ -109,21 +109,38 @@ CC7 - Short notes (0 = off)
 CC8 - Preset Bank Change, 1-64 Bank A or 65-127 Bank B
 
 ## Arpeggiation Patterns
-1. Up (0-15)
+1. Up 
 
-2. Down (16-31)
+2. Down 
 
-3. Up and down (32-47)
+3. Up and down 
 
-4. Custom pattern (48-63)
+4. Custom pattern 
 
-5. Up with a pause on 4th (64-79)
+5. Up with a pause on 4th 
 
-6. Down with a pause on 4th (80-95)
+6. Down with a pause on 4th 
 
-7. Up with a twist on 4th and 7th (96-111)
+7. Up with a twist on 4th and 7th 
 
-8. Up and down with a full octave spread (112-127)
+8. Up and down with a full octave spread
+
+9. Minor 7th chord: Root, minor third, fifth, minor seventh
+
+10. Minor 9th chord: Root, minor third, fifth, minor seventh, minor ninth
+
+11. Minor with flat sixth: Root, minor third, fifth, flat sixth
+
+12. Dominant 7th: Root, major third, fifth, minor seventh (Foxtrot)
+
+13. Root, fifth, octave - Power chord (Root-Fifth-Octave)
+
+14. Root, minor third, fifth, minor seventh - Minor 7th chord
+
+15. Root, major third, fifth, octave - Classic Rock
+
+16. Root, fifth, minor seventh, dominant seventh - Blues progression
+
 
 ## Presets (Each preset is on a different MIDI Channel)
 
