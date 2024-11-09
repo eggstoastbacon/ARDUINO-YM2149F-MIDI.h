@@ -335,7 +335,7 @@ void setup(){
   cli();
   TCCR1A = 0;           // Reset Timer1 Control Register A
   TCCR1B = 0;           // Reset Timer1 Control Register B
-  OCR1A = 150;        // Set compare value for a ~1 Hz frequency with 256 prescaler (adjust as needed)
+  OCR1A = 200;        // Set compare value for a ~1 Hz frequency with 256 prescaler (adjust as needed)
   TCCR1B |= (1 << WGM12); // Enable CTC mode
   TCCR1B |= (1 << CS12);  // Set prescaler to 256
   TCCR1B |= (1 << CS10);  // Set prescaler to 256
