@@ -157,7 +157,7 @@ else if (chan == 6) { // MIDI Channel 7
     timerTicks = 0;
     arpeggioCounter = 0; // Reset arpeggio counter
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
-    periodA = (envTp[note]) * pitchBendFactor;
+    periodA = (envTp[note + 24]) * pitchBendFactor;
 
     byte LSB = (periodA & 0x00FF); // Get LSB of period A
     byte MSB = ((periodA >> 8) & 0x000F); // Get MSB of period A
