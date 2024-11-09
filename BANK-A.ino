@@ -364,6 +364,7 @@ void stopNote(byte note, byte chan)
     // Check if the channel is 0 (MIDI Channel 1)
     if (chan == 0 && note == noteA) {
         // Stop note A 
+        timerTicks = 0;
         noteActiveA = 0;
         noteA = periodA = 0; // Reset note and period
         arpeggioFlipMe = false;
@@ -375,6 +376,7 @@ void stopNote(byte note, byte chan)
     // Check if the channel is 1 (MIDI Channel 2)
     else if (chan == 1 && note == noteB) {
         // Stop note B
+        timerTicks = 0;
         noteActiveB = 0;
         noteB = periodB = 0; // Reset note and period
         arpeggioFlipMe = false;
@@ -386,6 +388,7 @@ void stopNote(byte note, byte chan)
     // Check if the channel is 2 (MIDI Channel 3)
     else if (chan == 2 && note == noteC) {
         // Stop note C
+        timerTicks = 0;
         noteActiveC = 0;
         noteC = periodC = 0; // Reset note and period
         arpeggioFlipMe = false;
@@ -397,6 +400,7 @@ void stopNote(byte note, byte chan)
     // Check if the channel is 3 (MIDI Channel 4)
     else if (chan == 3 && note == noteA) {
         // Stop note A for channel 4
+        timerTicks = 0;
         noteActiveA = 0;
         noteActiveB = 0;
         noteA = periodA = 0; // Reset note and period
@@ -411,6 +415,7 @@ void stopNote(byte note, byte chan)
     // Check if the channel is 4 (MIDI Channel 5)
     else if (chan == 4 && note == noteA) {
         // Stop note A for channel 5
+        timerTicks = 0;
         noteActiveA = 0;
         noteActiveB = 0;
         noteActiveC = 0;
@@ -430,6 +435,7 @@ void stopNote(byte note, byte chan)
     // Check if the channel is 5 (MIDI Channel 6)
     else if (chan == 5 && note == noteA) {
         // Stop note A for channel 6
+        timerTicks = 0;
         noteActiveA = 0;
         noteA = periodA = 0; // Reset note and period
         arpeggioFlipMe = false;
@@ -445,6 +451,7 @@ void stopNote(byte note, byte chan)
     // Check if the channel is 6 (MIDI Channel 7)
     else if (chan == 6 && note == noteA) {
         // Stop note A for channel 7
+        timerTicks = 0;
         noteActiveA = 0;
         noteA = periodA = 0; // Reset note and period
         arpeggioFlipMe = false;
@@ -459,6 +466,7 @@ void stopNote(byte note, byte chan)
     // Check if the channel is 7 (MIDI Channel 8)
     else if (chan == 7 && note == noteA) {
         // Stop note A for channel 8
+        timerTicks = 0;
         noteActiveA = 0;
         noteActiveB = 0;
         noteA = periodA = 0; // Reset note and period
@@ -478,6 +486,7 @@ void stopNote(byte note, byte chan)
     // Check if the channel is 8 (MIDI Channel 9)
     else if (chan == 8 && note == noteA) {
         // Stop note A for channel 9
+        timerTicks = 0;
         noteActiveA = 0;
         noteActiveB = 0;
         noteA = periodA = 0; // Reset note and period
@@ -496,6 +505,7 @@ void stopNote(byte note, byte chan)
     }
     // Check if the channel is 10 (MIDI Channel 11)
     else if (chan == 10 && note == noteA) {
+        timerTicks = 0;
         noteActiveA = 0;
         noteActiveC = 0;
         noteA = periodA = 0; // Reset note and period
@@ -514,6 +524,7 @@ void stopNote(byte note, byte chan)
     }
     // Check if the channel is 11 (MIDI Channel 12)
     else if (chan == 11 && note == noteA) {        
+        timerTicks = 0;
         noteActiveA = 0;
         noteActiveB = 0;
         noteActiveC = 0;
@@ -539,6 +550,7 @@ void stopNote(byte note, byte chan)
     }
     // Check if the channel is 12 (MIDI Channel 13)
     else if (chan == 12 && note == noteA) {
+        timerTicks = 0;
         noteActiveA = 0;
         noteActiveB = 0;
         noteActiveC = 0;
@@ -564,6 +576,7 @@ void stopNote(byte note, byte chan)
     // Check if the channel is 13 (MIDI Channel 14)
     else if (chan == 13 && note == noteA) {
         // Stop note A for channel 11        
+        timerTicks = 0;
         noteActiveA = 0;
         arpeggioFlipMe = false;
         cli(); // Disable interrupts
