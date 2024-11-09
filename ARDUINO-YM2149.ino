@@ -581,10 +581,9 @@ if (controlNumber == 7) {
     noteLength = map(controlValue, 0, 127, 300, 2000); // 10 ms for very short, up to 200 ms
 }
   if (controlNumber == 8) {
-  controlValue9 = controlValue;
+  if (controlValue > 64){setBankB = true;} else {setBankB = false;}
   }
   if (controlNumber == 9) {
-  if (controlValue > 64){setBankB = true;} else {setBankB = false;}
   }
   }
   else if (commandMSB == 0xC0) // Program change
