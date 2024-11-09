@@ -374,6 +374,7 @@ void stopNoteB(byte note, byte chan)
         noteActiveB = 0;
         noteActiveC = 0;
         arpeggioFlipMe = false;
+        timerTicks = 0;
         noteA = periodA = 0; // Reset note and period
         noteB = periodB = 0; // Stop note B
         noteC = periodC = 0; // Stop note C
@@ -391,6 +392,7 @@ void stopNoteB(byte note, byte chan)
         // Stop note B
         noteActiveB = 0;
         arpeggioFlipMe = false;
+        timerTicks = 0;
         noteB = periodB = 0; // Reset note and period
         cli(); // Disable interrupts
         send_data(0x02, 0); // Stop Channel 2 frequency LSB
@@ -402,6 +404,7 @@ void stopNoteB(byte note, byte chan)
         // Stop note C
         noteActiveC = 0;
         arpeggioFlipMe = false;
+        timerTicks = 0;
         noteC = periodC = 0; // Reset note and period
         cli(); // Disable interrupts
         send_data(0x04, 0); // Stop Channel 3 frequency LSB
@@ -413,6 +416,7 @@ void stopNoteB(byte note, byte chan)
         // Stop note A for channel 4
         noteActiveA = 0;
         noteActiveB = 0;
+        timerTicks = 0;
         noteA = periodA = 0; // Reset note and period
         noteB = periodB = 0; // Stop note B as well
         cli(); // Disable interrupts
@@ -429,6 +433,7 @@ void stopNoteB(byte note, byte chan)
         noteActiveB = 0;
         noteActiveC = 0;
         arpeggioFlipMe = false;
+        timerTicks = 0;
         noteA = periodA = 0; // Reset note and period
         noteB = periodB = 0; // Stop note B
         noteC = periodC = 0; // Stop note C
@@ -446,6 +451,7 @@ void stopNoteB(byte note, byte chan)
         // Stop note A for channel 6
         noteActiveA = 0;
         arpeggioFlipMe = false;
+        timerTicks = 0;
         noteA = periodA = 0; // Reset note and period
         cli(); // Disable interrupts
         send_data(0x00, 0);
@@ -461,6 +467,7 @@ void stopNoteB(byte note, byte chan)
         // Stop note A for channel 7
         noteActiveA = 0;
         arpeggioFlipMe = false;
+        timerTicks = 0;
         noteA = periodA = 0; // Reset note and period
         cli(); // Disable interrupts
         send_data(0x0D, 0); // Stop envelope effect
@@ -473,6 +480,7 @@ void stopNoteB(byte note, byte chan)
         noteActiveA = 0;
         noteActiveB = 0;
         arpeggioFlipMe = false;
+        timerTicks = 0;
         noteA = periodA = 0; // Reset note and period
         noteB = periodB = 0; // Stop note B
         cli(); // Disable interrupts
@@ -490,6 +498,7 @@ void stopNoteB(byte note, byte chan)
         noteActiveA = 0;
         noteActiveB = 0;
         arpeggioFlipMe = false;
+        timerTicks = 0;
         noteA = periodA = 0; // Reset note and period
         noteB = periodB = 0; // Stop note B
         cli(); // Disable interrupts
@@ -505,6 +514,7 @@ void stopNoteB(byte note, byte chan)
     else if (chan == 10 && note == noteA) {
         noteActiveA = 0;
         arpeggioFlipMe = false;
+        timerTicks = 0;
         noteA = periodA = 0; // Reset note and period
         cli(); // Disable interrupts
         send_data(0x00, 0); // Stop Channel 1 frequency LSB
@@ -518,6 +528,7 @@ void stopNoteB(byte note, byte chan)
         noteActiveB = 0;
         noteActiveC = 0;
         arpeggioFlipMe = false;
+        timerTicks = 0;
         // Reset note periods
         noteA = periodA = 0;
         noteB = periodB = 0;
@@ -543,6 +554,7 @@ void stopNoteB(byte note, byte chan)
         noteActiveB = 0;
         noteActiveC = 0;
         arpeggioFlipMe = false;
+        timerTicks = 0;
         // Reset note periods
         noteA = periodA = 0;
         noteB = periodB = 0;
@@ -563,16 +575,6 @@ void stopNoteB(byte note, byte chan)
     }
     // Check if the channel is 13 (MIDI Channel 14)
     else if (chan == 13 && note == noteA) {
-        // Stop note A for channel 11  
-        arpeggioFlipMe = false;      
-        noteActiveA = 0;
-        cli(); // Disable interrupts
-        send_data(0x06, 0x00); // Stop Channel
-        send_data(0x07, 0x00); // Stop Channel
-        send_data(0x08, 0x00); // Stop Channel
-        send_data(0x09, 0x00); // Stop Channel
-        send_data(0x0A, 0x00); // Stop Channel
-        send_data(0x0B, 0x00); // Stop Channel
-        sei(); // Enable interrupts
+
     }
 }
