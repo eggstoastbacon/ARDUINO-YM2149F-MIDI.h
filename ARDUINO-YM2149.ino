@@ -108,7 +108,7 @@ byte arpeggioLength = sizeof(pattern1); // Length of the active pattern
 byte arpeggioCounter = 0;
 boolean arpeggioFlipMe = false;
 int currentArpNote;
-
+int arpMod = 0;
 
 byte defaultLevel = 10;
 
@@ -153,6 +153,7 @@ int controlValue5;
 int controlValue6;
 int controlValue7;
 int controlValue8;
+int controlValue9;
 
 //Fast pin switching macros
 //#define CLR(x,y) (x&=(~(1<<y)))
@@ -223,11 +224,17 @@ int timerTicks = 0;
 
 ISR(TIMER1_COMPA_vect)
 {
+  timerTicks++;
   if (sampleCounter < sampleLength) //send current sample
   {
     send_data(0x0A, pgm_read_byte_near(sampleOffset + sampleCounter++));
   }
-  timerTicks++;
+ if (controlValue2 == 0) {
+    // Force vibrato to stop by resetting the vibrato offset and counter
+    vibratoCounter = 0;      // Reset vibrato counter immediately
+    vibratoDepth = 0;        // Set vibrato depth to 0 to stop the effect
+    vibratoRate = 0;         // Optionally, you can set vibrato rate to 0
+} 
  int modulatedPeriodA;
  int modulatedPeriodB;
  int modulatedPeriodC;
@@ -245,8 +252,8 @@ ISR(TIMER1_COMPA_vect)
         send_data(0x01, (modulatedPeriodA >> 8) & 0x0F); // MSB
 
         // Update vibrato counter for oscillation
-        vibratoCounter++;
-        if (vibratoCounter >= 360) vibratoCounter = 0; // Reset for oscillation cycle
+vibratoCounter += vibratoRate;
+if (vibratoCounter >= 360) vibratoCounter -= 360;  // Reset to prevent overflow
     }
 
      else if (noteActiveB == 1 && controlValue2 >= 1) {
@@ -263,8 +270,8 @@ ISR(TIMER1_COMPA_vect)
         send_data(0x03, (modulatedPeriodB >> 8) & 0x0F); // MSB
 
         // Update vibrato counter for oscillation
-        vibratoCounter++;
-        if (vibratoCounter >= 360) vibratoCounter = 0; // Reset for oscillation cycle
+vibratoCounter += vibratoRate;
+if (vibratoCounter >= 360) vibratoCounter -= 360;  // Reset to prevent overflow
     }
 
          else if (noteActiveC == 1 && controlValue2 >= 1) {
@@ -281,8 +288,8 @@ ISR(TIMER1_COMPA_vect)
         send_data(0x05, (modulatedPeriodC >> 8) & 0x0F); // MSB
 
         // Update vibrato counter for oscillation
-        vibratoCounter++;
-        if (vibratoCounter >= 360) vibratoCounter = 0; // Reset for oscillation cycle
+vibratoCounter += vibratoRate;
+if (vibratoCounter >= 360) vibratoCounter -= 360;  // Reset to prevent overflow
     }
 
   int arpeggioSpeed = map(controlValue5, 0, 127, 50, 1);
@@ -297,11 +304,12 @@ ISR(TIMER1_COMPA_vect)
         byte MSB = ((periodA & 0x0F00) >> 8); // Get the MSB of the period
         send_data(0x00, LSB); // Send LSB to register 0x00
         send_data(0x01, MSB); // Send MSB to register 0x01
-        send_data(0x08, volume); // Send volume based on velocity
+        if (arpMod == 1){} else {
+        send_data(0x08, volume);} // Send volume based on velocity
         arpeggioCounter++;
         if (arpeggioCounter == arpeggioLength) arpeggioCounter = 0;
   }
-   else if (timerTicks >= arpeggioSpeed && noteActiveB == 1 && controlValue5 >= 1)
+   if (timerTicks >= arpeggioSpeed && noteActiveB == 1 && controlValue5 >= 1)
   {
         timerTicks = 0;
         setPinHigh(__LEDPORT__, __LED__);
@@ -311,11 +319,12 @@ ISR(TIMER1_COMPA_vect)
         byte MSB = ((periodB >> 8) & 0x000F);
         send_data(0x02, LSB);
         send_data(0x03, MSB);
-        send_data(0x08, volume); // Send volume based on velocity
+        if (arpMod == 1){} else {
+        send_data(0x09, volume);} // Send volume based on velocity
         arpeggioCounter++;
         if (arpeggioCounter == arpeggioLength) arpeggioCounter = 0;
   }
-     else if (timerTicks >= arpeggioSpeed && noteActiveC == 1 && controlValue5 >= 1)
+     if (timerTicks >= arpeggioSpeed && noteActiveC == 1 && controlValue5 >= 1)
   {
         timerTicks = 0;
         setPinHigh(__LEDPORT__, __LED__);
@@ -325,7 +334,8 @@ ISR(TIMER1_COMPA_vect)
         byte MSB = ((periodC >> 8) & 0x000F);
         send_data(0x04, LSB);
         send_data(0x05, MSB);
-        send_data(0x08, volume); // Send volume based on velocity
+        if (arpMod == 1){} else {
+        send_data(0x0A, volume);} // Send volume based on velocity
         arpeggioCounter++;
         if (arpeggioCounter == arpeggioLength) arpeggioCounter = 0;
   }
@@ -487,7 +497,7 @@ if (controlNumber == 1) {
 } 
 if (controlNumber == 2) { 
     controlValue2 = controlValue;
-    vibratoRate = map(controlValue2, 1, 127, 1, 10); // Adjust rate from slow to fast
+vibratoRate = map(controlValue2, 1, 127, 1, 10); 
 }
 
 if (controlNumber == 3) { 
@@ -571,6 +581,9 @@ if (controlNumber == 7) {
     noteLength = map(controlValue, 0, 127, 300, 2000); // 10 ms for very short, up to 200 ms
 }
   if (controlNumber == 8) {
+  controlValue9 = controlValue;
+  }
+  if (controlNumber == 9) {
   if (controlValue > 64){setBankB = true;} else {setBankB = false;}
   }
   }
