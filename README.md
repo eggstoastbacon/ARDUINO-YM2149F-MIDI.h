@@ -75,15 +75,17 @@ The code includes detailed comments to help you create custom presets. Code rela
 
 - **MIDI TRS**: MIDI IN via 3.5mm TRS port. MIDI thru in the future.
 
-- **14+ Presets**: Presets are on MIDI channels 1-14, with 2 banks of presets, for a total of 28 possible presets.
+- **14+ Presets (28 possible)**: Presets are on MIDI channels 1-14, with 2 banks of presets, for a total of 28 possible presets.
 
 - **3 Voice Polyphonic**: Three voice channels can play simultaneously as long as they’re assigned to separate registers. For example, MIDI Channels 1-3 share the same preset but operate on different voice channels, allowing all three to play at once.
 
 - **Velocity**: Velocity sensitivity is implemented for MIDI Channels 1-4. (Use the example to add it to other channels as needed.)
 
-- **Pitch Bend**: Pitch bend is supported on all channels except Channel 10 (sample channel).
+- **Arpeggiation** - Arpeggiation with rate, octave shift and 16 unique patterns.
 
-- **Noise**: CH. 14 is for noise and after playing noise every other channel will have some. Reset the device to turn it off.
+- **Vibrato** - Vibrato rate and depth.
+
+- **Pitch Bend**: Pitch bend is supported on all channels except Channel 10 (sample channel).
 
 - **4 bit Samples**: Includes five short drum samples on MIDI Channel 10, with an option to add or replace them using the included Python script.
 
