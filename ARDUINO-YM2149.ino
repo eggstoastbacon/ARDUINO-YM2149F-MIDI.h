@@ -1,6 +1,7 @@
 /*
- * Arduino YM2149 MIDI Synth v0.9a
- *
+ * Arduino YM2149 MIDI Synth v0.5
+ * 
+ * Original code developed by yukimizake.
  * Video demonstration: Soon.
  * Schematics: Soon.
  * Based on re-factored code by Dansfing / dansfing.uk (https://dansfing.uk/YM_v2_1b/YM_MIDI_lib_Screen_buttons/YM_MIDI_lib_Screen_buttons.ino)
@@ -297,7 +298,7 @@ if (timerTicks >= arpeggioSpeed) {
 float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
 int adjustedNoteA = (noteA + octaveOffset) / pitchBendFactor;
 int indexA = adjustedNoteA + currentPattern[arpeggioCounter];
-    periodA = tp[indexA]; // Assuming tp is a 1D array
+    periodA = tp[indexA]; 
     currentArpNote = indexA;
 
     byte LSB = (periodA & 0x00FF); // Get the LSB of the period
@@ -310,7 +311,7 @@ int indexA = adjustedNoteA + currentPattern[arpeggioCounter];
   if (noteActiveB && controlValue5 >= 1) {
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
     int indexB = (noteB + octaveOffset + currentPattern[arpeggioCounter]) * pitchBendFactor;
-    periodB = tp[indexB]; // Assuming tp is a 1D array
+    periodB = tp[indexB]; 
     currentArpNote = indexB;
 
     byte LSB = (periodB & 0x00FF);
@@ -323,7 +324,7 @@ int indexA = adjustedNoteA + currentPattern[arpeggioCounter];
   if (noteActiveC && controlValue5 >= 1) {
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
     int indexC = (noteC + octaveOffset + currentPattern[arpeggioCounter]) * pitchBendFactor;
-    periodC = tp[indexC]; // Assuming tp is a 1D array
+    periodC = tp[indexC]; 
     currentArpNote = indexC;
 
     byte LSB = (periodC & 0x00FF);
@@ -435,7 +436,7 @@ void loop() {
 
       if (midiChannel == 0x09 && velo != 0) {
         playDigidrum(note, velo);
-      } else if (velo != 64) {
+      } else if (velo != 0) {
         if (setBankB) {
           playNoteB(note, velo, midiChannel, pitchBendValue);
           applyNoteLengthDelay(stopNoteB, note, midiChannel);
