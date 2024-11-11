@@ -118,37 +118,40 @@ CC10 - Short notes (work in progress)
 
 ## Arpeggiation Patterns
 
-Pattern 1: [C, G, C]       // Root, Perfect Fifth, Octave
+Pattern 1: [C, G, C] // Root, Perfect Fifth, Octave
 
-Pattern 2: [C, G, C]       // Octave, Perfect Fifth, Root
+Pattern 2: [C, G, C] // Octave, Perfect Fifth, Root
 
-Pattern 3: [C, C, G]       // Root, Octave, Perfect Fifth
+Pattern 3: [C, C, G] // Root, Octave, Perfect Fifth
 
-Pattern 4: [C, E♭, G]      // Octave, Major Third, Perfect Fifth
+Pattern 4: [C, E♭, G] // Root, Minor Third, Perfect Fifth
 
-Pattern 5: [C, G, E♭]      // Root, Perfect Fifth, Major Third
+Pattern 5: [C, G, E♭] // Root, Perfect Fifth, Minor Third
 
-Pattern 6: [C, C, E♭]      // Root, Octave, Major Third
+Pattern 6: [C, C, E♭] // Root, Octave, Minor Third
 
-Pattern 7: [C, F, G]       // Root, Perfect Fourth, Perfect Fifth
+Pattern 7: [C, F, G] // Root, Perfect Fourth, Perfect Fifth
 
-Pattern 8: [C, E, G]       // Root, Major Third, Perfect Fifth
+Pattern 8: [C, E, G] // Root, Major Third, Perfect Fifth
 
-Pattern 9: [C, F, G]       // Root, Perfect Fourth, Perfect Fifth
+Pattern 9: [C, D, F] // Root, Major Second, Perfect Fourth
 
-Pattern 10: [C, F, G]      // Root, Perfect Fourth, Perfect Fifth
+Pattern 10: [C, E♭, B♭] // Root, Minor Third, Minor Seventh
 
-Pattern 11: [C, E, A♭]     // Root, Major Third, Minor Sixth
+Pattern 11: [C, E, A♭] // Root, Major Third, Minor Sixth
 
-Pattern 12: [C, E, B]      // Root, Major Third, Major Sixth
+Pattern 12: [C, E, B] // Root, Major Third, Major Sixth
 
-Pattern 13: [C, G, A]      // Root, Perfect Fifth, Minor Seventh
+Pattern 13: [C, G, A] // Root, Perfect Fifth, Minor Seventh
 
-Pattern 14: [C, F, B]      // Root, Perfect Fourth, Major Sixth
+Pattern 14: [C, F, B] // Root, Perfect Fourth, Major Sixth
 
-Pattern 15: [C, E, G♯]     // Root, Major Third, Augmented Fifth
+Pattern 15: [C, E, G♯] // Root, Major Third, Augmented Fifth
 
-Pattern 16: [C, A, C]      // Root, Major Sixth, Octave
+Pattern 16: [C, A, C] // Root, Major Sixth, Octave
+
+Pattern 17: [C, E♭, G♭] // Root, Minor Third, Diminished Fifth
+
 
 
 ## Presets (Each preset is on a different MIDI Channel)
