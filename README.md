@@ -106,7 +106,7 @@ CC5 - Arpeggiation Rate (0 = off)
 
 CC6 - 8 x Arpeggiation Patterns
 
-CC7 - Arp Mode (Use self or use default nore)
+CC7 - Arp Mode (Use self or use default voice A)
 
 CC8 - Arpeggiation Octave 
 (0 = off | 1-21, -36 | 22-43, -24 | 44-63, -12 | 64-84, 0 | 85=105, +12 | 106-126, +24 | 127 = +36)
