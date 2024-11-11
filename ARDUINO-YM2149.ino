@@ -109,6 +109,7 @@ byte arpeggioCounter = 0;
 boolean arpeggioFlipMe = false;
 int currentArpNote;
 int arpMod = 0;
+int octaveOffset = 0;
 
 byte defaultLevel = 10;
 
@@ -154,6 +155,7 @@ int controlValue6;
 int controlValue7;
 int controlValue8;
 int controlValue9;
+int controlValue10;
 
 //Fast pin switching macros
 //#define CLR(x,y) (x&=(~(1<<y)))
@@ -299,8 +301,8 @@ if (vibratoCounter >= 360) vibratoCounter -= 360;  // Reset to prevent overflow
         timerTicks = 0;
         setPinHigh(__LEDPORT__, __LED__);
         if (controlValue7 <= 64) {arpMod = 1;} else {arpMod = 0;}
-        periodA = tp[(noteA) + currentPattern[arpeggioCounter]];
-        currentArpNote = (noteA) + currentPattern[arpeggioCounter] ;
+        periodA = tp[(noteA + octaveOffset) + currentPattern[arpeggioCounter]];
+        currentArpNote = (noteA + octaveOffset) + currentPattern[arpeggioCounter] ;
         byte LSB = (periodA & 0x00FF); // Get the LSB of the period
         byte MSB = ((periodA & 0x0F00) >> 8); // Get the MSB of the period
         send_data(0x00, LSB); // Send LSB to register 0x00
@@ -315,8 +317,8 @@ if (vibratoCounter >= 360) vibratoCounter -= 360;  // Reset to prevent overflow
         timerTicks = 0;
         setPinHigh(__LEDPORT__, __LED__);
         if (controlValue7 <= 64) {arpMod = 1;} else {arpMod = 0;}
-        periodB = tp[noteB + currentPattern[arpeggioCounter]];
-        currentArpNote = (noteB) + currentPattern[arpeggioCounter] ;
+        periodB = tp[(noteB + octaveOffset) + currentPattern[arpeggioCounter]];
+        currentArpNote = (noteB + octaveOffset) + currentPattern[arpeggioCounter] ;
         byte LSB = ( periodB & 0x00FF);
         byte MSB = ((periodB >> 8) & 0x000F);
         send_data(0x02, LSB);
@@ -331,8 +333,8 @@ if (vibratoCounter >= 360) vibratoCounter -= 360;  // Reset to prevent overflow
         timerTicks = 0;
         setPinHigh(__LEDPORT__, __LED__);
         if (controlValue7 <= 64) {arpMod = 1;} else {arpMod = 0;}
-        periodC = tp[noteC + currentPattern[arpeggioCounter]];
-        currentArpNote = (noteC) + currentPattern[arpeggioCounter] ;
+        periodC = tp[(noteC + octaveOffset) + currentPattern[arpeggioCounter]];
+        currentArpNote = (noteC + octaveOffset) + currentPattern[arpeggioCounter] ;
         byte LSB = ( periodC & 0x00FF);
         byte MSB = ((periodC >> 8) & 0x000F);
         send_data(0x04, LSB);
@@ -375,7 +377,7 @@ void setup(){
   cli();
   TCCR1A = 0;           // Reset Timer1 Control Register A
   TCCR1B = 0;           // Reset Timer1 Control Register B
-  OCR1A = 200;        // Set compare value for a ~1 Hz frequency with 256 prescaler (adjust as needed)
+  OCR1A = 250;        // Set compare value for a ~1 Hz frequency with 256 prescaler (adjust as needed)
   TCCR1B |= (1 << WGM12); // Enable CTC mode
   TCCR1B |= (1 << CS12);  // Set prescaler to 256
   TCCR1B |= (1 << CS10);  // Set prescaler to 256
@@ -438,7 +440,7 @@ if (velo < 0) {
 
 // Apply controlValue4 adjustment (1 = most sensitive, 127 = least sensitive)
 if (controlValue4 == 0) {
-noteLengthDelay = map(controlValue9, 0, 127, 20, 80); // Adjust delay range to suit your needs
+noteLengthDelay = map(controlValue10, 0, 127, 20, 80); // Adjust delay range to suit your needs
     velo = 127; // Full velocity if CC4 is 0
 } else {
     velo = map(velo, 0, 127, map(controlValue4, 127, 1, 64, 127), 127);
@@ -451,14 +453,14 @@ if (velo != 0 && midiChannel == 0x09) {
 }
 else if (velo != 64 && setBankB == false) {
     playNote(note, velo, midiChannel, (pitchBendValue));
-    if (controlValue9 > 0) {
+    if (controlValue10 > 0) {
         delay(noteLengthDelay); // Apply delay for note length adjustment
         stopNote(note, midiChannel); // Stop the note after delay
     }
 }
 else if (velo != 64 && setBankB == true) {
     playNoteB(note, velo, midiChannel, (pitchBendValue));
-    if (controlValue9 > 0) {
+    if (controlValue10 > 0) {
         delay(noteLengthDelay); // Apply delay for note length adjustment
         stopNoteB(note, midiChannel); // Stop the note after delay
     }
@@ -581,12 +583,39 @@ if (controlNumber == 6) {
 }
 if (controlNumber == 7) {
 controlValue7 = controlValue;
+}if (controlNumber == 8) {
+    switch (controlValue) {
+        case 0:
+           octaveOffset = 0;
+            break;
+        case 1 ... 21:
+            octaveOffset = -36;
+            break;
+        case 22 ... 43:
+            octaveOffset = -24;
+            break;
+        case 44 ... 63:
+            octaveOffset = -12;
+            break;
+        case 64 ... 84:
+            octaveOffset = 0;
+            break;
+        case 85 ... 105:
+            octaveOffset = 12;
+            break;
+        case 106 ... 126:
+            octaveOffset = 24;
+            break;
+        case 127:
+            octaveOffset = 36;
+            break;
+    }
 }
-  if (controlNumber == 8) {
+  if (controlNumber == 9) {
   if (controlValue > 64){setBankB = true;} else {setBankB = false;}
   }
-  if (controlNumber == 9) {
-    controlValue9 = controlValue;
+  if (controlNumber == 10) {
+    controlValue10 = controlValue;
     noteLength = map(controlValue, 0, 127, 300, 2000); // 10 ms for very short, up to 200 ms
   }
   }
