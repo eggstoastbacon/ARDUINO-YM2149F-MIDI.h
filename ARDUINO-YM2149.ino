@@ -643,46 +643,60 @@ void resetYM()
 
 void send_data(unsigned char address, unsigned char data)
 {
+  // Temporary array to hold bit values for address and data
   boolean value[8];
   
-  //put address in a 8-bit array
-  for (int i; i < 8; i++)
-  {
-    value[i] = ((0x01 & address) == 1);
-    address = address >> 1;
+  // Process and send the address (8 bits)
+  for (int i = 0; i < 8; i++) {
+    value[i] = ((address & 0x01) == 1);  // Extract the least significant bit
+    address >>= 1;  // Right-shift address for the next bit
   }
-  //write address to pins
+  
+  // Output the address to YM pins
   outputToYM(value);
-  //validate addess
-  __BCPORT__ |=   (1 << __BDIR__) | (1 << __BC1__);
-  delayMicroseconds(1);
-  __BCPORT__ &= ~((1 << __BDIR__) | (1 << __BC1__));
+  
+  // Validate the address by setting the control pins
+  __BCPORT__ |= (1 << __BDIR__) | (1 << __BC1__);  // Enable address validation
+  delayMicroseconds(1);  // Small delay for timing
+  __BCPORT__ &= ~((1 << __BDIR__) | (1 << __BC1__));  // Disable address validation
 
-  //put data in a 8-bit array
-  for (int i; i < 8; i++)
-  {
-    value[i] = ((0x01 & data) == 1);
-    data = data >> 1;
+  // Process and send the data (8 bits)
+  for (int i = 0; i < 8; i++) {
+    value[i] = ((data & 0x01) == 1);  // Extract the least significant bit
+    data >>= 1;  // Right-shift data for the next bit
   }
-  //write data to pins
+
+  // Output the data to YM pins
   outputToYM(value);
-  //validate data
-  setPinHigh(__BCPORT__,__BDIR__);
-  delayMicroseconds(1);
- setPinLow(__BCPORT__,__BDIR__);
- setPinLow(__LEDPORT__,__LED__);
+  
+  // Validate the data by setting the control pins
+  setPinHigh(__BCPORT__, __BDIR__);  // Activate the data validation signal
+  delayMicroseconds(1);  // delay for timing
+  setPinLow(__BCPORT__, __BDIR__);   // Deactivate the data validation signal
+  
+  // Optional: Reset the LED state
+  setPinLow(__LEDPORT__, __LED__);
 }
 
 void outputToYM(boolean value[])
 {
-  value[0] ? setPinHigh(PORTB, 0) : setPinLow(PORTB, 0);
-  value[1] ? setPinHigh(PORTB, 1) : setPinLow(PORTB, 1);
-  value[2] ? setPinHigh(PORTD, 2) : setPinLow(PORTD, 2);
-  value[3] ? setPinHigh(PORTD, 3) : setPinLow(PORTD, 3);
-  value[4] ? setPinHigh(PORTD, 4) : setPinLow(PORTD, 4);
-  value[5] ? setPinHigh(PORTD, 5) : setPinLow(PORTD, 5);
-  value[6] ? setPinHigh(PORTD, 6) : setPinLow(PORTD, 6);
-  value[7] ? setPinHigh(PORTD, 7) : setPinLow(PORTD, 7);
+  // Write the bits to the pins
+  setPinState(PORTB, 0, value[0]);
+  setPinState(PORTB, 1, value[1]);
+  setPinState(PORTD, 2, value[2]);
+  setPinState(PORTD, 3, value[3]);
+  setPinState(PORTD, 4, value[4]);
+  setPinState(PORTD, 5, value[5]);
+  setPinState(PORTD, 6, value[6]);
+  setPinState(PORTD, 7, value[7]);
+}
+
+void setPinState(volatile uint8_t &port, uint8_t pin, bool state)
+{
+  if (state)
+    setPinHigh(port, pin);  // Set pin high if state is true
+  else
+    setPinLow(port, pin);   // Set pin low if state is false
 }
 
 byte getSerialByte()
