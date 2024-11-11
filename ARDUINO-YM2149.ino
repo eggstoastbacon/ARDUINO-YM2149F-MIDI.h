@@ -85,22 +85,22 @@ int detuneActiveB = 0;
 int detuneActiveC = 0;
 
 //arpeggio settings
-byte pattern1[] = {0, 7, 12};          // Up
-byte pattern2[] = {12, 7, 0};          // Down
-byte pattern3[] = {0, 12, 7, 0};       // Up and down
-byte pattern4[] = {0, 4, 7, 12, 7};    // Custom pattern
-byte pattern5[] = {0, 4, 7, 12};       // Up with a pause on 4th
-byte pattern6[] = {12, 4, 7, 0};       // Down with a pause on 4th
-byte pattern7[] = {0, 7, 4, 12, 7};    // Up with a twist on 4th and 7th
-byte pattern8[] = {0, 12, 4, 7, 12};   // Up and down with a full octave spread
-byte pattern9[] = {0, 3, 7, 10};       // Minor 7th chord: Root, minor third, fifth, minor seventh
-byte pattern10[] = {0, 3, 7, 10, 14};   // Minor 9th chord: Root, minor third, fifth, minor seventh, minor ninth
-byte pattern11[] = {0, 3, 7, 9};       // Minor with flat sixth: Root, minor third, fifth, flat sixth
-byte pattern12[] = {0, 5, 7, 10};      // Dominant 7th: Root, major third, fifth, minor seventh (Foxtrot)
-byte pattern13[] = {0, 7, 12};         // Root, fifth, octave - Power chord (Root-Fifth-Octave)
-byte pattern14[] = {0, 3, 7, 10};      // Root, minor third, fifth, minor seventh - Minor 7th chord
-byte pattern15[] = {0, 4, 7, 12};      // Root, major third, fifth, octave - Classic Rock
-byte pattern16[] = {0, 5, 7, 10};      // Root, fifth, minor seventh, dominant seventh - Blues progression
+byte pattern1[] = {0, 7, 12};          // Pattern 1: Root, Perfect Fifth, Octave
+byte pattern2[] = {12, 7, 0};          // Pattern 2: Octave, Perfect Fifth, Root
+byte pattern3[] = {0, 12, 7};          // Pattern 3: Root, Octave, Perfect Fifth
+byte pattern4[] = {0, 3, 7};           // Pattern 4: Root, Minor Third, Perfect Fifth
+byte pattern5[] = {0, 7, 3};           // Pattern 5: Root, Perfect Fifth, Minor Third
+byte pattern6[] = {0, 12, 3};          // Pattern 6: Root, Octave, Minor Third
+byte pattern7[] = {0, 5, 7};           // Pattern 7: Root, Perfect Fourth, Perfect Fifth
+byte pattern8[] = {0, 4, 7};           // Pattern 8: Root, Major Third, Perfect Fifth
+byte pattern9[] = {0, 2, 5};           // Pattern 9: Root, Major Second, Perfect Fourth
+byte pattern10[] = {0, 3, 10};         // Pattern 10: Root, Minor Third, Minor Seventh
+byte pattern11[] = {0, 4, 8};          // Pattern 11: Root, Major Third, Minor Sixth
+byte pattern12[] = {0, 4, 11};         // Pattern 12: Root, Major Third, Major Sixth
+byte pattern13[] = {0, 7, 9};          // Pattern 13: Root, Perfect Fifth, Minor Seventh
+byte pattern14[] = {0, 5, 11};         // Pattern 14: Root, Perfect Fourth, Major Sixth
+byte pattern15[] = {0, 4, 8};          // Pattern 15: Root, Major Third, Augmented Fifth
+byte pattern16[] = {0, 9, 12};         // Pattern 16: Root, Major Sixth, Octave
 
 
 byte* currentPattern = pattern1; // Pointer to the currently active pattern
@@ -308,9 +308,10 @@ int indexA = adjustedNoteA + currentPattern[arpeggioCounter];
     if (controlValue7 > 64) send_data(0x08, volume);
   }
 
-  if (noteActiveB && controlValue5 >= 1) {
+  else if (noteActiveB && controlValue5 >= 1) {
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    int indexB = (noteB + octaveOffset + currentPattern[arpeggioCounter]) * pitchBendFactor;
+    int adjustedNoteB = (noteB + octaveOffset) / pitchBendFactor;
+    int indexB = adjustedNoteB + currentPattern[arpeggioCounter];
     periodB = tp[indexB]; 
     currentArpNote = indexB;
 
@@ -321,9 +322,10 @@ int indexA = adjustedNoteA + currentPattern[arpeggioCounter];
     if (controlValue7 > 64) send_data(0x09, volume);
   }
 
-  if (noteActiveC && controlValue5 >= 1) {
+  else if (noteActiveC && controlValue5 >= 1) {
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    int indexC = (noteC + octaveOffset + currentPattern[arpeggioCounter]) * pitchBendFactor;
+    int adjustedNoteC = (noteC + octaveOffset) / pitchBendFactor;
+    int indexC = adjustedNoteC + currentPattern[arpeggioCounter];
     periodC = tp[indexC]; 
     currentArpNote = indexC;
 
@@ -337,14 +339,14 @@ int indexA = adjustedNoteA + currentPattern[arpeggioCounter];
       arpeggioCounter++;
       if (arpeggioCounter == arpeggioLength) arpeggioCounter = 0;
     }
-  }
+ }
 
   // Toggle between vibrato and arpeggio on each interrupt
   toggleVibrato = !toggleVibrato;
 
-  if (timerTicks > 255) {
-    timerTicks = 0;
-  }
+ // if (timerTicks > 255) {
+ //   timerTicks = 0;
+ // }
 }
 
 bool setupOCR1A = false;
