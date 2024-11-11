@@ -150,8 +150,6 @@ Pattern 15: [C, E, G♯] // Root, Major Third, Augmented Fifth
 
 Pattern 16: [C, A, C] // Root, Major Sixth, Octave
 
-Pattern 17: [C, E♭, G♭] // Root, Minor Third, Diminished Fifth
-
 
 
 ## Presets (Each preset is on a different MIDI Channel)
