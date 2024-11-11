@@ -1,7 +1,6 @@
 /*
- * Arduino YM2149 MIDI Synth v0.5
- * 
- * Original code developed by yukimizake.
+ * Arduino YM2149 MIDI Synth v0.9a
+ *
  * Video demonstration: Soon.
  * Schematics: Soon.
  * Based on re-factored code by Dansfing / dansfing.uk (https://dansfing.uk/YM_v2_1b/YM_MIDI_lib_Screen_buttons/YM_MIDI_lib_Screen_buttons.ino)
