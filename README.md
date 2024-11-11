@@ -117,37 +117,23 @@ CC10 - Short notes (work in progress)
 
 
 ## Arpeggiation Patterns
-1. Up 
 
-2. Down 
-
-3. Up and down 
-
-4. Custom pattern 
-
-5. Up with a pause on 4th 
-
-6. Down with a pause on 4th 
-
-7. Up with a twist on 4th and 7th 
-
-8. Up and down with a full octave spread
-
-9. Minor 7th chord: Root, minor third, fifth, minor seventh
-
-10. Minor 9th chord: Root, minor third, fifth, minor seventh, minor ninth
-
-11. Minor with flat sixth: Root, minor third, fifth, flat sixth
-
-12. Dominant 7th: Root, major third, fifth, minor seventh (Foxtrot)
-
-13. Root, fifth, octave - Power chord (Root-Fifth-Octave)
-
-14. Root, minor third, fifth, minor seventh - Minor 7th chord
-
-15. Root, major third, fifth, octave - Classic Rock
-
-16. Root, fifth, minor seventh, dominant seventh - Blues progression
+Pattern 1: [C, G, C]       // Root, Perfect Fifth, Octave
+Pattern 2: [C, G, C]       // Octave, Perfect Fifth, Root
+Pattern 3: [C, C, G]       // Root, Octave, Perfect Fifth
+Pattern 4: [C, E♭, G]      // Octave, Major Third, Perfect Fifth
+Pattern 5: [C, G, E♭]      // Root, Perfect Fifth, Major Third
+Pattern 6: [C, C, E♭]      // Root, Octave, Major Third
+Pattern 7: [C, F, G]       // Root, Perfect Fourth, Perfect Fifth
+Pattern 8: [C, E, G]       // Root, Major Third, Perfect Fifth
+Pattern 9: [C, F, G]       // Root, Perfect Fourth, Perfect Fifth
+Pattern 10: [C, F, G]      // Root, Perfect Fourth, Perfect Fifth
+Pattern 11: [C, E, A♭]     // Root, Major Third, Minor Sixth
+Pattern 12: [C, E, B]      // Root, Major Third, Major Sixth
+Pattern 13: [C, G, A]      // Root, Perfect Fifth, Minor Seventh
+Pattern 14: [C, F, B]      // Root, Perfect Fourth, Major Sixth
+Pattern 15: [C, E, G♯]     // Root, Major Third, Augmented Fifth
+Pattern 16: [C, A, C]      // Root, Major Sixth, Octave
 
 
 ## Presets (Each preset is on a different MIDI Channel)
