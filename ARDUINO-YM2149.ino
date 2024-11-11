@@ -224,128 +224,131 @@ int sampleCounter = 0;
 int sampleLength = 0;
 int timerTicks = 0;
 
+bool toggleVibrato = true; // Initialize toggle variable
+
 ISR(TIMER1_COMPA_vect)
 {
   timerTicks++;
-  if (sampleCounter < sampleLength) //send current sample
-  {
+  if (sampleCounter < sampleLength) {
     send_data(0x0A, pgm_read_byte_near(sampleOffset + sampleCounter++));
   }
- if (controlValue2 == 0) {
-    // Force vibrato to stop by resetting the vibrato offset and counter
-    vibratoCounter = 0;      // Reset vibrato counter immediately
-    vibratoDepth = 0;        // Set vibrato depth to 0 to stop the effect
-    vibratoRate = 0;         // Optionally, you can set vibrato rate to 0
-}
+
+  if (controlValue2 == 0) {
+    vibratoCounter = 0;
+    vibratoDepth = 0;
+    vibratoRate = 0;
+  }
+
  int modulatedPeriodA;
  int modulatedPeriodB;
  int modulatedPeriodC;
- if (noteActiveA == 1 && controlValue2 >= 1) {
-        // Calculate vibrato effect
-        setPinHigh(__LEDPORT__, __LED__);
-        int vibratoOffset = vibratoDepth * sin(vibratoCounter * vibratoRate);
-        if (controlValue5 == 0) { 
-        modulatedPeriodA = (tp[noteA]  + detuneValue) + vibratoOffset; } else { 
-        modulatedPeriodA = (tp[currentArpNote] + detuneValue) + vibratoOffset;  
+
+int vibratoOffset = vibratoDepth * sin(vibratoCounter * vibratoRate);
+  
+  if (toggleVibrato) {
+    // Handle vibrato for each active note
+    if (noteActiveA && controlValue2 >= 1) {
+        float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
+        vibratoOffset = vibratoDepth * sin(vibratoCounter * vibratoRate);
+                if (controlValue5 == 0) { 
+        modulatedPeriodA = ((tp[noteA]  + detuneValue) + vibratoOffset) / pitchBendFactor; } else { 
+        modulatedPeriodA = ((tp[currentArpNote] + detuneValue) + vibratoOffset);  
         }
-
-        // Send modulated period to YM2149 channel
-        send_data(0x00, modulatedPeriodA & 0xFF); // LSB
-        send_data(0x01, (modulatedPeriodA >> 8) & 0x0F); // MSB
-
-        // Update vibrato counter for oscillation
-vibratoCounter += vibratoRate;
-if (vibratoCounter >= 360) vibratoCounter -= 360;  // Reset to prevent overflow
+        send_data(0x00, modulatedPeriodA & 0xFF);
+        send_data(0x01, (modulatedPeriodA >> 8) & 0x0F);
+        vibratoCounter += vibratoRate;
+        if (vibratoCounter >= 360) vibratoCounter -= 360;  // Reset to prevent overflow
     }
 
-     else if (noteActiveB == 1 && controlValue2 >= 1) {
-        // Calculate vibrato effect
-        setPinHigh(__LEDPORT__, __LED__);
-        int vibratoOffset = vibratoDepth * sin(vibratoCounter * vibratoRate);
-        if (controlValue5 == 0) { 
-        modulatedPeriodB = (tp[noteB] + detuneValue) + vibratoOffset; } else { 
-        modulatedPeriodB = (tp[currentArpNote] + detuneValue) + vibratoOffset;  
+    else if (noteActiveB && controlValue2 >= 1) {
+        float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
+        vibratoOffset = vibratoDepth * sin(vibratoCounter * vibratoRate);
+                if (controlValue5 == 0) { 
+        modulatedPeriodB = ((tp[noteB] + detuneValue) + vibratoOffset) / pitchBendFactor; } else { 
+        modulatedPeriodB = ((tp[currentArpNote] + detuneValue) + vibratoOffset);  
         }
-
-        // Send modulated period to YM2149 channel
-        send_data(0x02, modulatedPeriodB & 0xFF); // LSB
-        send_data(0x03, (modulatedPeriodB >> 8) & 0x0F); // MSB
-
-        // Update vibrato counter for oscillation
-vibratoCounter += vibratoRate;
-if (vibratoCounter >= 360) vibratoCounter -= 360;  // Reset to prevent overflow
+        send_data(0x02, modulatedPeriodB & 0xFF);
+        send_data(0x03, (modulatedPeriodB >> 8) & 0x0F);
+        vibratoCounter += vibratoRate;
+        if (vibratoCounter >= 360) vibratoCounter -= 360;  // Reset to prevent overflow
     }
 
-         else if (noteActiveC == 1 && controlValue2 >= 1) {
-        // Calculate vibrato effect
-        setPinHigh(__LEDPORT__, __LED__);
-        int vibratoOffset = vibratoDepth * sin(vibratoCounter * vibratoRate);
+    else if (noteActiveC && controlValue2 >= 1) {
+        float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
+        vibratoOffset = vibratoDepth * sin(vibratoCounter * vibratoRate);
         if (controlValue5 == 0) { 
-        modulatedPeriodC = (tp[noteC]  + detuneValue) + vibratoOffset; } else { 
-        modulatedPeriodC = (tp[currentArpNote]  + detuneValue) + vibratoOffset;  
+        modulatedPeriodC = ((tp[noteC]  + detuneValue) + vibratoOffset) / pitchBendFactor; } else { 
+        modulatedPeriodC = ((tp[currentArpNote]  + detuneValue) + vibratoOffset);  
         }
-
-        // Send modulated period to YM2149 channel
-        send_data(0x04, modulatedPeriodC & 0xFF); // LSB
-        send_data(0x05, (modulatedPeriodC >> 8) & 0x0F); // MSB
-
-        // Update vibrato counter for oscillation
-vibratoCounter += vibratoRate;
-if (vibratoCounter >= 360) vibratoCounter -= 360;  // Reset to prevent overflow
+        send_data(0x04, modulatedPeriodC & 0xFF);
+        send_data(0x05, (modulatedPeriodC >> 8) & 0x0F);
+        vibratoCounter += vibratoRate;
+        if (vibratoCounter >= 360) vibratoCounter -= 360;  // Reset to prevent overflow
     }
+    
+    if (vibratoCounter >= 360) vibratoCounter -= 360;
+  } else {
+    // Handle arpeggio for each active note
+    int arpeggioSpeed = map(controlValue5, 0, 127, 50, 1);
 
-  int arpeggioSpeed = map(controlValue5, 0, 127, 50, 1);
+if (timerTicks >= arpeggioSpeed) {
+  timerTicks = 0;
 
-    if (timerTicks >= arpeggioSpeed && noteActiveA == 1 && controlValue5 >= 1)
-  {
-        timerTicks = 0;
-        setPinHigh(__LEDPORT__, __LED__);
-        if (controlValue7 <= 64) {arpMod = 1;} else {arpMod = 0;}
-        periodA = tp[(noteA + octaveOffset) + currentPattern[arpeggioCounter]];
-        currentArpNote = (noteA + octaveOffset) + currentPattern[arpeggioCounter] ;
-        byte LSB = (periodA & 0x00FF); // Get the LSB of the period
-        byte MSB = ((periodA & 0x0F00) >> 8); // Get the MSB of the period
-        send_data(0x00, LSB); // Send LSB to register 0x00
-        send_data(0x01, MSB); // Send MSB to register 0x01
-        if (arpMod == 1){} else {
-        send_data(0x08, volume);} // Send volume based on velocity
-        arpeggioCounter++;
-        if (arpeggioCounter == arpeggioLength) arpeggioCounter = 0;
-  }
-   if (timerTicks >= arpeggioSpeed && noteActiveB == 1 && controlValue5 >= 1)
-  {
-        timerTicks = 0;
-        setPinHigh(__LEDPORT__, __LED__);
-        if (controlValue7 <= 64) {arpMod = 1;} else {arpMod = 0;}
-        periodB = tp[(noteB + octaveOffset) + currentPattern[arpeggioCounter]];
-        currentArpNote = (noteB + octaveOffset) + currentPattern[arpeggioCounter] ;
-        byte LSB = ( periodB & 0x00FF);
-        byte MSB = ((periodB >> 8) & 0x000F);
-        send_data(0x02, LSB);
-        send_data(0x03, MSB);
-        if (arpMod == 1){} else {
-        send_data(0x09, volume);} // Send volume based on velocity
-        arpeggioCounter++;
-        if (arpeggioCounter == arpeggioLength) arpeggioCounter = 0;
-  }
-     if (timerTicks >= arpeggioSpeed && noteActiveC == 1 && controlValue5 >= 1)
-  {
-        timerTicks = 0;
-        setPinHigh(__LEDPORT__, __LED__);
-        if (controlValue7 <= 64) {arpMod = 1;} else {arpMod = 0;}
-        periodC = tp[(noteC + octaveOffset) + currentPattern[arpeggioCounter]];
-        currentArpNote = (noteC + octaveOffset) + currentPattern[arpeggioCounter] ;
-        byte LSB = ( periodC & 0x00FF);
-        byte MSB = ((periodC >> 8) & 0x000F);
-        send_data(0x04, LSB);
-        send_data(0x05, MSB);
-        if (arpMod == 1){} else {
-        send_data(0x0A, volume);} // Send volume based on velocity
-        arpeggioCounter++;
-        if (arpeggioCounter == arpeggioLength) arpeggioCounter = 0;
+  if (noteActiveA && controlValue5 >= 1) {
+float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
+int adjustedNoteA = (noteA + octaveOffset) / pitchBendFactor;
+int indexA = adjustedNoteA + currentPattern[arpeggioCounter];
+    periodA = tp[indexA]; // Assuming tp is a 1D array
+    currentArpNote = indexA;
+
+    byte LSB = (periodA & 0x00FF); // Get the LSB of the period
+    byte MSB = ((periodA & 0x0F00) >> 8); // Get the MSB of the period
+    send_data(0x00, periodA & 0xFF);
+    send_data(0x01, (periodA >> 8) & 0x0F);
+    if (controlValue7 > 64) send_data(0x08, volume);
   }
 
+  if (noteActiveB && controlValue5 >= 1) {
+    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
+    int indexB = (noteB + octaveOffset + currentPattern[arpeggioCounter]) * pitchBendFactor;
+    periodB = tp[indexB]; // Assuming tp is a 1D array
+    currentArpNote = indexB;
+
+    byte LSB = (periodB & 0x00FF);
+    byte MSB = ((periodB >> 8) & 0x000F);
+    send_data(0x02, periodB & 0xFF);
+    send_data(0x03, (periodB >> 8) & 0x0F);
+    if (controlValue7 > 64) send_data(0x09, volume);
+  }
+
+  if (noteActiveC && controlValue5 >= 1) {
+    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
+    int indexC = (noteC + octaveOffset + currentPattern[arpeggioCounter]) * pitchBendFactor;
+    periodC = tp[indexC]; // Assuming tp is a 1D array
+    currentArpNote = indexC;
+
+    byte LSB = (periodC & 0x00FF);
+    byte MSB = ((periodC >> 8) & 0x000F);
+    send_data(0x04, periodC & 0xFF);
+    send_data(0x05, (periodC >> 8) & 0x0F);
+    if (controlValue7 > 64) send_data(0x0A, volume);
+  }
+      
+      arpeggioCounter++;
+      if (arpeggioCounter == arpeggioLength) arpeggioCounter = 0;
+    }
+  }
+
+  // Toggle between vibrato and arpeggio on each interrupt
+  toggleVibrato = !toggleVibrato;
+
+  if (timerTicks > 255) {
+    timerTicks = 0;
+  }
 }
+
+bool setupOCR1A = false;
+
 
 void setup(){
   //init pins
@@ -377,7 +380,7 @@ void setup(){
   cli();
   TCCR1A = 0;           // Reset Timer1 Control Register A
   TCCR1B = 0;           // Reset Timer1 Control Register B
-  OCR1A = 250;        // Set compare value for a ~1 Hz frequency with 256 prescaler (adjust as needed)
+  OCR1A = 1250;        // Set compare value for a ~1 Hz frequency with 256 prescaler (adjust as needed)
   TCCR1B |= (1 << WGM12); // Enable CTC mode
   TCCR1B |= (1 << CS12);  // Set prescaler to 256
   TCCR1B |= (1 << CS10);  // Set prescaler to 256
@@ -413,242 +416,142 @@ stopNote(62, 1);       // Stop D4       // Stop D4
 // Main Loop
 void loop() {
   byte command = getSerialByte();
-  byte commandMSB  = command & 0xF0;
+  byte commandMSB = command & 0xF0;
   byte midiChannel = command & 0x0F;
-  
-  if (commandMSB == 0x80) //Note off
-  {
-    byte note = getSerialByte();
-    if (setBankB == false) {
-      stopNote(note, midiChannel);
-    } else if (setBankB == true) {
-      stopNoteB(note, midiChannel);
+
+  switch (commandMSB) {
+    case 0x80: { // Note Off
+      byte note = getSerialByte();
+      if (setBankB) stopNoteB(note, midiChannel);
+      else stopNote(note, midiChannel);
+      break;
     }
-  }
+    
+    case 0x90: { // Note On
+      byte note = getSerialByte();
+      byte velo = getSerialByte();
+      setupOCR1AOnce();
+      velo = constrainVelocity(velo);
+      velocityValue = velo;
 
-  else if (commandMSB == 0x90) //Note on
-  {
-byte note = getSerialByte();
-velo = getSerialByte();
-
-// Ensure velocity is within the valid range (0-127)
-if (velo < 0) {
-    velo = 0; // Ensure velocity does not go below 0
-} else if (velo > 127) {
-    velo = 127; // Ensure velocity does not exceed 127
-}
-
-// Apply controlValue4 adjustment (1 = most sensitive, 127 = least sensitive)
-if (controlValue4 == 0) {
-noteLengthDelay = map(controlValue10, 0, 127, 20, 80); // Adjust delay range to suit your needs
-    velo = 127; // Full velocity if CC4 is 0
-} else {
-    velo = map(velo, 0, 127, map(controlValue4, 127, 1, 64, 127), 127);
-}
-
-velocityValue = velo;  // Store the final velocity value
-    // Ifi ts Midi channel 10 we trigger samples using the playDigidrum(); function. 
-if (velo != 0 && midiChannel == 0x09) {
-    playDigidrum(note, velo);
-}
-else if (velo != 64 && setBankB == false) {
-    playNote(note, velo, midiChannel, (pitchBendValue));
-    if (controlValue10 > 0) {
-        delay(noteLengthDelay); // Apply delay for note length adjustment
-        stopNote(note, midiChannel); // Stop the note after delay
-    }
-}
-else if (velo != 64 && setBankB == true) {
-    playNoteB(note, velo, midiChannel, (pitchBendValue));
-    if (controlValue10 > 0) {
-        delay(noteLengthDelay); // Apply delay for note length adjustment
-        stopNoteB(note, midiChannel); // Stop the note after delay
-    }
-}
-else if (velo == 64 && setBankB == false) {
-    stopNote(note, midiChannel);
-}
-else if (velo == 64 && setBankB == true) {
-    stopNoteB(note, midiChannel);
-}
-  }
-  else if (commandMSB == 0xA0) // Key pressure
-  {
-    getSerialByte();
-    getSerialByte();
-  }
- else if (command >= 0xB0 && command <= 0xBF) // Control WIP
-  {   
-    byte controlNumber = getSerialByte(); // Read the second byte (control number)
-    byte controlValue = getSerialByte();  // Read the third byte (value)
-if (controlNumber == 1) {
-    controlValue1 = controlValue;
-    detuneValue = map(controlValue1, 0, 127, -64, 63);
-
-    // Define arrays for each note and active flags to iterate over
-    byte notes[] = {noteA, noteB, noteC};
-    bool noteActives[] = {noteActiveA, noteActiveB, noteActiveC};
-    bool detuneActives[] = {detuneActiveA, detuneActiveB, detuneActiveC};
-
-    for (int i = 0; i < 3; i++) {
-        if (noteActives[i] && detuneActives[i]) {
-            if (setBankB == false) {
-                playNote(notes[i], velocityValue, midiChannel, pitchBendValue);
-            } else {
-                playNoteB(notes[i], velocityValue, midiChannel, pitchBendValue);
-            }
+      if (midiChannel == 0x09 && velo != 0) {
+        playDigidrum(note, velo);
+      } else if (velo != 64) {
+        if (setBankB) {
+          playNoteB(note, velo, midiChannel, pitchBendValue);
+          applyNoteLengthDelay(stopNoteB, note, midiChannel);
+        } else {
+          playNote(note, velo, midiChannel, pitchBendValue);
+          applyNoteLengthDelay(stopNote, note, midiChannel);
         }
+      } else {
+        if (setBankB) stopNoteB(note, midiChannel);
+        else stopNote(note, midiChannel);
+      }
+      break;
     }
-} 
-if (controlNumber == 2) { 
-    controlValue2 = controlValue;
-vibratoRate = map(controlValue2, 1, 127, 1, 10); 
+
+    case 0xA0: // Key Pressure
+    case 0xC0: // Program Change
+    case 0xD0: // Channel Pressure
+      getSerialByte(); // Ignore the extra bytes for these commands
+      getSerialByte();
+      break;
+
+    case 0xB0: // Control Change
+      handleControlChange(midiChannel);
+      break;
+
+    case 0xE0: // Pitch Bend
+      handlePitchBend(midiChannel);
+      break;
+  }
 }
 
-if (controlNumber == 3) { 
-    controlValue3 = controlValue;
-    vibratoDepth = map(controlValue3, 1, 127, 0, 12); // Adjust depth; higher values = stronger effect
+void setupOCR1AOnce() {
+  if (!setupOCR1A) {
+    cli(); // Disable global interrupts
+    OCR1A = 75;
+    setupOCR1A = true;
+    sei(); // Re-enable global interrupts
+  }
 }
-  if (controlNumber == 4) {
-    controlValue4 = controlValue; }
-  if (controlNumber == 5) {
-    controlValue5 = controlValue; }
-if (controlNumber == 6) { 
-    switch (controlValue) {
-        case 0 ... 7:
-            currentPattern = pattern1; // Pattern 1
-            arpeggioLength = sizeof(pattern1);
-            break;
-        case 8 ... 15:
-            currentPattern = pattern2; // Pattern 2
-            arpeggioLength = sizeof(pattern2);
-            break;
-        case 16 ... 23:
-            currentPattern = pattern3; // Pattern 3
-            arpeggioLength = sizeof(pattern3);
-            break;
-        case 24 ... 31:
-            currentPattern = pattern4; // Pattern 4
-            arpeggioLength = sizeof(pattern4);
-            break;
-        case 32 ... 39:
-            currentPattern = pattern5; // Pattern 5
-            arpeggioLength = sizeof(pattern5);
-            break;
-        case 40 ... 47:
-            currentPattern = pattern6; // Pattern 6
-            arpeggioLength = sizeof(pattern6);
-            break;
-        case 48 ... 55:
-            currentPattern = pattern7; // Pattern 7
-            arpeggioLength = sizeof(pattern7);
-            break;
-        case 56 ... 63:
-            currentPattern = pattern8; // Pattern 8
-            arpeggioLength = sizeof(pattern8);
-            break;
-        case 64 ... 71:
-            currentPattern = pattern9; // Pattern 9
-            arpeggioLength = sizeof(pattern9);
-            break;
-        case 72 ... 79:
-            currentPattern = pattern10; // Pattern 10
-            arpeggioLength = sizeof(pattern10);
-            break;
-        case 80 ... 87:
-            currentPattern = pattern11; // Pattern 11
-            arpeggioLength = sizeof(pattern11);
-            break;
-        case 88 ... 95:
-            currentPattern = pattern12; // Pattern 12
-            arpeggioLength = sizeof(pattern12);
-            break;
-        case 96 ... 103:
-            currentPattern = pattern13; // Pattern 13
-            arpeggioLength = sizeof(pattern13);
-            break;
-        case 104 ... 111:
-            currentPattern = pattern14; // Pattern 14
-            arpeggioLength = sizeof(pattern14);
-            break;
-        case 112 ... 119:
-            currentPattern = pattern15; // Pattern 15
-            arpeggioLength = sizeof(pattern15);
-            break;
-        case 120 ... 127:
-            currentPattern = pattern16; // Pattern 16
-            arpeggioLength = sizeof(pattern16);
-            break;
+
+byte constrainVelocity(byte velo) {
+  velo = constrain(velo, 0, 127);
+  return (controlValue4 == 0) ? 127 : map(velo, 0, 127, map(controlValue4, 127, 1, 64, 127), 127);
+}
+
+void applyNoteLengthDelay(void (*stopFunction)(byte, byte), byte note, byte midiChannel) {
+  if (controlValue10 > 0) {
+    delay(noteLengthDelay);
+    stopFunction(note, midiChannel);
+  }
+}
+
+void handleControlChange(byte midiChannel) {
+  byte controlNumber = getSerialByte();
+  byte controlValue = getSerialByte();
+
+  switch (controlNumber) {
+    case 1: // Detune
+      controlValue1 = controlValue;
+      detuneValue = map(controlValue1, 0, 127, -64, 63);
+      applyDetuneToActiveNotes(midiChannel);
+      break;
+    case 2: controlValue2 = controlValue; vibratoRate = map(controlValue2, 1, 127, 1, 10); break;
+    case 3: controlValue3 = controlValue; vibratoDepth = map(controlValue3, 1, 127, 0, 12); break;
+    case 4: controlValue4 = controlValue; break;
+    case 5: controlValue5 = controlValue; break;
+    case 6: handlePatternChange(controlValue); break;
+    case 7: controlValue7 = controlValue; break;
+    case 8: handleOctaveOffset(controlValue); break;
+    case 9: setBankB = (controlValue > 64); break;
+    case 10: controlValue10 = controlValue; noteLength = map(controlValue, 0, 127, 300, 2000); break;
+  }
+}
+
+void handlePatternChange(byte controlValue) {
+  const byte *patterns[] = {pattern1, pattern2, pattern3, pattern4, pattern5, pattern6, pattern7, pattern8, pattern9, pattern10,
+                            pattern11, pattern12, pattern13, pattern14, pattern15, pattern16};
+  int patternIndex = controlValue / 8;
+  currentPattern = patterns[patternIndex];
+  arpeggioLength = sizeof(patterns[patternIndex]);
+}
+
+void handleOctaveOffset(byte controlValue) {
+  if (controlValue == 0) octaveOffset = 0;
+  else if (controlValue <= 21) octaveOffset = -36;
+  else if (controlValue <= 43) octaveOffset = -24;
+  else if (controlValue <= 63) octaveOffset = -12;
+  else if (controlValue <= 84) octaveOffset = 0;
+  else if (controlValue <= 105) octaveOffset = 12;
+  else if (controlValue <= 126) octaveOffset = 24;
+  else octaveOffset = 36;
+}
+
+void handlePitchBend(byte midiChannel) {
+  setPinHigh(__LEDPORT__, __LED__);
+  byte pitchBendLSB = getSerialByte();
+  byte pitchBendMSB = getSerialByte();
+  pitchBendValue = -(((pitchBendMSB << 7) | pitchBendLSB) - 8192);
+  if (noteActiveA) (setBankB ? playNoteB : playNote)(noteA, velocityValue, midiChannel, pitchBendValue);
+  if (noteActiveB) (setBankB ? playNoteB : playNote)(noteB, velocityValue, midiChannel, pitchBendValue);
+  if (noteActiveC) (setBankB ? playNoteB : playNote)(noteC, velocityValue, midiChannel, pitchBendValue);
+  
+  CLEAR(__LEDPORT__, __LED__);
+}
+
+void applyDetuneToActiveNotes(byte midiChannel) {
+  byte notes[] = {noteA, noteB, noteC};
+  bool noteActives[] = {noteActiveA, noteActiveB, noteActiveC};
+  bool detuneActives[] = {detuneActiveA, detuneActiveB, detuneActiveC};
+
+  for (int i = 0; i < 3; i++) {
+    if (noteActives[i] && detuneActives[i]) {
+      if (setBankB) playNoteB(notes[i], velocityValue, midiChannel, pitchBendValue);
+      else playNote(notes[i], velocityValue, midiChannel, pitchBendValue);
     }
-}
-if (controlNumber == 7) {
-controlValue7 = controlValue;
-}if (controlNumber == 8) {
-    switch (controlValue) {
-        case 0:
-           octaveOffset = 0;
-            break;
-        case 1 ... 21:
-            octaveOffset = -36;
-            break;
-        case 22 ... 43:
-            octaveOffset = -24;
-            break;
-        case 44 ... 63:
-            octaveOffset = -12;
-            break;
-        case 64 ... 84:
-            octaveOffset = 0;
-            break;
-        case 85 ... 105:
-            octaveOffset = 12;
-            break;
-        case 106 ... 126:
-            octaveOffset = 24;
-            break;
-        case 127:
-            octaveOffset = 36;
-            break;
-    }
-}
-  if (controlNumber == 9) {
-  if (controlValue > 64){setBankB = true;} else {setBankB = false;}
-  }
-  if (controlNumber == 10) {
-    controlValue10 = controlValue;
-    noteLength = map(controlValue, 0, 127, 300, 2000); // 10 ms for very short, up to 200 ms
-  }
-  }
-  else if (commandMSB == 0xC0) // Program change
-  {
-    byte program = getSerialByte();
-  }
-  else if (commandMSB == 0xD0) // Channel pressure
-  {
-    byte pressure = getSerialByte();
-  }
-  else if (commandMSB == 0xE0) // Pitch bend
-  { 
-    setPinHigh(__LEDPORT__, __LED__);
-    byte pitchBendLSB = getSerialByte();
-    byte pitchBendMSB = getSerialByte();
-    pitchBendValue = ((pitchBendMSB << 7) | pitchBendLSB) - 8192; // Adjust to -8192 to +8191 range
-    pitchBendValue = -pitchBendValue; // Invert to correct direction
-        // Now you can use pitchBendValue as needed
-        // For example, you might want to replay the note with the new pitch bend value
-        if (noteActiveA == 1 && setBankB == false) {
-        playNote(noteA, velocityValue, midiChannel, pitchBendValue); }
-        if (noteActiveB == 1 && setBankB == false) {
-        playNote(noteB, velocityValue, midiChannel, pitchBendValue); }
-        if (noteActiveC == 1 && setBankB == false) {
-        playNote(noteC, velocityValue, midiChannel, pitchBendValue); }
-        if (noteActiveA == 1 && setBankB == true) {
-        playNoteB(noteA, velocityValue, midiChannel, pitchBendValue); }
-        if (noteActiveB == 1 && setBankB == true) {
-        playNoteB(noteB, velocityValue, midiChannel, pitchBendValue); }
-        if (noteActiveC == 1 && setBankB == true) {
-        playNoteB(noteC, velocityValue, midiChannel, pitchBendValue); }
-   CLEAR(__LEDPORT__, __LED__); 
   }
 }
 
