@@ -4,7 +4,7 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
     if (note < 24) return; // Invalid note, exit function
     setPinHigh(__LEDPORT__, __LED__);
     // Ensure velocity is within the valid range
-    volume = map(velo, 0, 127, 0, 15); // Scale velocity to volume range (0-15)
+    volume = map(velo, 0, 127, 0, 14); // Scale velocity to volume range (0-15)
 
     // Handle MIDI Channel 1
     if (chan == 0) {
@@ -135,18 +135,20 @@ else if (chan == 5) { // MIDI Channel 6
     arpeggioCounter = 0; // Reset arpeggio counter
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
     periodA = envTp[note + detuneValue] * pitchBendFactor;
+    periodB = envTp[note + 12] * pitchBendFactor;
 
-    byte LSB = (periodA & 0x00FF); // Get LSB of period A
+    byte LSB = (periodA & 0x0000); // Get LSB of period A
     byte MSB = ((periodA >> 8) & 0x000F); // Get MSB of period A
+    byte BLSB = (periodB & 0x00FF); // Get LSB of period A
+    byte BMSB = ((periodB >> 8) & 0x000F); // Get MSB of period A
 
     cli(); // Disable interrupts 
     send_data(0x00, LSB); // Send LSB to register 0x0B
     send_data(0x01, MSB); // Send MSB to register 0x0C
-    send_data(0x08, volume); // Set volume based on velocity for Channel A
     send_data(0x08, 0x10); // Enable envelope mode
-    send_data(0x0B, LSB); // Send LSB to register 0x0B
-    send_data(0x0C, MSB); // Send MSB to register 0x0C
-    send_data(0x0D, 0b00001000); // Set attack and sustain
+    send_data(0x0B, BLSB); // Send LSB to register 0x0B
+    send_data(0x0C, BMSB); // Send MSB to register 0x0C
+    send_data(0x0D, 0b00001100); // Set attack and sustain
     sei(); // Enable interrupts
 }
 else if (chan == 6) { // MIDI Channel 7
@@ -164,7 +166,7 @@ else if (chan == 6) { // MIDI Channel 7
 
     cli(); // Disable interrupts
     send_data(0x08, 0x10); // Enable envelope mode
-    send_data(0x09, 127); // Enable velocity volume
+    send_data(0x09, volume); // Enable velocity volume
     send_data(0x0B, LSB); // Send LSB to register 0x0B
     send_data(0x0C, MSB); // Send MSB to register 0x0C
     send_data(0x0D, 0b00001010); // Set attack and sustain
@@ -211,7 +213,7 @@ else if (chan == 8) { // MIDI Channel 9
     periodA = envTp[note] * pitchBendFactor;
     periodB = tp[note - 24] * pitchBendFactor; // Retrieve period for note B
 
-    byte LSB = (periodA & 0x00FF); // Get LSB of period A
+    byte LSB = (periodA & 0xFFFF); // Get LSB of period A
     byte MSB = ((periodA >> 8) & 0x000F); // Get MSB of period A
     byte BLSB = (periodB & 0x00FF); // Get LSB of period B
     byte BMSB = ((periodB >> 8) & 0x000F); // Get MSB of period B
