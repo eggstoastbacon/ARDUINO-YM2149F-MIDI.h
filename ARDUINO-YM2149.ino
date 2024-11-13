@@ -349,6 +349,13 @@ int indexA = adjustedNoteA + currentPattern[arpeggioCounter];
  // }
 }
 
+ISR(TIMER2_COMPA_vect) {
+  if (sampleCounter < sampleLength) //send current sample
+  {
+    send_data(0x0A, pgm_read_byte_near(sampleOffset + sampleCounter++));
+  }
+}
+
 bool setupOCR1A = false;
 
 
@@ -387,6 +394,14 @@ void setup(){
   TCCR1B |= (1 << CS12);  // Set prescaler to 256
   TCCR1B |= (1 << CS10);  // Set prescaler to 256
   TIMSK1 |= (1 << OCIE1A); // Enable Timer1 compare interrupt
+  
+  // Sample timer settings need to be slower than what the other timer runs at
+  TCCR2A = 0;
+  TCCR2B = 0; 
+  TCCR2A |= (1 << WGM21); 
+  OCR2A = 1450; 
+  TIMSK2 |= (1 << OCIE2A);
+  TCCR2B |= (1 << CS21); 
   sei();
   
   //say hello
