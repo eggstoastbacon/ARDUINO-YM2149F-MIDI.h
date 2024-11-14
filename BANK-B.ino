@@ -1,5 +1,12 @@
 void playNoteB(byte note, byte velo, byte chan, int pitchBendValue) {
 
+  // Volume table for YM2149 logarithmic scaling
+const uint8_t voltbl[32] = {0x00, 0x01, 0x01, 0x02, 0x02, 0x03, 0x03, 0x04, 0x05, 0x06, 0x07, 0x09,
+                            0x0B, 0x0D, 0x0F, 0x12, 0x16, 0x1A, 0x1F, 0x25, 0x2D, 0x35, 0x3F, 0x4C,
+                            0x5A, 0x6A, 0x7F, 0x97, 0xB4, 0xD6, 0xFF, 0xFF};
+
+// Helper function to set volume based on YM2149 volume table
+
     // Check if the note value is within the valid range
     if (note < 24) return; // Invalid note, exit function
     setPinHigh(__LEDPORT__, __LED__);
@@ -9,75 +16,84 @@ void playNoteB(byte note, byte velo, byte chan, int pitchBendValue) {
     // Handle MIDI Channel 1
     if (chan == 0) {
     noteActiveA = 1;
-    noteActiveB = 1;
-    noteActiveC = 1;
-    detuneActiveC = 1;
+    detuneActiveA = 1;
     arpeggioFlipMe = true;
     timerTicks = 0;
-    arpeggioCounter = 0; // Reset arpeggio counter
-    noteA = note; // Set the note for Channel A
-    noteB = note; // Set the note for Channel B
-    noteC = note; // Set the note for Channel C
+    arpeggioCounter = 0; // Reset arpeggio counter        
+    noteA = note; // Set the note for Channel B
+
+    // Calculate pitch bend
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
-    int periodA = (tp[note]) * pitchBendFactor;  // Retrieve the period for note A
-    int periodB = (tp[note]) * pitchBendFactor; // Retrieve the period for note B
-    int periodC = (tp[note] + detuneValue) * pitchBendFactor; // Retrieve the period for note C
+    int periodA = tp[note + detuneValue] * pitchBendFactor; // Retrieve the period for the note
+    byte LSB = (periodA & 0xFF); // Get the LSB of the period
+    byte MSB = ((periodA >> 8) & 0x0F); // Get the MSB of the period
 
-    byte ALSB = (periodA & 0x00FF); // Get the LSB of period A
-    byte AMSB = ((periodA >> 8) & 0x000F); // Get the MSB of period A
-    byte BLSB = (periodB & 0x00FF); // Get the LSB of period B
-    byte BMSB = ((periodB >> 8) & 0x000F); // Get the MSB of period B
-    byte CLSB = (periodC & 0x00FF); // Get the LSB of period C
-    byte CMSB = ((periodC >> 8) & 0x000F); // Get the MSB of period C
+    cli(); // Disable interrupts to ensure stable transmission
 
-    cli(); // Disable interrupts
-    send_data(0x00, ALSB); // Send LSB of period A to register 0x00
-    send_data(0x01, AMSB); // Send MSB of period A to register 0x01
-    send_data(0x02, BLSB); // Send LSB of period B to register 0x02
-    send_data(0x03, BMSB); // Send MSB of period B to register 0x03
-    send_data(0x04, CLSB); // Send LSB of period C to register 0x04
-    send_data(0x05, CMSB); // Send MSB of period C to register 0x05
-    send_data(0x08, volume); // Set volume based on velocity for Channel A
-    send_data(0x09, volume); // Set volume based on velocity for Channel B
-    send_data(0x0A, volume); // Set volume based on velocity for Channel C
+    // Set the mixer register to enable tone only on Channel B (no noise)
+    setMixer(true, false, false, false, false, false); // Enable tone and noise on Channel B only
+    // Set frequency (period) for Channel C
+    send_data(0x00, LSB);  // Send LSB to register 0x04 for Channel B
+    send_data(0x01, MSB);  // Send MSB to register 0x05 for Channel B
+    // Set volume for Channel C using the new function
+    setVolume(0, volume); // Channel C, volume level 15 (maximum)
+    // Optionally, set an envelope to test sound shaping on Channel B
+    setEnvelope(0x6000, 0x4000); 
+    sei(); // Re-enable interrupts
     sei(); // Enable interrupts
     }
     // Handle MIDI Channel 2
     else if (chan == 1) {
-        noteActiveB = 1;
-        detuneActiveB = 0;
-        arpeggioFlipMe = true;
-        timerTicks = 0;
-        arpeggioCounter = 0; // Reset arpeggio counter
-        noteB = note; // Set the note for Channel B       // Calculate the period based on pitch bend value
-        float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
-        int periodB = tp[note] * pitchBendFactor; 
-        byte LSB = (periodB & 0x00FF); // Get the LSB of the period
-        byte MSB = ((periodB >> 8) & 0x000F); // Get the MSB of the period
-        cli(); // Disable interrupts
-        arpeggioCounter = 0; // Reset arpeggio counter
-        send_data(0x02, LSB); // Send LSB to register 0x02
-        send_data(0x03, MSB); // Send MSB to register 0x03
-        send_data(0x09, volume); // comment to disable volume based on velocity
-        sei(); // Enable interrupts
+    noteActiveB = 1;
+    detuneActiveB = 1;
+    arpeggioFlipMe = true;
+    timerTicks = 0;
+    arpeggioCounter = 0; // Reset arpeggio counter        
+    noteB = note; // Set the note for Channel B
+
+    // Calculate pitch bend
+    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
+    int periodB = tp[note + detuneValue] * pitchBendFactor; // Retrieve the period for the note
+    byte LSB = (periodB & 0xFF); // Get the LSB of the period
+    byte MSB = ((periodB >> 8) & 0x0F); // Get the MSB of the period
+
+    cli(); // Disable interrupts to ensure stable transmission
+
+    // Set the mixer register to enable tone only on Channel B (no noise)
+    setMixer(false, false, true, false, false, false); // Enable tone and noise on Channel B only
+
+    // Set frequency (period) for Channel C
+    send_data(0x02, LSB);  // Send LSB to register 0x04 for Channel B
+    send_data(0x03, MSB);  // Send MSB to register 0x05 for Channel B
+
+    // Set volume for Channel C using the new function
+    setVolume(1, volume); // Channel C, volume level 15 (maximum)
+
+    // Optionally, set an envelope to test sound shaping on Channel B
+    setEnvelope(0x00, 0x0E); 
+    sei(); // Re-enable interrupts
     }
     // Handle MIDI Channel 3
     else if (chan == 2) {
-        noteActiveC = 1;
-        detuneActiveC = 0;
-        arpeggioFlipMe = true;
-        timerTicks = 0;
-        arpeggioCounter = 0; // Reset arpeggio counter        
-        noteC = note; // Set the note for Channel C
-        float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
-        int periodC = tp[note] * pitchBendFactor; // Retrieve the period for the note
-        byte LSB = (periodC & 0x00FF); // Get the LSB of the period
-        byte MSB = ((periodC >> 8) & 0x000F); // Get the MSB of the period
-        cli(); // Disable interrupts
-        send_data(0x04, LSB); // Send LSB to register 0x04
-        send_data(0x05, MSB); // Send MSB to register 0x05
-        send_data(0x0A, volume); // comment to disable volume based on velocity
-        sei(); // Enable interrupts
+      noteActiveC = 1;
+    detuneActiveC = 1;
+    arpeggioFlipMe = true;
+    timerTicks = 0;
+    arpeggioCounter = 0; // Reset arpeggio counter        
+    noteC = note; // Set the note for Channel C
+
+    // Calculate pitch bend
+    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
+    int periodC = tp[note + detuneValue] * pitchBendFactor; // Retrieve the period for the note
+    byte LSB = (periodC & 0xFF); // Get the LSB of the period
+    byte MSB = ((periodC >> 8) & 0x0F); // Get the MSB of the period
+    cli(); // Disable interrupts to ensure stable transmission
+    setMixer(false, false, false, false, true, false); // Enable tone and noise on Channel C only
+    send_data(0x04, LSB);  // Send LSB to register 0x04 for Channel C
+    send_data(0x05, MSB);  // Send MSB to register 0x05 for Channel C
+    setVolume(2, volume); // Channel C, volume level 15 (maximum)
+    setEnvelope(0x0800, 0x09); // Example envelope frequency and shape (adjust as needed)
+    sei(); // Re-enable interrupts
     }
     // Handle MIDI Channel 4
     else if (chan == 3) {
@@ -99,12 +115,15 @@ void playNoteB(byte note, byte velo, byte chan, int pitchBendValue) {
             byte BLSB = (periodB & 0x00FF); // Get the LSB of period B
             byte BMSB = ((periodB >> 8) & 0x000F); // Get the MSB of period B
             cli(); // Disable interrupts
+            setMixer(true, false, true, false, true, false); // Enable tone and noise on Channel ABC
             send_data(0x00, ALSB); // Send LSB of period A to register 0x00
             send_data(0x01, AMSB); // Send MSB of period A to register 0x01
             send_data(0x02, BLSB); // Send LSB of period B to register 0x02
             send_data(0x03, BMSB); // Send MSB of period B to register 0x03
-            send_data(0x08, volume); // Set volume based on velocity for Channel A
-            send_data(0x09, volume); // Set volume based on velocity for Channel B
+            setVolume(0, volume); // Channel A, volume level 15 (maximum)
+            setVolume(1, volume); // Channel B, volume level 15 (maximum)
+            setVolume(2, volume); // Channel C, volume level 15 (maximum)
+            setEnvelope(0x6000, 0x4000); // Example envelope frequency and shape (adjust as needed)
             sei(); // Enable interrupts
         }
     }
@@ -133,15 +152,17 @@ else if (chan == 4) {
     byte CMSB = ((periodC >> 8) & 0x000F); // Get the MSB of period C
 
     cli(); // Disable interrupts
+    setMixer(true, false, true, false, true, false); // Enable tone and noise on Channel ABC
     send_data(0x00, ALSB); // Send LSB of period A to register 0x00
     send_data(0x01, AMSB); // Send MSB of period A to register 0x01
     send_data(0x02, BLSB); // Send LSB of period B to register 0x02
     send_data(0x03, BMSB); // Send MSB of period B to register 0x03
     send_data(0x04, CLSB); // Send LSB of period C to register 0x04
     send_data(0x05, CMSB); // Send MSB of period C to register 0x05
-    send_data(0x08, volume); // Set volume based on velocity for Channel A
-    send_data(0x09, volume); // Set volume based on velocity for Channel B
-    send_data(0x0A, volume); // Set volume based on velocity for Channel C
+    setVolume(0, volume - 3); // Channel A, volume level 15 (maximum)
+    setVolume(1, volume); // Channel B, volume level 15 (maximum)
+    setVolume(2, volume - 3); // Channel C, volume level 15 (maximum)
+    setEnvelope(0xF000, 0x0A); // Example envelope frequency and shape (adjust as needed)
     sei(); // Enable interrupts
 }
 else if (chan == 5) { // MIDI Channel 6
@@ -153,39 +174,45 @@ else if (chan == 5) { // MIDI Channel 6
     arpeggioCounter = 0; // Reset arpeggio counter
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
     periodA = envTp[note + detuneValue] * pitchBendFactor;
-
     byte LSB = (periodA & 0x00FF); // Get LSB of period A
     byte MSB = ((periodA >> 8) & 0x000F); // Get MSB of period A
 
     cli(); // Disable interrupts 
+    setMixer(true, false, false, false, false, false); // Enable tone and noise on Channel ABC
     send_data(0x00, LSB); // Send LSB to register 0x0B
     send_data(0x01, MSB); // Send MSB to register 0x0C
-    send_data(0x08, volume); // Set volume based on velocity for Channel A
-    send_data(0x08, 0x10); // Enable envelope mode
     send_data(0x0B, LSB); // Send LSB to register 0x0B
     send_data(0x0C, MSB); // Send MSB to register 0x0C
-    send_data(0x0D, 0b00001000); // Set attack and sustain
+    setVolume(0, volume); // Channel A, volume level 15 (maximum)
+    setEnvelope(0x4000, 0x08);
     sei(); // Enable interrupts
 }
 else if (chan == 6) { // MIDI Channel 7
     noteActiveA = 1;
     detuneActiveA = 0;
     noteA = note;
+    noteB = note;
     arpeggioFlipMe = true;
     timerTicks = 0;
     arpeggioCounter = 0; // Reset arpeggio counter
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange); // Adjust frequency based on pitch bend
     periodA = (envTp[note]) * pitchBendFactor;
+    periodB = (envTp[note]) * pitchBendFactor;
 
     byte LSB = (periodA & 0x00FF); // Get LSB of period A
     byte MSB = ((periodA >> 8) & 0x000F); // Get MSB of period A
+    byte BLSB = (periodB & 0x00FF); // Get LSB of period A
+    byte BMSB = ((periodB >> 8) & 0x000F); // Get MSB of period A
 
     cli(); // Disable interrupts
-    send_data(0x08, 0x10); // Enable envelope mode
-    send_data(0x09, 127); // Enable velocity volume
+    setMixer(true, false, true, false, false, false); // Enable tone and noise on Channel ABC
+    send_data(0x02, BLSB); // Send LSB to register 0x0B
+    send_data(0x03, BMSB); // Send MSB to register 0x0C
     send_data(0x0B, LSB); // Send LSB to register 0x0B
     send_data(0x0C, MSB); // Send MSB to register 0x0C
-    send_data(0x0D, 0b00001010); // Set attack and sustain
+    setVolume(0, volume); // Channel A, volume level 15 (maximum)
+    setVolume(1, volume); // Channel A, volume level 15 (maximum)
+    setEnvelope(0x4000, 0x08); // Slower decay with smooth fade
     sei(); // Enable interrupts
 }
 else if (chan == 7) { // MIDI Channel 8
@@ -369,22 +396,17 @@ void stopNoteB(byte note, byte chan)
 {
     // Check if the channel is 0 (MIDI Channel 1)
     if (chan == 0 && note == noteA) {
-        // Stop note A for channel 5
+        // Stop note A
         noteActiveA = 0;
-        noteActiveB = 0;
-        noteActiveC = 0;
         arpeggioFlipMe = false;
         timerTicks = 0;
         noteA = periodA = 0; // Reset note and period
-        noteB = periodB = 0; // Stop note B
-        noteC = periodC = 0; // Stop note C
         cli(); // Disable interrupts
-        send_data(0x00, 0); // Stop Channel 1 frequency LSB
-        send_data(0x01, 0); // Stop Channel 1 frequency MSB
-        send_data(0x02, 0); // Stop Channel 2 frequency LSB
-        send_data(0x03, 0); // Stop Channel 2 frequency MSB
-        send_data(0x04, 0); // Stop Channel 3 frequency LSB
-        send_data(0x05, 0); // Stop Channel 3 frequency MSB
+        send_data(0x00, 0); // Stop Channel 2 frequency LSB
+        send_data(0x01, 0); // Stop Channel 2 frequency MSB
+        setVolume(0, 0); 
+        setEnvelope(0x0000, 0x00); // Zero frequency and a neutral shape to stop the envelope
+        send_data(0x0D, 0); // Stop envelope effect
         sei(); // Enable interrupts
     }
     // Check if the channel is 1 (MIDI Channel 2)
@@ -397,6 +419,9 @@ void stopNoteB(byte note, byte chan)
         cli(); // Disable interrupts
         send_data(0x02, 0); // Stop Channel 2 frequency LSB
         send_data(0x03, 0); // Stop Channel 2 frequency MSB
+        setVolume(1, 0); 
+        setEnvelope(0x0000, 0x00); // Zero frequency and a neutral shape to stop the envelope
+        send_data(0x0D, 0); // Stop envelope effect
         sei(); // Enable interrupts
     }
     // Check if the channel is 2 (MIDI Channel 3)
@@ -409,6 +434,9 @@ void stopNoteB(byte note, byte chan)
         cli(); // Disable interrupts
         send_data(0x04, 0); // Stop Channel 3 frequency LSB
         send_data(0x05, 0); // Stop Channel 3 frequency MSB
+        setVolume(2, 0); 
+        setEnvelope(0x0000, 0x00); // Zero frequency and a neutral shape to stop the envelope
+        send_data(0x0D, 0); // Stop envelope effect
         sei(); // Enable interrupts
     }
     // Check if the channel is 3 (MIDI Channel 4)
@@ -424,6 +452,10 @@ void stopNoteB(byte note, byte chan)
         send_data(0x01, 0); // Stop Channel 1 frequency MSB
         send_data(0x02, 0); // Stop Channel 2 frequency LSB
         send_data(0x03, 0); // Stop Channel 2 frequency MSB
+        setEnvelope(0x0000, 0x00); // Zero frequency and a neutral shape to stop the envelope
+        setVolume(0, 0); // Channel A, volume level 15 (maximum)
+        setVolume(1, 0); // Channel B, volume level 15 (maximum)
+        setVolume(2, 0); // Channel C, volume level 15 (maximum)
         sei(); // Enable interrupts
     }
     // Check if the channel is 4 (MIDI Channel 5)
@@ -444,6 +476,10 @@ void stopNoteB(byte note, byte chan)
         send_data(0x03, 0); // Stop Channel 2 frequency MSB
         send_data(0x04, 0); // Stop Channel 3 frequency LSB
         send_data(0x05, 0); // Stop Channel 3 frequency MSB
+        setEnvelope(0x0000, 0x00); // Zero frequency and a neutral shape to stop the envelope
+        setVolume(0, 0); // Channel A, volume level 15 (maximum)
+        setVolume(1, 0); // Channel B, volume level 15 (maximum)
+        setVolume(2, 0); // Channel C, volume level 15 (maximum)
         sei(); // Enable interrupts
     }
     // Check if the channel is 5 (MIDI Channel 6)
@@ -459,7 +495,8 @@ void stopNoteB(byte note, byte chan)
         send_data(0x08, 0); 
         send_data(0x0B, 0); // Send LSB to register 0x0B
         send_data(0x0C, 0); // Send MSB to register 0x0C
-        send_data(0x08, AmaxVolume); // Set maximum volume
+        setEnvelope(0x0000, 0x00); // Zero frequency and a neutral shape to stop the envelope
+        setVolume(0, 0); // Channel A, volume level 15 (maximum)
         sei(); // Enable interrupts
     }
     // Check if the channel is 6 (MIDI Channel 7)
@@ -470,8 +507,11 @@ void stopNoteB(byte note, byte chan)
         timerTicks = 0;
         noteA = periodA = 0; // Reset note and period
         cli(); // Disable interrupts
-        send_data(0x0D, 0); // Stop envelope effect
-        send_data(0x08, AmaxVolume); // Set maximum volume
+        send_data(0x02, 0);
+        send_data(0x03, 0);
+        setEnvelope(0x0000, 0x00); // Zero frequency and a neutral shape to stop the envelope
+        setVolume(0, 0); // Channel A, volume level 15 (maximum)
+        setVolume(1, 0); // Channel A, volume level 15 (maximum)
         sei(); // Enable interrupts
     }
     // Check if the channel is 7 (MIDI Channel 8)
