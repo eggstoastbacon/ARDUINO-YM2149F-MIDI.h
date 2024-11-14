@@ -530,13 +530,15 @@ void stopNoteB(byte note, byte chan)
         noteA = periodA = 0; // Reset note and period
         noteB = periodB = 0; // Stop note B
         cli(); // Disable interrupts
-        send_data(0x02, 0); // Stop Channel 2 frequency LSB
-        send_data(0x03, 0); // Stop Channel 2 frequency MSB
+        send_data(0x00, 0); // Stop Channel A frequency LSB
+        send_data(0x01, 0); // Stop Channel A frequency MSB
+        send_data(0x02, 0); // Stop Channel B frequency LSB
+        send_data(0x03, 0); // Stop Channel B frequency MSB
         send_data(0x0B, 0); // Stop period A
         send_data(0x0C, 0); // Stop period A
         setEnvelope(0x0000, 0x00); // Zero frequency and a neutral shape to stop the envelope
         setVolume(0, 0); // Channel A, volume level 15 (maximum)
-        setVolume(1, 0); // Channel A, volume level 15 (maximum)
+        setVolume(1, 0); // Channel B, volume level 15 (maximum)
         sei(); // Enable interrupts
     }
 
