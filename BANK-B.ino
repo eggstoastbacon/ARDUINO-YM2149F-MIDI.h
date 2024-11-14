@@ -234,19 +234,21 @@ else if (chan == 7) { // MIDI Channel 8
     byte BMSB = ((periodB >> 8) & 0x000F); // Get MSB of period B
 
     cli(); // Disable interrupts
+    setMixer(true, false, true, false, false, false); // Enable tone and noise on Channel AB
     send_data(0x02, BLSB); // Send LSB of period B
     send_data(0x03, BMSB); // Send MSB of period B
     send_data(0x08, 0x10); // Enable envelope mode
-    send_data(0x09, volume); // Enable velocity volume
     send_data(0x0B, LSB); // Send LSB of period A
     send_data(0x0C, MSB); // Send MSB of period A
-    send_data(0x0D, 0b00001100); // Set attack and sustain
+    setVolume(0, volume); // Channel A, volume level 15 (maximum)
+    setVolume(1, volume); // Channel A, volume level 15 (maximum)
+    setEnvelope(0x2000, 0x02);
     sei(); // Enable interrupts
 }
 else if (chan == 8) { // MIDI Channel 9
     noteActiveA = 1;
     noteActiveB = 1;
-    detuneActiveB = 0;
+    detuneActiveB = 1;
     noteA = note;
     noteB = note;
     arpeggioFlipMe = true;
@@ -262,13 +264,15 @@ else if (chan == 8) { // MIDI Channel 9
     byte BMSB = ((periodB >> 8) & 0x000F); // Get MSB of period B
 
     cli(); // Disable interrupts
+    setMixer(true, false, true, false, false, false); // Enable tone and noise on Channel AB
     send_data(0x02, BLSB); // Send LSB of period B
     send_data(0x03, BMSB); // Send MSB of period B
     send_data(0x08, 0x10); // Enable envelope mode
-    send_data(0x09, volume); // Enable envelope mode
     send_data(0x0B, LSB); // Send LSB of period A
     send_data(0x0C, MSB); // Send MSB of period A
-    send_data(0x0D, 0b00001110); // Set attack and sustain
+    setVolume(0, volume - 2); // Channel A, volume level 15 (maximum)
+    setVolume(1, volume); // Channel B, volume level 15 (maximum)
+    setEnvelope(0x2000, 0x0F);
     sei(); // Enable interrupts
 }
 else if (chan == 10) { // MIDI Channel 11 Clicks and Pops
@@ -507,6 +511,8 @@ void stopNoteB(byte note, byte chan)
         timerTicks = 0;
         noteA = periodA = 0; // Reset note and period
         cli(); // Disable interrupts
+        send_data(0x00, 0);
+        send_data(0x01, 0);
         send_data(0x02, 0);
         send_data(0x03, 0);
         setEnvelope(0x0000, 0x00); // Zero frequency and a neutral shape to stop the envelope
@@ -528,12 +534,13 @@ void stopNoteB(byte note, byte chan)
         send_data(0x03, 0); // Stop Channel 2 frequency MSB
         send_data(0x0B, 0); // Stop period A
         send_data(0x0C, 0); // Stop period A
-        send_data(0x0D, 0); // Stop envelope effect
-        send_data(0x08, AmaxVolume); // Set maximum volume
+        setEnvelope(0x0000, 0x00); // Zero frequency and a neutral shape to stop the envelope
+        setVolume(0, 0); // Channel A, volume level 15 (maximum)
+        setVolume(1, 0); // Channel A, volume level 15 (maximum)
         sei(); // Enable interrupts
     }
-    // Check if the channel is 8 (MIDI Channel 9)
-    else if (chan == 8 && note == noteA) {
+
+    else if (chan == 8 && note == noteA) {     // (MIDI Channel 9)
         // Stop note A for channel 9
         noteActiveA = 0;
         noteActiveB = 0;
@@ -547,11 +554,12 @@ void stopNoteB(byte note, byte chan)
         send_data(0x0D, 0); // Stop envelope effect
         send_data(0x0B, 0); // Stop Channel 3 frequency LSB
         send_data(0x0C, 0); // Stop Channel 3 frequency MSB
-        send_data(0x08, AmaxVolume); // Set maximum volume
+        setEnvelope(0x0000, 0x00); // Zero frequency and a neutral shape to stop the envelope
+        setVolume(0, 0); // Channel A, volume level 15 (maximum)
+        setVolume(1, 0); // Channel A, volume level 15 (maximum)
         sei(); // Enable interrupts
     }
-    // Check if the channel is 10 (MIDI Channel 11)
-    else if (chan == 10 && note == noteA) {
+    else if (chan == 10 && note == noteA) {     // (MIDI Channel 11)
         noteActiveA = 0;
         arpeggioFlipMe = false;
         timerTicks = 0;
