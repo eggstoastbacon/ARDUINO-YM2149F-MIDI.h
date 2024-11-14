@@ -79,7 +79,7 @@ byte BmaxVolume = 0;
 byte CmaxVolume = 0;
 
 //detune
-int detuneValue = 1;
+int detuneValue = 0;
 int detuneActiveA = 0;
 int detuneActiveB = 0;
 int detuneActiveC = 0;
@@ -657,41 +657,34 @@ void resetYM()
     }
 }
 
-void send_data(unsigned char address, unsigned char data)
-{
-  // Temporary array to hold bit values for address and data
-  boolean value[8];
-  
-  // Process and send the address (8 bits)
-  for (int i = 0; i < 8; i++) {
-    value[i] = ((address & 0x01) == 1);  // Extract the least significant bit
-    address >>= 1;  // Right-shift address for the next bit
-  }
-  
-  // Output the address to YM pins
-  outputToYM(value);
-  
-  // Validate the address by setting the control pins
-  __BCPORT__ |= (1 << __BDIR__) | (1 << __BC1__);  // Enable address validation
-  delayMicroseconds(1);  // Small delay for timing
-  __BCPORT__ &= ~((1 << __BDIR__) | (1 << __BC1__));  // Disable address validation
+void send_data(unsigned char address, unsigned char data) {
+    // Process and send the address (8 bits)
+    boolean value[8];
+    for (int i = 0; i < 8; i++) {
+        value[i] = ((address & 0x01) == 1);  // Extract the least significant bit
+        address >>= 1;  // Right-shift address for the next bit
+    }
+    outputToYM(value);  // Output the address to YM pins
 
-  // Process and send the data (8 bits)
-  for (int i = 0; i < 8; i++) {
-    value[i] = ((data & 0x01) == 1);  // Extract the least significant bit
-    data >>= 1;  // Right-shift data for the next bit
-  }
+    // Validate the address by setting the control pins
+    __BCPORT__ |= (1 << __BDIR__) | (1 << __BC1__);  // Enable address validation
+    delayMicroseconds(1);  // Small delay for timing (increased for stability)
+    __BCPORT__ &= ~((1 << __BDIR__) | (1 << __BC1__));  // Disable address validation
 
-  // Output the data to YM pins
-  outputToYM(value);
-  
-  // Validate the data by setting the control pins
-  setPinHigh(__BCPORT__, __BDIR__);  // Activate the data validation signal
-  delayMicroseconds(1);  // delay for timing
-  setPinLow(__BCPORT__, __BDIR__);   // Deactivate the data validation signal
-  
-  // Optional: Reset the LED state
-  setPinLow(__LEDPORT__, __LED__);
+    // Process and send the data (8 bits)
+    for (int i = 0; i < 8; i++) {
+        value[i] = ((data & 0x01) == 1);  // Extract the least significant bit
+        data >>= 1;  // Right-shift data for the next bit
+    }
+    outputToYM(value);  // Output the data to YM pins
+
+    // Validate the data by setting the control pins
+    setPinHigh(__BCPORT__, __BDIR__);  // Activate the data validation signal
+    delayMicroseconds(1);  // Delay for timing (increased for stability)
+    setPinLow(__BCPORT__, __BDIR__);   // Deactivate the data validation signal
+
+    // Optional: Reset the LED state
+    setPinLow(__LEDPORT__, __LED__);
 }
 
 void outputToYM(boolean value[])
@@ -719,4 +712,40 @@ byte getSerialByte()
 {
   while(Serial.available() < 1) __asm__("nop\n\t");
   return Serial.read();
+}
+
+const uint8_t voltbl[16] = {0, 1, 3, 5, 9, 13, 17, 23, 31, 41, 53, 67, 83, 103, 127, 255};
+
+// Function to set volume for a channel
+void setVolume(uint8_t channel, uint8_t volume) {
+    uint8_t volReg;
+    if (channel == 0) volReg = 0x08;
+    else if (channel == 1) volReg = 0x09;
+    else if (channel == 2) volReg = 0x0A;
+    else return; // Invalid channel
+
+    uint8_t volumeValue = voltbl[volume & 0x0F]; // Limit to 4 bits, map through volume table
+    send_data(volReg, volumeValue);
+}
+
+void setMixer(bool toneA, bool noiseA, bool toneB, bool noiseB, bool toneC, bool noiseC) {
+    uint8_t mixerValue = 0;
+
+    if (!toneA) mixerValue |= 0x01; // Disable tone on Channel A
+    if (!toneB) mixerValue |= 0x02; // Disable tone on Channel B
+    if (!toneC) mixerValue |= 0x04; // Disable tone on Channel C
+    if (!noiseA) mixerValue |= 0x08; // Disable noise on Channel A
+    if (!noiseB) mixerValue |= 0x10; // Disable noise on Channel B
+    if (!noiseC) mixerValue |= 0x20; // Disable noise on Channel C
+
+    send_data(0x07, mixerValue);
+}
+
+void setEnvelope(uint16_t envFreq, uint8_t envShape) {
+    // Set envelope frequency
+    send_data(0x0B, envFreq & 0xFF); // LSB
+    send_data(0x0C, (envFreq >> 8) & 0xFF); // MSB
+
+    // Set envelope shape
+    send_data(0x0D, envShape);
 }
