@@ -202,4 +202,6 @@ Dansfing USB MIDI YM2149, simple to build. (You may be able to get a pre-built U
 
 Yukimizake build and code: https://electronicfields.wordpress.com/2012/04/09/ym2149-sound-generator-arduino-fast-pin-switching
 
+Trash80 code for a teensy build: https://github.com/trash80/Ym2149Synth
+
 Lab Rat Warfare: https://www.youtube.com/@LabRatWarfare
