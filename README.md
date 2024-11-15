@@ -152,7 +152,7 @@ Pattern 16: [C, A, C] // Root, Major Sixth, Octave
 
 
 
-## Presets (Each preset is on a different MIDI Channel)
+## BANK A Presets (Each preset is on a different MIDI Channel)
 
 - CH. 1: Voices 1 **Voices(A)** **Default Voice**. Play concurrently with any preset with voices (B and C).
 - CH. 2: Voices 1 **Voices(B)** **Default Voice**. Play concurrently with any preset with voices (A and C).
@@ -170,6 +170,10 @@ Pattern 16: [C, A, C] // Root, Major Sixth, Octave
 - CH. 14: Voices 3 **Voices(A, B and C)** **Gritty / Modulated**. Cannot play concurrently with other presets.
 - CH. 15: Empty
 - CH. 16: Empty
+
+## BANK B Presets (Each preset is on a different MIDI Channel)
+
+There are 14 more presets on Bank B but I havent completely finished them...
 
 ### *Note Sample Map (CH. 10)
 
