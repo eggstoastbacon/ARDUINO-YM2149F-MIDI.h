@@ -119,6 +119,7 @@ float pitchBendRange = 16384.0; // multiple of 8192.0, the smaller the more the 
 
 //volume
 byte volume;
+const uint8_t voltbl[16] = {0, 1, 3, 5, 9, 13, 17, 23, 31, 41, 53, 67, 83, 103, 127, 255};
 
 //velocity
 byte velo;
@@ -630,6 +631,39 @@ void playDigidrum(byte index, byte velo)
   }
 }
 
+void setVolume(uint8_t channel, uint8_t volume) {
+    uint8_t volReg;
+    if (channel == 0) volReg = 0x08;
+    else if (channel == 1) volReg = 0x09;
+    else if (channel == 2) volReg = 0x0A;
+    else return;
+
+    uint8_t volumeValue = voltbl[volume & 0x0F]; // Limit to 4 bits, map through volume table
+    send_data(volReg, volumeValue);
+}
+
+void setMixer(bool toneA, bool noiseA, bool toneB, bool noiseB, bool toneC, bool noiseC) {
+    uint8_t mixerValue = 0;
+
+    if (!toneA) mixerValue |= 0x01; // Disable tone on Channel A
+    if (!toneB) mixerValue |= 0x02; // Disable tone on Channel B
+    if (!toneC) mixerValue |= 0x04; // Disable tone on Channel C
+    if (!noiseA) mixerValue |= 0x08; // Disable noise on Channel A
+    if (!noiseB) mixerValue |= 0x10; // Disable noise on Channel B
+    if (!noiseC) mixerValue |= 0x20; // Disable noise on Channel C
+
+    send_data(0x07, mixerValue);
+}
+
+void setEnvelope(uint16_t envFreq, uint8_t envShape) {
+    // Set envelope frequency
+    send_data(0x0B, envFreq & 0xFF); // LSB
+    send_data(0x0C, (envFreq >> 8) & 0xFF); // MSB
+
+    // Set envelope shape
+    send_data(0x0D, envShape);
+}
+
 void resetYM()
 {
     digitalWrite(pinYMReset, LOW);
@@ -690,39 +724,4 @@ byte getSerialByte()
 {
   while(Serial.available() < 1) __asm__("nop\n\t");
   return Serial.read();
-}
-
-const uint8_t voltbl[16] = {0, 1, 3, 5, 9, 13, 17, 23, 31, 41, 53, 67, 83, 103, 127, 255};
-
-void setVolume(uint8_t channel, uint8_t volume) {
-    uint8_t volReg;
-    if (channel == 0) volReg = 0x08;
-    else if (channel == 1) volReg = 0x09;
-    else if (channel == 2) volReg = 0x0A;
-    else return;
-
-    uint8_t volumeValue = voltbl[volume & 0x0F]; // Limit to 4 bits, map through volume table
-    send_data(volReg, volumeValue);
-}
-
-void setMixer(bool toneA, bool noiseA, bool toneB, bool noiseB, bool toneC, bool noiseC) {
-    uint8_t mixerValue = 0;
-
-    if (!toneA) mixerValue |= 0x01; // Disable tone on Channel A
-    if (!toneB) mixerValue |= 0x02; // Disable tone on Channel B
-    if (!toneC) mixerValue |= 0x04; // Disable tone on Channel C
-    if (!noiseA) mixerValue |= 0x08; // Disable noise on Channel A
-    if (!noiseB) mixerValue |= 0x10; // Disable noise on Channel B
-    if (!noiseC) mixerValue |= 0x20; // Disable noise on Channel C
-
-    send_data(0x07, mixerValue);
-}
-
-void setEnvelope(uint16_t envFreq, uint8_t envShape) {
-    // Set envelope frequency
-    send_data(0x0B, envFreq & 0xFF); // LSB
-    send_data(0x0C, (envFreq >> 8) & 0xFF); // MSB
-
-    // Set envelope shape
-    send_data(0x0D, envShape);
 }
