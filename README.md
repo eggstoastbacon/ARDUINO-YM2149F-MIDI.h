@@ -154,6 +154,8 @@ Pattern 16: [C, A, C] // Root, Major Sixth, Octave
 
 ## BANK A Presets (Each preset is on a different MIDI Channel)
 
+Use CC9 to switch from Bank A to B
+
 - CH. 1: Voices 1 **Voices(A)** **Default Voice**. Play concurrently with any preset with voices (B and C).
 - CH. 2: Voices 1 **Voices(B)** **Default Voice**. Play concurrently with any preset with voices (A and C).
 - CH. 3: Voices 1 **Voices(C)** **Default Voice**. Play concurrently with any preset with voices (A and B).
@@ -174,6 +176,7 @@ Pattern 16: [C, A, C] // Root, Major Sixth, Octave
 ## BANK B Presets (Each preset is on a different MIDI Channel)
 
 There are 14 more presets on Bank B but I havent completely finished them...
+Use CC9 to switch from Bank A to B
 
 ### *Note Sample Map (CH. 10)
 
