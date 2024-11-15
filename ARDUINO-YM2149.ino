@@ -104,8 +104,8 @@ float pitchBendRange = 16384.0; // multiple of 8192.0, the smaller the more the 
 
 //volume
 byte volume;
-byte defaultVolume = 0x0B;
-const uint8_t voltbl[16] = {0, 4, 6, 6, 7, 8, 8, 10, 10, 11, 11, 12, 12, 14, 15, 15};
+byte defaultVolume = 0x0F;
+const uint8_t voltbl[16] = {2, 4, 6, 6, 7, 8, 8, 10, 10, 11, 11, 12, 12, 14, 15, 16};
 
 //velocity
 byte velo;
