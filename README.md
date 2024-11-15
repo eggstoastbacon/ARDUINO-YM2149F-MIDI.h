@@ -57,7 +57,7 @@ Control Interface: It uses a simple data and address bus interface, making it re
 
 1. Clone this repository.
 2. Flip switch (PGM/MIDI) to PGM for programming mode.
-3. Connect the USB-C cable to your computer and use the Arduino IDE set to Arduino Uno to program the chip with the .ino file.
+3. Connect the USB-C cable to your computer and use the Arduino IDE: (https://docs.arduino.cc/software/ide/) set to Arduino Uno to program the chip with the .ino file.
 4. Flip switch (PGM/MIDI) to MIDI.
 
 **ym2149-wave.py** - creating your own samples:
