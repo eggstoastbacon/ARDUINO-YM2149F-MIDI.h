@@ -83,7 +83,7 @@ The code includes detailed comments to help you create custom presets. Code rela
 
 - **Arpeggiation** - Arpeggiation with rate, octave shift and 16 unique patterns.
 
-- **Vibrato** - Vibrato rate and depth.
+- **Vibrato** - Vibrato rate and depth. (kinda wonky at the moment)
 
 - **Pitch Bend**: Pitch bend is supported on all channels except Channel 10 (sample channel).
 
