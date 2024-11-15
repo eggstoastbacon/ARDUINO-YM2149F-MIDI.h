@@ -132,22 +132,31 @@ else if (chan == 4) {
 // MIDI Channel 6
 else if (chan == 5) { 
     noteActiveA = 1;
+    noteActiveB = 1;
     detuneActiveA = 0;
     noteA = note;
+    noteB = note;
     arpeggioFlipMe = true;
     timerTicks = 0;
     arpeggioCounter = 0;
+    float detuneFactorA = 1.006;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = (envTp[note]  + detuneValue) * pitchBendFactor;
+    periodA = (envTp[note -12]  + detuneValue) * pitchBendFactor * detuneFactorA;
+    periodB = (envTp[note]  + detuneValue) * pitchBendFactor;
     byte LSB = (periodA & 0x00FF);
     byte MSB = ((periodA >> 8) & 0x000F);
+    byte BLSB = (periodB & 0x00FF);
+    byte BMSB = ((periodB >> 8) & 0x000F);
     cli();
-    setMixer(true, false, false, false, false, false);
+    setMixer(true, false, true, false, false, false);
     send_data(0x00, LSB);
     send_data(0x01, MSB);
-    send_data(0x0B, LSB);
-    send_data(0x0C, MSB);
-    setVolume(0, volume);
+    send_data(0x02, LSB);
+    send_data(0x03, MSB);
+    //send_data(0x0B, BLSB);
+    //send_data(0x0C, BMSB);
+    setVolume(0, volume -2);
+    setVolume(1, volume);
     setEnvelope(0xF000, 0x0B);
     sei();
 }
@@ -162,7 +171,7 @@ else if (chan == 6) {
     arpeggioCounter = 0;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
     periodA = (tp[note -24]) * pitchBendFactor;
-    periodB = (envTp[note -24] + detuneValue) * pitchBendFactor;
+    periodB = (envTp[note -12] + detuneValue) * pitchBendFactor;
     byte LSB = (periodA & 0x00FF);
     byte MSB = ((periodA >> 8) & 0x000F);
     byte BLSB = (periodB & 0x00FF);
@@ -489,10 +498,11 @@ void stopNote(byte note, byte chan)
         cli();
         send_data(0x00, 0);
         send_data(0x01, 0);
-        send_data(0x0B, 0);
-        send_data(0x0C, 0);
+        send_data(0x02, 0);
+        send_data(0x03, 0);
         setEnvelope(0x0000, 0x00);
-        setVolume(0, 0); 
+        setVolume(0, 0);
+        setVolume(1, 0);
         sei();
     }
 // MIDI Channel 7
