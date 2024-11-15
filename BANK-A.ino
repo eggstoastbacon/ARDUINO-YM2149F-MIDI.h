@@ -6,120 +6,127 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
 
 // MIDI Channel 1
     if (chan == 0) {
-        noteActiveA = 1;
-        detuneActiveA = 0;
-        arpeggioFlipMe = true;
-        timerTicks = 0;
-        arpeggioCounter = 0;
-        noteA = note;
-        float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-        int periodA = (tp[note] + detuneValue) * pitchBendFactor;
-        byte LSB = (periodA & 0x00FF);
-        byte MSB = ((periodA & 0x0F00) >> 8);
-        cli();
-        send_data(0x00, LSB);
-        send_data(0x01, MSB);
-        send_data(0x08, volume);
-        sei();
+    noteActiveA = 1;
+    detuneActiveA = 1;
+    arpeggioFlipMe = true;
+    timerTicks = 0;
+    arpeggioCounter = 0;     
+    noteA = note;
+    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
+    int periodA = (tp[note]  + detuneValue) * pitchBendFactor;
+    byte LSB = (periodA & 0xFF);
+    byte MSB = ((periodA >> 8) & 0x0F);
+    cli();
+    setMixer(true, false, false, false, false, false);
+    send_data(0x00, LSB);
+    send_data(0x01, MSB);
+    setVolume(0, volume);
+    setEnvelope(0xF000, 0x1000);
+    sei();
     }
 // MIDI Channel 2
     else if (chan == 1) {
-        noteActiveB = 1;
-        detuneActiveB = 0;
-        arpeggioFlipMe = true;
-        timerTicks = 0;
-        arpeggioCounter = 0;
-        noteB = note;
-        float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-        int periodB = (tp[note] + detuneValue) * pitchBendFactor; 
-        byte LSB = (periodB & 0x00FF);
-        byte MSB = ((periodB >> 8) & 0x000F);
-        cli();
-        send_data(0x02, LSB);
-        send_data(0x03, MSB);
-        send_data(0x09, volume);
-        sei();
+    noteActiveB = 1;
+    detuneActiveB = 1;
+    arpeggioFlipMe = true;
+    timerTicks = 0;
+    arpeggioCounter = 0;    
+    noteB = note;
+    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
+    int periodB = (tp[note]   + detuneValue) * pitchBendFactor;
+    byte LSB = (periodB & 0xFF);
+    byte MSB = ((periodB >> 8) & 0x0F);
+    cli();
+    setMixer(false, false, true, false, false, false);
+    send_data(0x02, LSB);
+    send_data(0x03, MSB);
+    setVolume(1, volume);
+    setEnvelope(0xF000, 0x1000);
+    sei();
     }
 // MIDI Channel 3
     else if (chan == 2) {
-        noteActiveC = 1;
-        detuneActiveC = 0;
-        arpeggioFlipMe = true;
-        timerTicks = 0;
-        arpeggioCounter = 0;
-        noteC = note;
-        float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-        int periodC = (tp[note] + detuneValue) * pitchBendFactor;
-        byte LSB = (periodC & 0x00FF);
-        byte MSB = ((periodC >> 8) & 0x000F);
-        cli();
-        send_data(0x04, LSB);
-        send_data(0x05, MSB);
-        send_data(0x0A, volume);
-        sei();
+      noteActiveC = 1;
+    detuneActiveC = 1;
+    arpeggioFlipMe = true;
+    timerTicks = 0;
+    arpeggioCounter = 0;      
+    noteC = note;
+    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
+    int periodC = (tp[note]   + detuneValue) * pitchBendFactor;
+    byte LSB = (periodC & 0xFF);
+    byte MSB = ((periodC >> 8) & 0x0F);
+    cli();
+    setMixer(false, false, false, false, true, false);
+    send_data(0x04, LSB);
+    send_data(0x05, MSB);
+    setVolume(2, volume);
+    setEnvelope(0xF000, 0x1000);
+    sei();
     }
 // MIDI Channel 4
     else if (chan == 3) {
-        if (mm3 == 0) {
             noteActiveA = 1;
             noteActiveB = 1;
             detuneActiveB = 1;
             arpeggioFlipMe = true;
             timerTicks = 0;
-            arpeggioCounter = 0;
+            arpeggioCounter = 0;          
             noteA = note;
             noteB = note;
             float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
             int periodA = tp[note] * pitchBendFactor;
-            periodB = (tp[note] + detuneValue) * pitchBendFactor;           
+            periodB = (tp[note] + (detuneValue + 1)) * pitchBendFactor;
             byte ALSB = (periodA & 0x00FF);
             byte AMSB = ((periodA >> 8) & 0x000F);
             byte BLSB = (periodB & 0x00FF);
             byte BMSB = ((periodB >> 8) & 0x000F);
             cli();
+            setMixer(true, false, true, false, true, false);
             send_data(0x00, ALSB);
             send_data(0x01, AMSB);
             send_data(0x02, BLSB);
             send_data(0x03, BMSB);
-            send_data(0x08, volume);
-            send_data(0x09, volume);
+            setVolume(0, volume);
+            setVolume(1, volume);
+            setVolume(2, volume);
+            setEnvelope(0xF000, 0x1000);
             sei();
-        }
     }
 // MIDI Channel 5
 else if (chan == 4) { 
-    noteActiveA = 1;
+     noteActiveA = 1;
     noteActiveB = 1;
     noteActiveC = 1;
     detuneActiveC = 1;
     arpeggioFlipMe = true;
     timerTicks = 0;
-    arpeggioCounter = 0;
+    arpeggioCounter = 0;  
     noteA = note;
     noteB = note;
     noteC = note;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
     int periodA = (tp[note] - 12) * pitchBendFactor;
     int periodB = (tp[note]) * pitchBendFactor;
-    int periodC = (tp[note] + detuneValue) * pitchBendFactor;
-
+    int periodC = (tp[note] + (detuneValue +1)) * pitchBendFactor;
     byte ALSB = (periodA & 0x00FF);
     byte AMSB = ((periodA >> 8) & 0x000F);
     byte BLSB = (periodB & 0x00FF);
     byte BMSB = ((periodB >> 8) & 0x000F);
     byte CLSB = (periodC & 0x00FF);
     byte CMSB = ((periodC >> 8) & 0x000F);
-
     cli();
+    setMixer(true, false, true, false, true, false);
     send_data(0x00, ALSB);
     send_data(0x01, AMSB);
     send_data(0x02, BLSB);
     send_data(0x03, BMSB);
     send_data(0x04, CLSB);
-    send_data(0x05, CMSB); 
-    send_data(0x08, volume);
-    send_data(0x09, volume);
-    send_data(0x0A, volume);
+    send_data(0x05, CMSB);
+    setVolume(0, volume);
+    setVolume(1, volume);
+    setVolume(2, volume);
+    setEnvelope(0xF000, 0x1000);
     sei();
 }
 // MIDI Channel 6
@@ -131,21 +138,17 @@ else if (chan == 5) {
     timerTicks = 0;
     arpeggioCounter = 0;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = envTp[note + detuneValue] * pitchBendFactor;
-    periodB = envTp[note + 12] * pitchBendFactor;
-
-    byte LSB = (periodA & 0x0000);
+    periodA = (envTp[note]  + detuneValue) * pitchBendFactor;
+    byte LSB = (periodA & 0x00FF);
     byte MSB = ((periodA >> 8) & 0x000F);
-    byte BLSB = (periodB & 0x00FF);
-    byte BMSB = ((periodB >> 8) & 0x000F);
-
     cli();
+    setMixer(true, false, false, false, false, false);
     send_data(0x00, LSB);
     send_data(0x01, MSB);
-    send_data(0x08, 0x10);
-    send_data(0x0B, BLSB);
-    send_data(0x0C, BMSB); 
-    send_data(0x0D, 0b00001100);
+    send_data(0x0B, LSB);
+    send_data(0x0C, MSB);
+    setVolume(0, volume);
+    setEnvelope(0xF000, 0x0B);
     sei();
 }
 // MIDI Channel 7
@@ -153,21 +156,28 @@ else if (chan == 6) {
     noteActiveA = 1;
     detuneActiveA = 0;
     noteA = note;
+    noteB = note;
     arpeggioFlipMe = true;
     timerTicks = 0;
     arpeggioCounter = 0;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = (envTp[note + 24]) * pitchBendFactor;
-
+    periodA = (tp[note -24]) * pitchBendFactor;
+    periodB = (envTp[note -24] + detuneValue) * pitchBendFactor;
     byte LSB = (periodA & 0x00FF);
     byte MSB = ((periodA >> 8) & 0x000F);
-
+    byte BLSB = (periodB & 0x00FF);
+    byte BMSB = ((periodB >> 8) & 0x000F);
     cli();
-    send_data(0x08, 0x10);
-    send_data(0x09, volume);
+    setMixer(true, false, true, false, false, false);
+    send_data(0x00, LSB);
+    send_data(0x01, MSB);
+    send_data(0x02, BLSB);
+    send_data(0x03, BMSB);
     send_data(0x0B, LSB);
     send_data(0x0C, MSB);
-    send_data(0x0D, 0b00001010);
+    setVolume(0, volume);
+    setVolume(1, volume);
+    setEnvelope(0xF000, 0x08);
     sei();
 }
 // MIDI Channel 8
@@ -182,50 +192,50 @@ else if (chan == 7) {
     arpeggioCounter = 0;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
     periodA = envTp[note]  * pitchBendFactor;
-    periodB = ((tp[note - 12] + detuneValue) << 1)* pitchBendFactor ;
-
+    periodB = ((tp[note - 12] + detuneValue) << 1)* pitchBendFactor;
     byte LSB = (periodA & 0x00FF);
     byte MSB = ((periodA >> 8) & 0x000F);
     byte BLSB = (periodB & 0x00FF);
     byte BMSB = ((periodB >> 8) & 0x000F);
-
     cli();
+    setMixer(true, false, true, false, false, false);
     send_data(0x02, BLSB);
     send_data(0x03, BMSB);
-    send_data(0x08, 0x10);
-    send_data(0x09, volume);
     send_data(0x0B, LSB);
     send_data(0x0C, MSB);
-    send_data(0x0D, 0b00001100);
+    setVolume(0, volume);
+    setVolume(1, volume);
+    setEnvelope(0xF000, 0x02);
     sei();
 }
 // MIDI Channel 9
 else if (chan == 8) {
     noteActiveA = 1;
     noteActiveB = 1;
-    detuneActiveB = 0;
+    detuneActiveB = 1;
     noteA = note;
     noteB = note;
     arpeggioFlipMe = true;
     timerTicks = 0;
     arpeggioCounter = 0;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = envTp[note] * pitchBendFactor;
-    periodB = tp[note - 24] * pitchBendFactor;
-
-    byte LSB = (periodA & 0xFFFF);
+    periodA = envTp[note -24] * pitchBendFactor;
+    periodB = (tp[note - 12]  + detuneValue) * pitchBendFactor;
+    byte LSB = (periodA & 0x00FF);
     byte MSB = ((periodA >> 8) & 0x000F);
     byte BLSB = (periodB & 0x00FF);
     byte BMSB = ((periodB >> 8) & 0x000F);
-
     cli();
+    setMixer(true, false, true, false, false, false); 
+    send_data(0x00, LSB);
+    send_data(0x01, MSB);
     send_data(0x02, BLSB);
     send_data(0x03, BMSB);
-    send_data(0x08, 0x10); 
-    send_data(0x09, volume);
     send_data(0x0B, LSB);
     send_data(0x0C, MSB);
-    send_data(0x0D, 0b00001110);
+    setVolume(0, volume);
+    setVolume(1, volume);
+    setEnvelope(0xF000, 0x09);
     sei();
 }
 // MIDI Channel 11
@@ -239,22 +249,21 @@ else if (chan == 10) {
     timerTicks = 0;
     arpeggioCounter = 0;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = envTp[note] * pitchBendFactor;
-    periodC = tp[note] * pitchBendFactor;
+    periodA = (envTp[note]   + detuneValue) * pitchBendFactor;
+    periodC = tp[note -12] * pitchBendFactor;
     byte LSB = (periodA & 0x00FF);
     byte MSB = ((periodA >> 8) & 0x000F);
     byte CLSB = (periodC & 0x00FF);
     byte CMSB = ((periodC >> 8) & 0x000F);
-
     cli();
-    send_data(0x08, 0x10);
-    send_data(0x0D, 0b00001110);
-    send_data(0x04, CLSB);
-    send_data(0x05, CMSB);
-    send_data(0x09, volume);
-    send_data(0x0D, 0b00011100);
+    setMixer(true, false, false, false, true, false);
     send_data(0x00, LSB);
     send_data(0x01, MSB);
+    send_data(0x04, CLSB);
+    send_data(0x05, CMSB);
+    setVolume(0, volume);
+    setVolume(2, volume -2);
+    setEnvelope(0x0001, 0x0D);
     sei();
 }
 // MIDI Channel 12
@@ -264,33 +273,36 @@ else if (chan == 11)
     noteActiveB = 1;
     noteActiveC = 1;
     detuneActiveC = 0;
+    arpeggioFlipMe = true;
     timerTicks = 0;
+    arpeggioCounter = 0;
     noteA = note;
     noteB = note;
     noteC = note;
-    arpeggioFlipMe = true;
-    arpeggioCounter = 0;
+    float detuneFactor = 1.10;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = tp[note - 12] * pitchBendFactor;
-    periodB = tp[note + 12] * pitchBendFactor;
-    periodC = tp[note] * pitchBendFactor;
-    
+    periodA = (tp[note - 12]  + detuneValue)  * pitchBendFactor;
+    periodB = tp[note + 12] * pitchBendFactor * detuneFactor;
+    periodC = tp[note] * pitchBendFactor;  
     byte ALSB = (periodA & 0x00FF);
     byte AMSB = ((periodA >> 8) & 0x000F);
     byte BLSB = (periodB & 0x00FF);
     byte BMSB = ((periodB >> 8) & 0x000F);
-    byte CLSB = (periodC & 0x00FF); 
+    byte CLSB = (periodC & 0x00FF);
     byte CMSB = ((periodC >> 8) & 0x000F);
-
     cli();
+    setMixer(true, false, true, false, true, false);
     send_data(0x08, 0x10);
     send_data(0x0B, BLSB);
     send_data(0x0C, BMSB);
-    send_data(0x0D, 0b00001100);
     send_data(0x00, ALSB);
     send_data(0x01, AMSB);
     send_data(0x04, CLSB);
-    send_data(0x05, CMSB);    
+    send_data(0x05, CMSB);
+    setVolume(0, volume - 2);
+    setVolume(1, volume);
+    setVolume(2, volume);
+    setEnvelope(0xF000, 0x00);
     sei();
 }
 // MIDI Channel 13
@@ -300,25 +312,26 @@ else if (chan == 12)
     noteActiveB = 1;
     noteActiveC = 1;
     detuneActiveC = 0;
+    arpeggioFlipMe = true;
     timerTicks = 0;
+    arpeggioCounter = 0;
     noteA = note;
     noteB = note;
     noteC = note;
-    arpeggioFlipMe = true;
-    arpeggioCounter = 0;
+    float detuneFactorA = 1.017;
+    float detuneFactorB = 1.01;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = tp[note - 12] * pitchBendFactor;    
-    periodB = tp[note - 12] * pitchBendFactor;
-    periodC = tp[note] * pitchBendFactor;
-    
+    periodA = (tp[note - 12]  + detuneValue) * pitchBendFactor;
+    periodB = tp[note - 12] * pitchBendFactor * detuneFactorA;
+    periodC = tp[note] * pitchBendFactor * detuneFactorB;
     byte ALSB = (periodA & 0x00FF);
     byte AMSB = ((periodA >> 8) & 0x000F);
     byte BLSB = (periodB & 0x00FF);
     byte BMSB = ((periodB >> 8) & 0x000F);
     byte CLSB = (periodC & 0x00FF);
     byte CMSB = ((periodC >> 8) & 0x000F);
-
     cli();
+    setMixer(true, false, true, false, true, false);
     send_data(0x08, 0x10);
     send_data(0x0B, BLSB);
     send_data(0x0C, BMSB);
@@ -326,7 +339,10 @@ else if (chan == 12)
     send_data(0x01, AMSB);
     send_data(0x04, CLSB);
     send_data(0x05, CMSB);
-    send_data(0x0D, 0b00101100);
+    setVolume(0, volume);
+    setVolume(1, volume);
+    setVolume(2, volume);
+    setEnvelope(0xF000, 0x02);
     sei();
 }
 // MIDI Channel 14
@@ -361,9 +377,10 @@ else if (chan == 13)
     send_data(0x03, BMSB);
     send_data(0x04, CLSB);
     send_data(0x05, CMSB);
-    send_data(0x08, volume);
-    send_data(0x09, volume);
-    send_data(0x0A, volume);
+    setVolume(0, volume);
+    setVolume(1, volume);
+    setVolume(2, volume);
+    setEnvelope(0xF000, 0x02);
     sei();
 }
 }
@@ -381,49 +398,64 @@ void stopNote(byte note, byte chan)
 {
 // MIDI Channel 1
     if (chan == 0 && note == noteA) {
-        timerTicks = 0;
         noteActiveA = 0;
-        noteA = periodA = 0;
         arpeggioFlipMe = false;
+        timerTicks = 0;
+        noteA = periodA = 0;
         cli();
         send_data(0x00, 0);
         send_data(0x01, 0);
+        setVolume(0, 0); 
+        setEnvelope(0x0000, 0x00);
         sei();
     }
 // MIDI Channel 2
     else if (chan == 1 && note == noteB) {
-        timerTicks = 0;
         noteActiveB = 0;
-        noteB = periodB = 0;
         arpeggioFlipMe = false;
+        timerTicks = 0;
+        noteB = periodB = 0;
         cli();
         send_data(0x02, 0);
         send_data(0x03, 0);
+        setVolume(1, 0); 
+        setEnvelope(0x0000, 0x00);
         sei();
     }
 // MIDI Channel 3
     else if (chan == 2 && note == noteC) {
-        timerTicks = 0;
         noteActiveC = 0;
-        noteC = periodC = 0;
         arpeggioFlipMe = false;
+        timerTicks = 0;
+        noteC = periodC = 0;
         cli();
         send_data(0x04, 0);
-        send_data(0x05, 0);
+        send_data(0x05, 0); 
+        setVolume(2, 0); 
+        setEnvelope(0x0000, 0x00);
         sei();
     }
 // MIDI Channel 4
     else if (chan == 3 && note == noteA) {
-        timerTicks = 0;
         noteActiveA = 0;
         noteActiveB = 0;
+        noteActiveC = 0;
+        arpeggioFlipMe = false;
+        timerTicks = 0;
         noteA = periodA = 0;
         noteB = periodB = 0;
+        noteC = periodC = 0;
         cli();
         send_data(0x00, 0);
         send_data(0x01, 0);
         send_data(0x02, 0);
         send_data(0x03, 0);
+        send_data(0x04, 0);
+        send_data(0x05, 0);
+        setEnvelope(0x0000, 0x00);
+        setVolume(0, 0);
+        setVolume(1, 0);
+        setVolume(2, 0);
         sei();
     }
 // MIDI Channel 5
@@ -443,45 +475,50 @@ void stopNote(byte note, byte chan)
         send_data(0x03, 0);
         send_data(0x04, 0);
         send_data(0x05, 0);
+        setVolume(0, 0);
+        setVolume(1, 0);
+        setVolume(2, 0);
         sei();
     }
 // MIDI Channel 6
     else if (chan == 5 && note == noteA) {
-        timerTicks = 0;
         noteActiveA = 0;
-        noteA = periodA = 0;
         arpeggioFlipMe = false;
+        timerTicks = 0;
+        noteA = periodA = 0;
         cli();
         send_data(0x00, 0);
         send_data(0x01, 0);
         send_data(0x0B, 0);
         send_data(0x0C, 0);
-        send_data(0x0D, 0); 
-        send_data(0x08, 127);
+        setEnvelope(0x0000, 0x00);
+        setVolume(0, 0); 
         sei();
     }
 // MIDI Channel 7
     else if (chan == 6 && note == noteA) {
-        timerTicks = 0;
         noteActiveA = 0;
-        noteA = periodA = 0;
         arpeggioFlipMe = false;
+        timerTicks = 0;
+        noteA = periodA = 0;
         cli();
         send_data(0x00, 0);
         send_data(0x01, 0);
-        send_data(0x0B, 0);
-        send_data(0x0C, 0);
-        send_data(0x0D, 0);
+        send_data(0x02, 0);
+        send_data(0x03, 0);
+        setEnvelope(0x0000, 0x00);
+        setVolume(0, 0);
+        setVolume(1, 0);
         sei();
     }
 // MIDI Channel 8
     else if (chan == 7 && note == noteA) {
-        timerTicks = 0;
         noteActiveA = 0;
         noteActiveB = 0;
+        arpeggioFlipMe = false;
+        timerTicks = 0;
         noteA = periodA = 0;
         noteB = periodB = 0;
-        arpeggioFlipMe = false;
         cli();
         send_data(0x00, 0);
         send_data(0x01, 0);
@@ -489,27 +526,29 @@ void stopNote(byte note, byte chan)
         send_data(0x03, 0);
         send_data(0x0B, 0);
         send_data(0x0C, 0);
-        send_data(0x0D, 0);
-        send_data(0x08, AmaxVolume);
+        setEnvelope(0x0000, 0x00);
+        setVolume(0, 0);
+        setVolume(1, 0);
         sei();
     }
 // MIDI Channel 9
     else if (chan == 8 && note == noteA) {
-        timerTicks = 0;
         noteActiveA = 0;
         noteActiveB = 0;
+        arpeggioFlipMe = false;
+        timerTicks = 0;
         noteA = periodA = 0;
         noteB = periodB = 0;
-        arpeggioFlipMe = false;
         cli();
         send_data(0x00, 0);
         send_data(0x01, 0);
         send_data(0x02, 0);
         send_data(0x03, 0);
-        send_data(0x0D, 0);
         send_data(0x0B, 0);
         send_data(0x0C, 0);
-        send_data(0x08, AmaxVolume);
+        setEnvelope(0x0000, 0x00);
+        setVolume(0, 0);
+        setVolume(1, 0);
         sei();
     }
 // MIDI Channel 11
@@ -525,57 +564,55 @@ void stopNote(byte note, byte chan)
         send_data(0x01, 0);
         send_data(0x04, 0);
         send_data(0x05, 0);
-        send_data(0x0D, 0);
-        send_data(0x0B, 0);
-        send_data(0x0C, 0);
-        send_data(0x08, 0);
+        setEnvelope(0x0000, 0x00);
+        setVolume(0, 0);
+        setVolume(2, 0);
         sei();
     }
 // MIDI Channel 12
     else if (chan == 11 && note == noteA) {        
-        timerTicks = 0;
         noteActiveA = 0;
         noteActiveB = 0;
         noteActiveC = 0;
+        arpeggioFlipMe = false;
+        timerTicks = 0;
         noteA = periodA = 0;
         noteB = periodB = 0;
         noteC = periodC = 0;
-        arpeggioFlipMe = false;
-
-        cli(); 
-        send_data(0x08, 0x00);
+        cli();
         send_data(0x00, 0);
         send_data(0x01, 0);
         send_data(0x02, 0);
-        send_data(0x03, 0);
-        send_data(0x04, 0);
-        send_data(0x05, 0);
-        send_data(0x0B, 0);
-        send_data(0x0C, 0);
-        send_data(0x0D, 0);
-        sei();
+        send_data(0x03, 0); 
+        send_data(0x04, 0); 
+        send_data(0x05, 0); 
+        setEnvelope(0x0000, 0x00); 
+        setVolume(0, 0); 
+        setVolume(1, 0); 
+        setVolume(2, 0); 
+        sei(); 
     }
 // MIDI Channel 13
     else if (chan == 12 && note == noteA) {
-        timerTicks = 0;
         noteActiveA = 0;
         noteActiveB = 0;
         noteActiveC = 0;
+        arpeggioFlipMe = false;
+        timerTicks = 0;
         noteA = periodA = 0;
         noteB = periodB = 0;
         noteC = periodC = 0;
-        arpeggioFlipMe = false;
-
         cli();
-        send_data(0x08, 0x00);
         send_data(0x00, 0);
         send_data(0x01, 0);
         send_data(0x02, 0);
         send_data(0x03, 0);
-        send_data(0x04, 0);
-        send_data(0x05, 0);
-        send_data(0x0B, 0);
-        send_data(0x0C, 0);
+        send_data(0x04, 0); 
+        send_data(0x05, 0); 
+        setEnvelope(0x0000, 0x00); 
+        setVolume(0, 0); 
+        setVolume(1, 0); 
+        setVolume(2, 0); 
         sei(); 
     }
 // MIDI Channel 14
