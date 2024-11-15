@@ -20,7 +20,7 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
     setMixer(true, false, false, false, false, false);
     send_data(0x00, LSB);
     send_data(0x01, MSB);
-    setVolume(0, volume);
+    setVolume(0, defaultVolume, 0);
     setEnvelope(0xF000, 0x1000);
     sei();
     }
@@ -40,7 +40,7 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
     setMixer(false, false, true, false, false, false);
     send_data(0x02, LSB);
     send_data(0x03, MSB);
-    setVolume(1, volume);
+    setVolume(1, defaultVolume, 0);
     setEnvelope(0xF000, 0x1000);
     sei();
     }
@@ -60,7 +60,7 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
     setMixer(false, false, false, false, true, false);
     send_data(0x04, LSB);
     send_data(0x05, MSB);
-    setVolume(2, volume);
+    setVolume(2, defaultVolume, 0);
     setEnvelope(0xF000, 0x1000);
     sei();
     }
@@ -87,9 +87,9 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
             send_data(0x01, AMSB);
             send_data(0x02, BLSB);
             send_data(0x03, BMSB);
-            setVolume(0, volume);
-            setVolume(1, volume);
-            setVolume(2, volume);
+            setVolume(0, defaultVolume, 0);
+            setVolume(1, defaultVolume, 0);
+            setVolume(2, defaultVolume, 0);
             setEnvelope(0xF000, 0x1000);
             sei();
     }
@@ -108,7 +108,7 @@ else if (chan == 5) {
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
     int periodA = (tp[note] - 12) * pitchBendFactor;
     int periodB = (tp[note]) * pitchBendFactor;
-    int periodC = (tp[note] + (detuneValue +1)) * pitchBendFactor;
+    int periodC = (tp[note] + (detuneValue + 1)) * pitchBendFactor;
     byte ALSB = (periodA & 0x00FF);
     byte AMSB = ((periodA >> 8) & 0x000F);
     byte BLSB = (periodB & 0x00FF);
@@ -123,9 +123,9 @@ else if (chan == 5) {
     send_data(0x03, BMSB);
     send_data(0x04, CLSB);
     send_data(0x05, CMSB);
-    setVolume(0, volume);
-    setVolume(1, volume);
-    setVolume(2, volume);
+    setVolume(0, defaultVolume, 0);
+    setVolume(1, defaultVolume, 0);
+    setVolume(2, defaultVolume, 0);
     setEnvelope(0xF000, 0x1000);
     sei();
 }
@@ -155,8 +155,8 @@ else if (chan == 6) {
     send_data(0x03, MSB);
     //send_data(0x0B, BLSB);
     //send_data(0x0C, BMSB);
-    setVolume(0, volume -2);
-    setVolume(1, volume);
+    setVolume(0, defaultVolume, -3);
+    setVolume(1, defaultVolume, 0);
     setEnvelope(0xF000, 0x0B);
     sei();
 }
@@ -184,8 +184,8 @@ else if (chan == 7) {
     send_data(0x03, BMSB);
     send_data(0x0B, LSB);
     send_data(0x0C, MSB);
-    setVolume(0, volume);
-    setVolume(1, volume);
+    setVolume(0, defaultVolume, 0);
+    setVolume(1, defaultVolume, 0);
     setEnvelope(0xF000, 0x08);
     sei();
 }
@@ -212,8 +212,8 @@ else if (chan == 8) {
     send_data(0x03, BMSB);
     send_data(0x0B, LSB);
     send_data(0x0C, MSB);
-    setVolume(0, volume);
-    setVolume(1, volume);
+    setVolume(0, defaultVolume, 0);
+    setVolume(1, defaultVolume, 0);
     setEnvelope(0xF000, 0x02);
     sei();
 }
@@ -242,8 +242,8 @@ else if (chan == 9) {
     send_data(0x03, BMSB);
     send_data(0x0B, LSB);
     send_data(0x0C, MSB);
-    setVolume(0, volume);
-    setVolume(1, volume);
+    setVolume(0, defaultVolume, 0);
+    setVolume(1, defaultVolume, 0);
     setEnvelope(0xF000, 0x09);
     sei();
 }
@@ -270,8 +270,8 @@ else if (chan == 11) {
     send_data(0x01, MSB);
     send_data(0x04, CLSB);
     send_data(0x05, CMSB);
-    setVolume(0, volume);
-    setVolume(2, volume -2);
+    setVolume(0, defaultVolume, 0);
+    setVolume(2, defaultVolume, -3);
     setEnvelope(0x0001, 0x0D);
     sei();
 }
@@ -308,9 +308,9 @@ else if (chan == 12)
     send_data(0x01, AMSB);
     send_data(0x04, CLSB);
     send_data(0x05, CMSB);
-    setVolume(0, volume - 2);
-    setVolume(1, volume);
-    setVolume(2, volume);
+    setVolume(0, defaultVolume, -2);
+    setVolume(1, defaultVolume, 0);
+    setVolume(2, defaultVolume, 0);
     setEnvelope(0xF000, 0x00);
     sei();
 }
@@ -347,9 +347,9 @@ else if (chan == 13)
     send_data(0x01, AMSB);
     send_data(0x04, CLSB);
     send_data(0x05, CMSB);
-    setVolume(0, volume);
-    setVolume(1, volume);
-    setVolume(2, volume);
+    setVolume(0, defaultVolume, 0);
+    setVolume(1, defaultVolume, 0);
+    setVolume(2, defaultVolume, 0);
     setEnvelope(0xF000, 0x02);
     sei();
 }
@@ -387,9 +387,9 @@ else if (chan == 14)
     send_data(0x04, CLSB);
     send_data(0x05, CMSB);
     setEnvelope(0xF000, 0x02);
-    setVolume(0, volume);
-    setVolume(1, volume);
-    setVolume(2, volume);
+    setVolume(0, defaultVolume, 0);
+    setVolume(1, defaultVolume, 0);
+    setVolume(2, defaultVolume, 0);
     sei();
 }
 }
@@ -415,7 +415,7 @@ chan = chan + 1;
         cli();
         send_data(0x00, 0);
         send_data(0x01, 0);
-        setVolume(0, 0); 
+        setVolume(0, 0, 0); 
         setEnvelope(0x0000, 0x00);
         sei();
     }
@@ -428,7 +428,7 @@ chan = chan + 1;
         cli();
         send_data(0x02, 0);
         send_data(0x03, 0);
-        setVolume(1, 0); 
+        setVolume(1, 0, 0); 
         setEnvelope(0x0000, 0x00);
         sei();
     }
@@ -441,7 +441,7 @@ chan = chan + 1;
         cli();
         send_data(0x04, 0);
         send_data(0x05, 0); 
-        setVolume(2, 0); 
+        setVolume(2, 0, 0); 
         setEnvelope(0x0000, 0x00);
         sei();
     }
@@ -463,9 +463,9 @@ chan = chan + 1;
         send_data(0x04, 0);
         send_data(0x05, 0);
         setEnvelope(0x0000, 0x00);
-        setVolume(0, 0);
-        setVolume(1, 0);
-        setVolume(2, 0);
+        setVolume(0, 0, 0);
+        setVolume(1, 0, 0);
+        setVolume(2, 0, 0);
         sei();
     }
 // MIDI Channel 5
@@ -486,9 +486,9 @@ chan = chan + 1;
         send_data(0x04, 0);
         send_data(0x05, 0);
         setEnvelope(0x0000, 0x00);
-        setVolume(0, 0);
-        setVolume(1, 0);
-        setVolume(2, 0);
+        setVolume(0, 0, 0);
+        setVolume(1, 0, 0);
+        setVolume(2, 0, 0);
         sei();
     }
 // MIDI Channel 6
@@ -503,8 +503,8 @@ chan = chan + 1;
         send_data(0x02, 0);
         send_data(0x03, 0);
         setEnvelope(0x0000, 0x00);
-        setVolume(0, 0);
-        setVolume(1, 0);
+        setVolume(0, 0, 0);
+        setVolume(1, 0, 0);
         sei();
     }
 // MIDI Channel 7
@@ -519,8 +519,8 @@ chan = chan + 1;
         send_data(0x02, 0);
         send_data(0x03, 0);
         setEnvelope(0x0000, 0x00);
-        setVolume(0, 0);
-        setVolume(1, 0);
+        setVolume(0, 0, 0);
+        setVolume(1, 0, 0);
         sei();
     }
 // MIDI Channel 8
@@ -539,8 +539,8 @@ chan = chan + 1;
         send_data(0x0B, 0);
         send_data(0x0C, 0);
         setEnvelope(0x0000, 0x00);
-        setVolume(0, 0);
-        setVolume(1, 0);
+        setVolume(0, 0, 0);
+        setVolume(1, 0, 0);
         sei();
     }
 // MIDI Channel 9
@@ -559,8 +559,8 @@ chan = chan + 1;
         send_data(0x0B, 0);
         send_data(0x0C, 0);
         setEnvelope(0x0000, 0x00);
-        setVolume(0, 0);
-        setVolume(1, 0);
+        setVolume(0, 0, 0);
+        setVolume(1, 0, 0);
         sei();
     }
 // MIDI Channel 11
@@ -577,8 +577,8 @@ chan = chan + 1;
         send_data(0x04, 0);
         send_data(0x05, 0);
         setEnvelope(0x0000, 0x00);
-        setVolume(0, 0);
-        setVolume(2, 0);
+        setVolume(0, 0, 0);
+        setVolume(2, 0, 0);
         sei();
     }
 // MIDI Channel 12
@@ -599,9 +599,9 @@ chan = chan + 1;
         send_data(0x04, 0); 
         send_data(0x05, 0); 
         setEnvelope(0x0000, 0x00); 
-        setVolume(0, 0); 
-        setVolume(1, 0); 
-        setVolume(2, 0); 
+        setVolume(0, 0, 0); 
+        setVolume(1, 0, 0); 
+        setVolume(2, 0, 0); 
         sei(); 
     }
 // MIDI Channel 13
@@ -622,9 +622,9 @@ chan = chan + 1;
         send_data(0x04, 0); 
         send_data(0x05, 0); 
         setEnvelope(0x0000, 0x00); 
-        setVolume(0, 0); 
-        setVolume(1, 0); 
-        setVolume(2, 0); 
+        setVolume(0, 0, 0); 
+        setVolume(1, 0, 0); 
+        setVolume(2, 0, 0); 
         sei(); 
     }
 // MIDI Channel 14
@@ -645,9 +645,9 @@ chan = chan + 1;
         send_data(0x04, 0);
         send_data(0x05, 0);
         setEnvelope(0x0000, 0x00); 
-        setVolume(0, 0); 
-        setVolume(1, 0); 
-        setVolume(2, 0); 
+        setVolume(0, 0, 0); 
+        setVolume(1, 0, 0); 
+        setVolume(2, 0, 0); 
         sei();
     }
 }
