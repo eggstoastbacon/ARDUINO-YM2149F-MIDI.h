@@ -1,5 +1,5 @@
 void playNoteB(byte note, byte velo, byte chan, int pitchBendValue) {
-
+chan = chan + 1;
 const uint8_t voltbl[32] = {0x00, 0x01, 0x01, 0x02, 0x02, 0x03, 0x03, 0x04, 0x05, 0x06, 0x07, 0x09,
                             0x0B, 0x0D, 0x0F, 0x12, 0x16, 0x1A, 0x1F, 0x25, 0x2D, 0x35, 0x3F, 0x4C,
                             0x5A, 0x6A, 0x7F, 0x97, 0xB4, 0xD6, 0xFF, 0xFF};
@@ -9,7 +9,7 @@ const uint8_t voltbl[32] = {0x00, 0x01, 0x01, 0x02, 0x02, 0x03, 0x03, 0x04, 0x05
     byte volume = map(velo, 0, 127, 0, 15);
 
 // MIDI Channel 1
-    if (chan == 0) {
+    if (chan == 1) {
     noteActiveA = 1;
     detuneActiveA = 1;
     arpeggioFlipMe = true;
@@ -29,7 +29,7 @@ const uint8_t voltbl[32] = {0x00, 0x01, 0x01, 0x02, 0x02, 0x03, 0x03, 0x04, 0x05
     sei();
     }
 // MIDI Channel 2
-    else if (chan == 1) {
+    else if (chan == 2) {
     noteActiveB = 1;
     detuneActiveB = 1;
     arpeggioFlipMe = true;
@@ -49,7 +49,7 @@ const uint8_t voltbl[32] = {0x00, 0x01, 0x01, 0x02, 0x02, 0x03, 0x03, 0x04, 0x05
     sei(); 
     }
  // MIDI Channel 3
-    else if (chan == 2) {
+    else if (chan == 3) {
       noteActiveC = 1;
     detuneActiveC = 1;
     arpeggioFlipMe = true;
@@ -69,7 +69,7 @@ const uint8_t voltbl[32] = {0x00, 0x01, 0x01, 0x02, 0x02, 0x03, 0x03, 0x04, 0x05
     sei();
     }
 // MIDI Channel 4
-    else if (chan == 3) {
+    else if (chan == 4) {
         if (mm3 == 0) {
             noteActiveA = 1;
             noteActiveB = 1;
@@ -100,7 +100,7 @@ const uint8_t voltbl[32] = {0x00, 0x01, 0x01, 0x02, 0x02, 0x03, 0x03, 0x04, 0x05
         }
     }
 // MIDI Channel 5
-else if (chan == 4) { 
+else if (chan == 5) { 
     noteActiveA = 1;
     noteActiveB = 1;
     noteActiveC = 1;
@@ -136,7 +136,7 @@ else if (chan == 4) {
     sei();
 }
 // MIDI Channel 6
-else if (chan == 5) { 
+else if (chan == 6) { 
     noteActiveA = 1;
     detuneActiveA = 0;
     noteA = note;
@@ -158,7 +158,7 @@ else if (chan == 5) {
     sei();
 }
 // MIDI Channel 7
-else if (chan == 6) { 
+else if (chan == 7) { 
     noteActiveA = 1;
     detuneActiveA = 0;
     noteA = note;
@@ -185,7 +185,7 @@ else if (chan == 6) {
     sei();
 }
 // MIDI Channel 8
-else if (chan == 7) { 
+else if (chan == 8) { 
     noteActiveA = 1;
     noteActiveB = 1;
     detuneActiveC = 1;
@@ -213,7 +213,7 @@ else if (chan == 7) {
     sei();
 }
 // MIDI Channel 9
-else if (chan == 8) { 
+else if (chan == 9) { 
     noteActiveA = 1;
     noteActiveB = 1;
     detuneActiveB = 1;
@@ -241,7 +241,7 @@ else if (chan == 8) {
     sei();
 }
 // MIDI Channel 11
-else if (chan == 10) { 
+else if (chan == 11) { 
     noteActiveA = 1;
     detuneActiveA = 0;
     noteA = note;
@@ -261,7 +261,7 @@ else if (chan == 10) {
     sei();
 }
 // MIDI Channel 12
-else if (chan == 11) 
+else if (chan == 12) 
 {
     noteActiveA = 1;
     noteActiveB = 1;
@@ -299,7 +299,7 @@ else if (chan == 11)
     sei();
 }
 // MIDI Channel 13
-else if (chan == 12) 
+else if (chan == 13) 
 {
     noteActiveA = 1;
     noteActiveB = 1;
@@ -337,7 +337,7 @@ else if (chan == 12)
     sei();
 }
 // MIDI Channel 14
-else if (chan == 13) 
+else if (chan == 14) 
 {
     noteActiveA = 1;
     noteA = note;
@@ -369,8 +369,9 @@ else if (chan == 13)
  */
 void stopNoteB(byte note, byte chan)
 {
+chan = chan + 1;
     // MIDI Channel 1
-    if (chan == 0 && note == noteA) {
+    if (chan == 1 && note == noteA) {
         noteActiveA = 0;
         arpeggioFlipMe = false;
         timerTicks = 0;
@@ -383,7 +384,7 @@ void stopNoteB(byte note, byte chan)
         sei();
     }
     // MIDI Channel 2
-    else if (chan == 1 && note == noteB) {
+    else if (chan == 2 && note == noteB) {
         noteActiveB = 0;
         arpeggioFlipMe = false;
         timerTicks = 0;
@@ -397,7 +398,7 @@ void stopNoteB(byte note, byte chan)
         sei();
     }
     // MIDI Channel 3
-    else if (chan == 2 && note == noteC) {
+    else if (chan == 3 && note == noteC) {
         noteActiveC = 0;
         arpeggioFlipMe = false;
         timerTicks = 0;
@@ -410,7 +411,7 @@ void stopNoteB(byte note, byte chan)
         sei();
     }
     // MIDI Channel 4
-    else if (chan == 3 && note == noteA) {
+    else if (chan == 4 && note == noteA) {
         noteActiveA = 0;
         noteActiveB = 0;
         timerTicks = 0;
@@ -428,7 +429,7 @@ void stopNoteB(byte note, byte chan)
         sei();
     }
     // MIDI Channel 5
-    else if (chan == 4 && note == noteA) {
+    else if (chan == 5 && note == noteA) {
         noteActiveA = 0;
         noteActiveB = 0;
         noteActiveC = 0;
@@ -451,7 +452,7 @@ void stopNoteB(byte note, byte chan)
         sei();
     }
     // MIDI Channel 6
-    else if (chan == 5 && note == noteA) {
+    else if (chan == 6 && note == noteA) {
         noteActiveA = 0;
         arpeggioFlipMe = false;
         timerTicks = 0;
@@ -466,7 +467,7 @@ void stopNoteB(byte note, byte chan)
         sei();
     }
     // MIDI Channel 7
-    else if (chan == 6 && note == noteA) {
+    else if (chan == 7 && note == noteA) {
         noteActiveA = 0;
         arpeggioFlipMe = false;
         timerTicks = 0;
@@ -482,7 +483,7 @@ void stopNoteB(byte note, byte chan)
         sei();
     }
     // MIDI Channel 8
-    else if (chan == 7 && note == noteA) {
+    else if (chan == 8 && note == noteA) {
         noteActiveA = 0;
         noteActiveB = 0;
         arpeggioFlipMe = false;
@@ -502,7 +503,7 @@ void stopNoteB(byte note, byte chan)
         sei();
     }
     // MIDI Channel 9
-    else if (chan == 8 && note == noteA) {     
+    else if (chan == 9 && note == noteA) {     
         noteActiveA = 0;
         noteActiveB = 0;
         arpeggioFlipMe = false;
@@ -510,6 +511,8 @@ void stopNoteB(byte note, byte chan)
         noteA = periodA = 0;
         noteB = periodB = 0;
         cli();
+        send_data(0x00, 0);
+        send_data(0x01, 0);
         send_data(0x02, 0);
         send_data(0x03, 0);
         send_data(0x0D, 0);
@@ -521,7 +524,7 @@ void stopNoteB(byte note, byte chan)
         sei();
     }
     // MIDI Channel 11
-    else if (chan == 10 && note == noteA) {     
+    else if (chan == 11 && note == noteA) {     
         noteActiveA = 0;
         arpeggioFlipMe = false;
         timerTicks = 0;
@@ -534,7 +537,7 @@ void stopNoteB(byte note, byte chan)
         sei(); 
     }
     // MIDI Channel 12
-    else if (chan == 11 && note == noteA) {        
+    else if (chan == 12 && note == noteA) {        
         noteActiveA = 0;
         noteActiveB = 0;
         noteActiveC = 0;
@@ -557,7 +560,7 @@ void stopNoteB(byte note, byte chan)
         sei(); 
     }
     // MIDI Channel 13
-    else if (chan == 12 && note == noteA) {
+    else if (chan == 13 && note == noteA) {
         noteActiveA = 0;
         noteActiveB = 0;
         noteActiveC = 0;
@@ -580,7 +583,16 @@ void stopNoteB(byte note, byte chan)
         sei(); 
     }
     // MIDI Channel 14
-    else if (chan == 13 && note == noteA) {
-
+    else if (chan == 14 && note == noteA) {
+        noteActiveA = 0;
+        arpeggioFlipMe = false;
+        timerTicks = 0;
+        noteA = periodA = 0;
+        cli();
+        send_data(0x00, 0);
+        send_data(0x01, 0);
+        setEnvelope(0x0000, 0x00); 
+        setVolume(0, 0); 
+        sei(); 
     }
 }
