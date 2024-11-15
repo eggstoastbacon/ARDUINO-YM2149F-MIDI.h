@@ -63,21 +63,6 @@ int periodA = 0;
 int periodB = 0;
 int periodC = 0;
 
-//MIDI MUTES
-int mm0=0;
-int mm1=0;
-int mm2=0;
-int mm3=0;
-int mm4=0;
-int mm5=0;
-int mm6=0;
-int mm7=0;
-
-//envelope
-byte AmaxVolume = 0;
-byte BmaxVolume = 0;
-byte CmaxVolume = 0;
-
 //detune
 int detuneValue = 0;
 int detuneActiveA = 0;
@@ -119,7 +104,8 @@ float pitchBendRange = 16384.0; // multiple of 8192.0, the smaller the more the 
 
 //volume
 byte volume;
-const uint8_t voltbl[16] = {0, 1, 3, 5, 9, 13, 17, 23, 31, 41, 53, 67, 83, 103, 127, 255};
+byte defaultVolume = 0x0B;
+const uint8_t voltbl[16] = {0, 4, 6, 6, 7, 8, 8, 10, 10, 11, 11, 12, 12, 14, 15, 15};
 
 //velocity
 byte velo;
@@ -303,7 +289,7 @@ int indexA = adjustedNoteA + currentPattern[arpeggioCounter];
     byte MSB = ((periodA & 0x0F00) >> 8); 
     send_data(0x00, periodA & 0xFF);
     send_data(0x01, (periodA >> 8) & 0x0F);
-    if (controlValue7 > 64) send_data(0x08, volume);
+    if (controlValue7 > 64) setVolume(0, defaultVolume, 0);
   }
 
   else if (noteActiveB && controlValue5 >= 1) {
@@ -317,7 +303,7 @@ int indexA = adjustedNoteA + currentPattern[arpeggioCounter];
     byte MSB = ((periodB >> 8) & 0x000F);
     send_data(0x02, periodB & 0xFF);
     send_data(0x03, (periodB >> 8) & 0x0F);
-    if (controlValue7 > 64) send_data(0x09, volume);
+    if (controlValue7 > 64) setVolume(1, defaultVolume, 0);
   }
 
   else if (noteActiveC && controlValue5 >= 1) {
@@ -331,7 +317,7 @@ int indexA = adjustedNoteA + currentPattern[arpeggioCounter];
     byte MSB = ((periodC >> 8) & 0x000F);
     send_data(0x04, periodC & 0xFF);
     send_data(0x05, (periodC >> 8) & 0x0F);
-    if (controlValue7 > 64) send_data(0x0A, volume);
+    if (controlValue7 > 64) setVolume(2, defaultVolume, 0);
   }
       
       arpeggioCounter++;
@@ -368,10 +354,6 @@ void setup(){
   pinMode(buttonPin, INPUT);
   
   resetYM();
-  
-  AmaxVolume = defaultLevel;
-  BmaxVolume = defaultLevel;
-  CmaxVolume = defaultLevel;
 
   //serial init
   Serial.begin(31250);
@@ -483,8 +465,13 @@ void setupOCR1AOnce() {
 }
 
 byte constrainVelocity(byte velo) {
-  velo = constrain(velo, 0, 127);
-  return (controlValue4 == 0) ? 127 : map(velo, 0, 127, map(controlValue4, 127, 1, 64, 127), 127);
+    velo = constrain(velo, 0, 127); // Ensure velocity is within the MIDI range
+    if (controlValue4 == 0) {
+        return 127; // No sensitivity: Max velocity
+    } else {
+        // Dynamically map velocity based on controlValue4
+        return map(velo, 0, 127, map(controlValue4, 1, 127, 96, 64), 127);
+    }
 }
 
 void applyNoteLengthDelay(void (*stopFunction)(byte, byte), byte note, byte midiChannel) {
@@ -560,27 +547,6 @@ void applyDetuneToActiveNotes(byte midiChannel) {
   }
 }
 
-void setChannelVolume(byte value, byte chan)
-{
-  value = (value >> 3) & 0x0F;
-  
-  if (chan == 0)
-  {
-    AmaxVolume = value;
-    send_data(0x08, value);
-  }  
-  else if (chan == 1)
-  {
-    BmaxVolume = value;
-    send_data(0x09, value);
-  }
-  else if (chan == 2)
-  {
-    CmaxVolume = value;
-    send_data(0x0A, value);
-  } 
-}
-
 // Drums
 void playDigidrum(byte index, byte velo)
 {
@@ -631,15 +597,23 @@ void playDigidrum(byte index, byte velo)
   }
 }
 
-void setVolume(uint8_t channel, uint8_t volume) {
+void setVolume(uint8_t channel, uint8_t volume, int8_t offset) {
     uint8_t volReg;
+
+    // Determine the register for the channel
     if (channel == 0) volReg = 0x08;
     else if (channel == 1) volReg = 0x09;
     else if (channel == 2) volReg = 0x0A;
     else return;
 
-    uint8_t volumeValue = voltbl[volume & 0x0F]; // Limit to 4 bits, map through volume table
-    send_data(volReg, volumeValue);
+    // Adjust volume using velocity and offset
+    uint8_t scaledVolume = map(velocityValue, 0, 127, 0, volume & 0x0F); // Scale to 4 bits
+    int8_t adjustedVolume = scaledVolume + offset; // Apply the offset
+    adjustedVolume = constrain(adjustedVolume, 0, 15); // Ensure within valid range
+
+    uint8_t volumeValue = voltbl[adjustedVolume]; // Map to YM2149F-compatible value
+
+    send_data(volReg, volumeValue); // Send the adjusted volume
 }
 
 void setMixer(bool toneA, bool noiseA, bool toneB, bool noiseB, bool toneC, bool noiseC) {
