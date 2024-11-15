@@ -1,5 +1,5 @@
 /*
- * Arduino YM2149 MIDI Synth v0.5
+ * Arduino YM2149 MIDI Synth v0.8
  * 
  * Original code developed by yukimizake.
  * Video demonstration: Soon.
@@ -50,7 +50,7 @@ const int pinBDIR = 11;
 const int pinYMReset = 12;
 
 // Buttons on Analogue Pin A1
-#define buttonPin A1       // analog input pin to use as a digital input
+#define buttonPin A1 // analog input pin to use as a digital input
 
 //banks
 bool setBankB;
@@ -214,8 +214,6 @@ PROGMEM const char s3[] = {7, 6, 7, 7, 8, 8, 8, 8, 9, 9, 9, 10, 10, 10, 11, 11, 
 const int s3Length = 2982;
 PROGMEM const char s4[] = {0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 const int s4Length = 741;
-//const char* samplePointers[] = {s0, s1, s2, s3, s4};
-//int sampleLength[] = {931,1780,463,8011,2869};
  
 //Timer
 const char* sampleOffset;
@@ -223,7 +221,7 @@ int sampleCounter = 0;
 int sampleLength = 0;
 int timerTicks = 0;
 
-bool toggleVibrato = true; // Initialize toggle variable
+bool toggleVibrato = true;
 
 ISR(TIMER1_COMPA_vect)
 {
@@ -300,8 +298,8 @@ int indexA = adjustedNoteA + currentPattern[arpeggioCounter];
     periodA = tp[indexA]; 
     currentArpNote = indexA;
 
-    byte LSB = (periodA & 0x00FF); // Get the LSB of the period
-    byte MSB = ((periodA & 0x0F00) >> 8); // Get the MSB of the period
+    byte LSB = (periodA & 0x00FF); 
+    byte MSB = ((periodA & 0x0F00) >> 8); 
     send_data(0x00, periodA & 0xFF);
     send_data(0x01, (periodA >> 8) & 0x0F);
     if (controlValue7 > 64) send_data(0x08, volume);
@@ -340,12 +338,7 @@ int indexA = adjustedNoteA + currentPattern[arpeggioCounter];
     }
  }
 
-  // Toggle between vibrato and arpeggio on each interrupt
   toggleVibrato = !toggleVibrato;
-
- // if (timerTicks > 255) {
- //   timerTicks = 0;
- // }
 }
 
 ISR(TIMER2_COMPA_vect) {
@@ -356,7 +349,6 @@ ISR(TIMER2_COMPA_vect) {
 }
 
 bool setupOCR1A = false;
-
 
 void setup(){
   //init pins
@@ -382,19 +374,17 @@ void setup(){
 
   //serial init
   Serial.begin(31250);
-    // Start the MIDI output serial port
   
-  //timer1 : sample player
+  //timer1 : Arp and vibrato
   cli();
-  TCCR1A = 0;           // Reset Timer1 Control Register A
-  TCCR1B = 0;           // Reset Timer1 Control Register B
-  OCR1A = 1250;        // Set compare value for a ~1 Hz frequency with 256 prescaler (adjust as needed)
-  TCCR1B |= (1 << WGM12); // Enable CTC mode
-  TCCR1B |= (1 << CS12);  // Set prescaler to 256
-  TCCR1B |= (1 << CS10);  // Set prescaler to 256
-  TIMSK1 |= (1 << OCIE1A); // Enable Timer1 compare interrupt
-  
-  // Sample timer settings need to be slower than what the other timer runs at
+  TCCR1A = 0;
+  TCCR1B = 0; 
+  OCR1A = 1250;
+  TCCR1B |= (1 << WGM12); 
+  TCCR1B |= (1 << CS12);  
+  TCCR1B |= (1 << CS10);  
+  TIMSK1 |= (1 << OCIE1A); 
+  //timer2 : sample timer 
   TCCR2A = 0;
   TCCR2B = 0; 
   TCCR2A |= (1 << WGM21); 
@@ -402,12 +392,10 @@ void setup(){
   TIMSK2 |= (1 << OCIE2A);
   TCCR2B |= (1 << CS21); 
   sei();
-  
-  //say hello
-  //This is the bleep played on power on.
-      ////note/velo/channel
+
+// HELLO!
 playNote(78, 127, 1, 0);  // F#5
-delay(30);             // Shorter delay for chiptune feel
+delay(30);   
 playNote(76, 127, 1, 0);  // E5
 delay(30);
 playNote(74, 127, 1, 0);  // D5
@@ -486,10 +474,10 @@ void loop() {
 
 void setupOCR1AOnce() {
   if (!setupOCR1A) {
-    cli(); // Disable global interrupts
+    cli();
     OCR1A = 75;
     setupOCR1A = true;
-    sei(); // Re-enable global interrupts
+    sei();
   }
 }
 
@@ -573,7 +561,7 @@ void applyDetuneToActiveNotes(byte midiChannel) {
 
 void setChannelVolume(byte value, byte chan)
 {
-  value = (value >> 3) & 0x0F; //downscaling to 4 bits
+  value = (value >> 3) & 0x0F;
   
   if (chan == 0)
   {
@@ -658,38 +646,28 @@ void resetYM()
 }
 
 void send_data(unsigned char address, unsigned char data) {
-    // Process and send the address (8 bits)
     boolean value[8];
     for (int i = 0; i < 8; i++) {
-        value[i] = ((address & 0x01) == 1);  // Extract the least significant bit
-        address >>= 1;  // Right-shift address for the next bit
+        value[i] = ((address & 0x01) == 1);
+        address >>= 1;
     }
-    outputToYM(value);  // Output the address to YM pins
-
-    // Validate the address by setting the control pins
-    __BCPORT__ |= (1 << __BDIR__) | (1 << __BC1__);  // Enable address validation
-    delayMicroseconds(1);  // Small delay for timing (increased for stability)
-    __BCPORT__ &= ~((1 << __BDIR__) | (1 << __BC1__));  // Disable address validation
-
-    // Process and send the data (8 bits)
+    outputToYM(value);
+    __BCPORT__ |= (1 << __BDIR__) | (1 << __BC1__);
+    delayMicroseconds(1);
+    __BCPORT__ &= ~((1 << __BDIR__) | (1 << __BC1__));
     for (int i = 0; i < 8; i++) {
-        value[i] = ((data & 0x01) == 1);  // Extract the least significant bit
-        data >>= 1;  // Right-shift data for the next bit
+        value[i] = ((data & 0x01) == 1);
+        data >>= 1;
     }
-    outputToYM(value);  // Output the data to YM pins
-
-    // Validate the data by setting the control pins
-    setPinHigh(__BCPORT__, __BDIR__);  // Activate the data validation signal
-    delayMicroseconds(1);  // Delay for timing (increased for stability)
-    setPinLow(__BCPORT__, __BDIR__);   // Deactivate the data validation signal
-
-    // Optional: Reset the LED state
+    outputToYM(value);
+    setPinHigh(__BCPORT__, __BDIR__);
+    delayMicroseconds(1);
+    setPinLow(__BCPORT__, __BDIR__);
     setPinLow(__LEDPORT__, __LED__);
 }
 
 void outputToYM(boolean value[])
 {
-  // Write the bits to the pins
   setPinState(PORTB, 0, value[0]);
   setPinState(PORTB, 1, value[1]);
   setPinState(PORTD, 2, value[2]);
@@ -703,9 +681,9 @@ void outputToYM(boolean value[])
 void setPinState(volatile uint8_t &port, uint8_t pin, bool state)
 {
   if (state)
-    setPinHigh(port, pin);  // Set pin high if state is true
+    setPinHigh(port, pin);
   else
-    setPinLow(port, pin);   // Set pin low if state is false
+    setPinLow(port, pin);
 }
 
 byte getSerialByte()
@@ -716,13 +694,12 @@ byte getSerialByte()
 
 const uint8_t voltbl[16] = {0, 1, 3, 5, 9, 13, 17, 23, 31, 41, 53, 67, 83, 103, 127, 255};
 
-// Function to set volume for a channel
 void setVolume(uint8_t channel, uint8_t volume) {
     uint8_t volReg;
     if (channel == 0) volReg = 0x08;
     else if (channel == 1) volReg = 0x09;
     else if (channel == 2) volReg = 0x0A;
-    else return; // Invalid channel
+    else return;
 
     uint8_t volumeValue = voltbl[volume & 0x0F]; // Limit to 4 bits, map through volume table
     send_data(volReg, volumeValue);
