@@ -17,7 +17,7 @@ const uint8_t voltbl[32] = {0x00, 0x01, 0x01, 0x02, 0x02, 0x03, 0x03, 0x04, 0x05
     arpeggioCounter = 0;     
     noteA = note;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    int periodA = tp[note + detuneValue] * pitchBendFactor;
+    int periodA = (tp[note]  + detuneValue) * pitchBendFactor;
     byte LSB = (periodA & 0xFF);
     byte MSB = ((periodA >> 8) & 0x0F);
     cli();
@@ -37,7 +37,7 @@ const uint8_t voltbl[32] = {0x00, 0x01, 0x01, 0x02, 0x02, 0x03, 0x03, 0x04, 0x05
     arpeggioCounter = 0;    
     noteB = note;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    int periodB = tp[note + detuneValue] * pitchBendFactor;
+    int periodB = (tp[note]   + detuneValue) * pitchBendFactor;
     byte LSB = (periodB & 0xFF);
     byte MSB = ((periodB >> 8) & 0x0F);
     cli();
@@ -57,7 +57,7 @@ const uint8_t voltbl[32] = {0x00, 0x01, 0x01, 0x02, 0x02, 0x03, 0x03, 0x04, 0x05
     arpeggioCounter = 0;      
     noteC = note;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    int periodC = tp[note + detuneValue] * pitchBendFactor;
+    int periodC = (tp[note] + detuneValue) * pitchBendFactor;
     byte LSB = (periodC & 0xFF);
     byte MSB = ((periodC >> 8) & 0x0F);
     cli();
@@ -81,7 +81,7 @@ const uint8_t voltbl[32] = {0x00, 0x01, 0x01, 0x02, 0x02, 0x03, 0x03, 0x04, 0x05
             noteB = note;
             float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
             int periodA = tp[note] * pitchBendFactor;
-            periodB = (tp[note] + detuneValue) * pitchBendFactor;
+            periodB = (tp[note] + (detuneValue  + 1)) * pitchBendFactor;
             byte ALSB = (periodA & 0x00FF);
             byte AMSB = ((periodA >> 8) & 0x000F);
             byte BLSB = (periodB & 0x00FF);
@@ -114,7 +114,7 @@ else if (chan == 4) {
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
     int periodA = (tp[note] - 12) * pitchBendFactor;
     int periodB = (tp[note]) * pitchBendFactor;
-    int periodC = (tp[note] + detuneValue) * pitchBendFactor;
+    int periodC = (tp[note] + (detuneValue  + 1)) * pitchBendFactor;
     byte ALSB = (periodA & 0x00FF);
     byte AMSB = ((periodA >> 8) & 0x000F);
     byte BLSB = (periodB & 0x00FF);
@@ -144,7 +144,7 @@ else if (chan == 5) {
     timerTicks = 0;
     arpeggioCounter = 0;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = envTp[note + detuneValue] * pitchBendFactor;
+    periodA = (envTp[note]  + detuneValue) * pitchBendFactor;
     byte LSB = (periodA & 0x00FF);
     byte MSB = ((periodA >> 8) & 0x000F);
     cli();
@@ -167,7 +167,7 @@ else if (chan == 6) {
     timerTicks = 0;
     arpeggioCounter = 0;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = (envTp[note]) * pitchBendFactor;
+    periodA = (envTp[note] + detuneValue) * pitchBendFactor;
     periodB = (envTp[note]) * pitchBendFactor;
     byte LSB = (periodA & 0x00FF);
     byte MSB = ((periodA >> 8) & 0x000F);
@@ -224,7 +224,7 @@ else if (chan == 8) {
     arpeggioCounter = 0;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
     periodA = envTp[note] * pitchBendFactor;
-    periodB = tp[note - 24] * pitchBendFactor;
+    periodB = (tp[note - 24]   + detuneValue) * pitchBendFactor;
     byte LSB = (periodA & 0x00FF);
     byte MSB = ((periodA >> 8) & 0x000F);
     byte BLSB = (periodB & 0x00FF);
@@ -249,7 +249,7 @@ else if (chan == 10) {
     arpeggioCounter = 0;
     timerTicks = 0;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = envTp[note] * pitchBendFactor;
+    periodA = (envTp[note] + detuneValue)  * pitchBendFactor;
     byte LSB = (periodA & 0x00FF);
     byte MSB = ((periodA >> 8) & 0x000F);
     cli();
@@ -276,7 +276,7 @@ else if (chan == 11)
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
     periodA = tp[note - 12] * pitchBendFactor;
     periodB = tp[note + 12] * pitchBendFactor;
-    periodC = tp[note] * pitchBendFactor;  
+    periodC = (tp[note] + detuneValue)  * pitchBendFactor;  
     byte ALSB = (periodA & 0x00FF);
     byte AMSB = ((periodA >> 8) & 0x000F);
     byte BLSB = (periodB & 0x00FF);
@@ -314,7 +314,7 @@ else if (chan == 12)
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
     periodA = tp[note - 12] * pitchBendFactor;
     periodB = tp[note - 12] * pitchBendFactor;
-    periodC = tp[note] * pitchBendFactor;  
+    periodC = (tp[note] + detuneValue)  * pitchBendFactor;  
     byte ALSB = (periodA & 0x00FF);
     byte AMSB = ((periodA >> 8) & 0x000F);
     byte BLSB = (periodB & 0x00FF);
@@ -345,7 +345,7 @@ else if (chan == 13)
     timerTicks = 0;
     arpeggioCounter = 0;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = tp[note - 12] * pitchBendFactor;
+    periodA = (tp[note - 12] + detuneValue)  * pitchBendFactor;
     byte LSB = (periodA & 0x00FF);
     byte MSB = ((periodA & 0x0F00) >> 8);
     cli(); 
