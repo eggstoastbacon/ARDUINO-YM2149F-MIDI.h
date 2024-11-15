@@ -56,7 +56,9 @@ Control Interface: It uses a simple data and address bus interface, making it re
 **ARDUINO-YM2149.ino, BANK-A.ino, BANK-B.ino** - for the hardware:
 
 1. Clone this repository.
-2. Connect the USB-C cable to your computer and use the Arduino IDE set to Arduino Uno to program the chip with the .ino file.
+2. Flip switch (PGM/MIDI) to PGM for programming mode.
+3. Connect the USB-C cable to your computer and use the Arduino IDE set to Arduino Uno to program the chip with the .ino file.
+4. Flip switch (PGM/MIDI) to MIDI.
 
 **ym2149-wave.py** - creating your own samples:
 
@@ -89,7 +91,7 @@ The code includes detailed comments to help you create custom presets. Code rela
 
 - **4 bit Samples**: Includes five short drum samples on MIDI Channel 10, with an option to add or replace them using the included Python script.
 
-- **Programming and MIDI Mode**: Use the toggle switch to switch between MIDI mode and programming mode. Programming mode is for flashing new code.
+- **Programming and MIDI Mode**: Use the toggle switch to switch between MIDI mode and programming mode (PGM/MIDI). Programming mode is for flashing new code.
 
 ## CC
 Pitch Wheel - Pitch Bend
