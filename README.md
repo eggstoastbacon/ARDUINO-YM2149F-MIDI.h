@@ -196,7 +196,7 @@ E3-64/PROGMEM const char s0[]: Kick Drum
 
 Discord: https://discord.gg/32wfnbkCtE
 
-Dansfing's builds and code: https://dansfing.uk
+Dansfing's builds and code, the hardware is compatible with this code: https://dansfing.uk
 
 Dansfing USB MIDI YM2149, simple to build. (You may be able to get a pre-built USB MIDI for sale from Dansfing): https://dansfing.uk/ym2149f.php
 
