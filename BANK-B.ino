@@ -143,7 +143,7 @@ else if (chan == 6) {
     timerTicks = 0;
     arpeggioCounter = 0;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = (envTp[note]  + detuneValue) * pitchBendFactor;
+    periodA = (envTp00[note]  + detuneValue) * pitchBendFactor;
     byte LSB = (periodA & 0x00FF);
     byte MSB = ((periodA >> 8) & 0x000F);
     cli();
@@ -166,8 +166,8 @@ else if (chan == 7) {
     timerTicks = 0;
     arpeggioCounter = 0;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = (envTp[note] + detuneValue) * pitchBendFactor;
-    periodB = (envTp[note]) * pitchBendFactor;
+    periodA = (envTp00[note] + detuneValue) * pitchBendFactor;
+    periodB = (envTp00[note]) * pitchBendFactor;
     byte LSB = (periodA & 0x00FF);
     byte MSB = ((periodA >> 8) & 0x000F);
     byte BLSB = (periodB & 0x00FF);
@@ -194,7 +194,7 @@ else if (chan == 8) {
     timerTicks = 0;
     arpeggioCounter = 0;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = envTp[note]  * pitchBendFactor;
+    periodA = envTp00[note]  * pitchBendFactor;
     periodB = ((tp[note - 12] + detuneValue) << 1)* pitchBendFactor;
     byte LSB = (periodA & 0x00FF);
     byte MSB = ((periodA >> 8) & 0x000F);
@@ -222,7 +222,7 @@ else if (chan == 9) {
     timerTicks = 0;
     arpeggioCounter = 0;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = envTp[note] * pitchBendFactor;
+    periodA = envTp00[note] * pitchBendFactor;
     periodB = (tp[note - 24]   + detuneValue) * pitchBendFactor;
     byte LSB = (periodA & 0x00FF);
     byte MSB = ((periodA >> 8) & 0x000F);
@@ -248,7 +248,7 @@ else if (chan == 11) {
     arpeggioCounter = 0;
     timerTicks = 0;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = (envTp[note] + detuneValue)  * pitchBendFactor;
+    periodA = (envTp00[note] + detuneValue)  * pitchBendFactor;
     byte LSB = (periodA & 0x00FF);
     byte MSB = ((periodA >> 8) & 0x000F);
     cli();
