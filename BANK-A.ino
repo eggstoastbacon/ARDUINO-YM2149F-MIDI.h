@@ -21,7 +21,7 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
     send_data(0x00, LSB);
     send_data(0x01, MSB);
     setVolume(0, defaultVolume, 0);
-    setEnvelope(0xF000, 0x1000);
+    (controlValue11 == 0) ? setEnvelope(0xF000, 0x1000) : updateEnvelope();
     sei();
     }
 // MIDI Channel 2
@@ -41,7 +41,7 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
     send_data(0x02, LSB);
     send_data(0x03, MSB);
     setVolume(1, defaultVolume, 0);
-    setEnvelope(0xF000, 0x1000);
+    (controlValue11 == 0) ? setEnvelope(0xF000, 0x1000) : updateEnvelope();
     sei();
     }
 // MIDI Channel 3
@@ -61,7 +61,7 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
     send_data(0x04, LSB);
     send_data(0x05, MSB);
     setVolume(2, defaultVolume, 0);
-    setEnvelope(0xF000, 0x1000);
+        (controlValue11 == 0) ? setEnvelope(0xF000, 0x1000) : updateEnvelope();
     sei();
     }
 // MIDI Channel 4
@@ -90,7 +90,7 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
             setVolume(0, defaultVolume, 0);
             setVolume(1, defaultVolume, 0);
             setVolume(2, defaultVolume, 0);
-            setEnvelope(0xF000, 0x1000);
+            (controlValue11 == 0) ? setEnvelope(0xF000, 0x1000) : updateEnvelope();
             sei();
     }
 // MIDI Channel 5
@@ -126,7 +126,7 @@ else if (chan == 5) {
     setVolume(0, defaultVolume, 0);
     setVolume(1, defaultVolume, 0);
     setVolume(2, defaultVolume, 0);
-    setEnvelope(0xF000, 0x1000);
+    (controlValue11 == 0) ? setEnvelope(0xF000, 0x1000) : updateEnvelope();
     sei();
 }
 // MIDI Channel 6
@@ -155,9 +155,9 @@ else if (chan == 6) {
     send_data(0x03, MSB);
     //send_data(0x0B, BLSB);
     //send_data(0x0C, BMSB);
-    setVolume(0, defaultVolume, -3);
+    setVolume(0, defaultVolume, -1);
     setVolume(1, defaultVolume, 0);
-    setEnvelope(0xF000, 0x0B);
+    (controlValue11 == 0) ? setEnvelope(0xF000, 0x0B) : updateEnvelope();
     sei();
 }
 // MIDI Channel 7
@@ -186,7 +186,7 @@ else if (chan == 7) {
     send_data(0x0C, MSB);
     setVolume(0, defaultVolume, 0);
     setVolume(1, defaultVolume, 0);
-    setEnvelope(0xF000, 0x08);
+    (controlValue11 == 0) ? setEnvelope(0xF000, 0x08) : updateEnvelope();
     sei();
 }
 // MIDI Channel 8
@@ -214,7 +214,7 @@ else if (chan == 8) {
     send_data(0x0C, MSB);
     setVolume(0, defaultVolume, 0);
     setVolume(1, defaultVolume, 0);
-    setEnvelope(0xF000, 0x02);
+    (controlValue11 == 0) ? setEnvelope(0xF000, 0x02) : updateEnvelope();
     sei();
 }
 // MIDI Channel 9
@@ -244,7 +244,7 @@ else if (chan == 9) {
     send_data(0x0C, MSB);
     setVolume(0, defaultVolume, 0);
     setVolume(1, defaultVolume, 0);
-    setEnvelope(0xF000, 0x09);
+    (controlValue11 == 0) ? setEnvelope(0xF000, 0x09) : updateEnvelope();
     sei();
 }
 // MIDI Channel 11
@@ -272,7 +272,7 @@ else if (chan == 11) {
     send_data(0x05, CMSB);
     setVolume(0, defaultVolume, 0);
     setVolume(2, defaultVolume, -3);
-    setEnvelope(0x0001, 0x0D);
+    (controlValue11 == 0) ? setEnvelope(0x0001, 0x0D) : updateEnvelope();
     sei();
 }
 // MIDI Channel 12
@@ -311,7 +311,7 @@ else if (chan == 12)
     setVolume(0, defaultVolume, -2);
     setVolume(1, defaultVolume, 0);
     setVolume(2, defaultVolume, 0);
-    setEnvelope(0xF000, 0x00);
+    (controlValue11 == 0) ? setEnvelope(0xF000, 0x00) : updateEnvelope();
     sei();
 }
 // MIDI Channel 13
@@ -350,7 +350,7 @@ else if (chan == 13)
     setVolume(0, defaultVolume, 0);
     setVolume(1, defaultVolume, 0);
     setVolume(2, defaultVolume, 0);
-    setEnvelope(0xF000, 0x02);
+    (controlValue11 == 0) ? setEnvelope(0xF000, 0x02) : updateEnvelope();
     sei();
 }
 // MIDI Channel 14
@@ -386,10 +386,10 @@ else if (chan == 14)
     send_data(0x03, BMSB);
     send_data(0x04, CLSB);
     send_data(0x05, CMSB);
-    setEnvelope(0xF000, 0x02);
     setVolume(0, defaultVolume, 0);
     setVolume(1, defaultVolume, 0);
     setVolume(2, defaultVolume, 0);
+    (controlValue11 == 0) ? setEnvelope(0xF000, 0x02) : updateEnvelope();
     sei();
 }
 }
