@@ -141,8 +141,8 @@ else if (chan == 6) {
     arpeggioCounter = 0;
     float detuneFactorA = 1.006;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = (envTp[note -12]  + detuneValue) * pitchBendFactor * detuneFactorA;
-    periodB = (envTp[note]  + detuneValue) * pitchBendFactor;
+    periodA = (envTp00[note -12]  + detuneValue) * pitchBendFactor * detuneFactorA;
+    periodB = (envTp02[note]  + detuneValue) * pitchBendFactor;
     byte LSB = (periodA & 0x00FF);
     byte MSB = ((periodA >> 8) & 0x000F);
     byte BLSB = (periodB & 0x00FF);
@@ -155,8 +155,8 @@ else if (chan == 6) {
     send_data(0x03, MSB);
     //send_data(0x0B, BLSB);
     //send_data(0x0C, BMSB);
-    setVolume(0, defaultVolume, -1);
-    setVolume(1, defaultVolume, 0);
+    setVolume(0, defaultVolume, 0);
+    setVolume(1, defaultVolume, -1);
     (controlValue11 == 0) ? setEnvelope(0xF000, 0x0B) : updateEnvelope();
     sei();
 }
@@ -171,7 +171,7 @@ else if (chan == 7) {
     arpeggioCounter = 0;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
     periodA = (tp[note -24]) * pitchBendFactor;
-    periodB = (envTp[note -12] + detuneValue) * pitchBendFactor;
+    periodB = (envTp00[note -12] + detuneValue) * pitchBendFactor;
     byte LSB = (periodA & 0x00FF);
     byte MSB = ((periodA >> 8) & 0x000F);
     byte BLSB = (periodB & 0x00FF);
@@ -200,7 +200,7 @@ else if (chan == 8) {
     timerTicks = 0;
     arpeggioCounter = 0;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = envTp[note]  * pitchBendFactor;
+    periodA = envTp00[note]  * pitchBendFactor;
     periodB = ((tp[note - 12] + detuneValue) << 1)* pitchBendFactor;
     byte LSB = (periodA & 0x00FF);
     byte MSB = ((periodA >> 8) & 0x000F);
@@ -228,7 +228,7 @@ else if (chan == 9) {
     timerTicks = 0;
     arpeggioCounter = 0;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = envTp[note -24] * pitchBendFactor;
+    periodA = envTp01[note -24] * pitchBendFactor;
     periodB = (tp[note - 12]  + detuneValue) * pitchBendFactor;
     byte LSB = (periodA & 0x00FF);
     byte MSB = ((periodA >> 8) & 0x000F);
@@ -258,7 +258,7 @@ else if (chan == 11) {
     timerTicks = 0;
     arpeggioCounter = 0;
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = (envTp[note]   + detuneValue) * pitchBendFactor;
+    periodA = (envTp00[note]   + detuneValue) * pitchBendFactor;
     periodC = tp[note -12] * pitchBendFactor;
     byte LSB = (periodA & 0x00FF);
     byte MSB = ((periodA >> 8) & 0x000F);
