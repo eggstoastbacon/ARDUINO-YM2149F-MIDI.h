@@ -1,653 +1,745 @@
-void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
-    chan = chan + 1;
-    if (note < 24) return; // Invalid note, exit function
-    setPinHigh(__LEDPORT__, __LED__);
-    volume = map(velo, 0, 127, 0, 14);
-
-// MIDI Channel 1
-    if (chan == 1) {
-    noteActiveA = 1;
-    detuneActiveA = 1;
-    arpeggioFlipMe = true;
-    timerTicks = 0;
-    arpeggioCounter = 0;     
-    noteA = note;
-    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    int periodA = (tp[note]  + detuneValue) * pitchBendFactor;
-    byte LSB = (periodA & 0xFF);
-    byte MSB = ((periodA >> 8) & 0x0F);
-    cli();
-    setMixer(true, false, false, false, false, false);
-    send_data(0x00, LSB);
-    send_data(0x01, MSB);
-    setVolume(0, defaultVolume, 0);
-    (controlValue11 == 0) ? setEnvelope(0xF000, 0x1000) : updateEnvelope();
-    sei();
-    }
-// MIDI Channel 2
-    else if (chan == 2) {
-    noteActiveB = 1;
-    detuneActiveB = 1;
-    arpeggioFlipMe = true;
-    timerTicks = 0;
-    arpeggioCounter = 0;    
-    noteB = note;
-    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    int periodB = (tp[note]   + detuneValue) * pitchBendFactor;
-    byte LSB = (periodB & 0xFF);
-    byte MSB = ((periodB >> 8) & 0x0F);
-    cli();
-    setMixer(false, false, true, false, false, false);
-    send_data(0x02, LSB);
-    send_data(0x03, MSB);
-    setVolume(1, defaultVolume, 0);
-    (controlValue11 == 0) ? setEnvelope(0xF000, 0x1000) : updateEnvelope();
-    sei();
-    }
-// MIDI Channel 3
-    else if (chan == 3) {
-      noteActiveC = 1;
-    detuneActiveC = 1;
-    arpeggioFlipMe = true;
-    timerTicks = 0;
-    arpeggioCounter = 0;      
-    noteC = note;
-    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    int periodC = (tp[note]   + detuneValue) * pitchBendFactor;
-    byte LSB = (periodC & 0xFF);
-    byte MSB = ((periodC >> 8) & 0x0F);
-    cli();
-    setMixer(false, false, false, false, true, false);
-    send_data(0x04, LSB);
-    send_data(0x05, MSB);
-    setVolume(2, defaultVolume, 0);
-        (controlValue11 == 0) ? setEnvelope(0xF000, 0x1000) : updateEnvelope();
-    sei();
-    }
-// MIDI Channel 4
-    else if (chan == 4) {
-            noteActiveA = 1;
-            noteActiveB = 1;
-            detuneActiveB = 1;
-            arpeggioFlipMe = true;
-            timerTicks = 0;
-            arpeggioCounter = 0;          
-            noteA = note;
-            noteB = note;
-            float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-            int periodA = tp[note] * pitchBendFactor;
-            periodB = (tp[note] + (detuneValue + 1)) * pitchBendFactor;
-            byte ALSB = (periodA & 0x00FF);
-            byte AMSB = ((periodA >> 8) & 0x000F);
-            byte BLSB = (periodB & 0x00FF);
-            byte BMSB = ((periodB >> 8) & 0x000F);
-            cli();
-            setMixer(true, false, true, false, true, false);
-            send_data(0x00, ALSB);
-            send_data(0x01, AMSB);
-            send_data(0x02, BLSB);
-            send_data(0x03, BMSB);
-            setVolume(0, defaultVolume, 0);
-            setVolume(1, defaultVolume, 0);
-            setVolume(2, defaultVolume, 0);
-            (controlValue11 == 0) ? setEnvelope(0xF000, 0x1000) : updateEnvelope();
-            sei();
-    }
-// MIDI Channel 5
-else if (chan == 5) { 
-     noteActiveA = 1;
-    noteActiveB = 1;
-    noteActiveC = 1;
-    detuneActiveC = 1;
-    arpeggioFlipMe = true;
-    timerTicks = 0;
-    arpeggioCounter = 0;  
-    noteA = note;
-    noteB = note;
-    noteC = note;
-    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    int periodA = (tp[note] - 12) * pitchBendFactor;
-    int periodB = (tp[note]) * pitchBendFactor;
-    int periodC = (tp[note] + (detuneValue + 1)) * pitchBendFactor;
-    byte ALSB = (periodA & 0x00FF);
-    byte AMSB = ((periodA >> 8) & 0x000F);
-    byte BLSB = (periodB & 0x00FF);
-    byte BMSB = ((periodB >> 8) & 0x000F);
-    byte CLSB = (periodC & 0x00FF);
-    byte CMSB = ((periodC >> 8) & 0x000F);
-    cli();
-    setMixer(true, false, true, false, true, false);
-    send_data(0x00, ALSB);
-    send_data(0x01, AMSB);
-    send_data(0x02, BLSB);
-    send_data(0x03, BMSB);
-    send_data(0x04, CLSB);
-    send_data(0x05, CMSB);
-    setVolume(0, defaultVolume, 0);
-    setVolume(1, defaultVolume, 0);
-    setVolume(2, defaultVolume, 0);
-    (controlValue11 == 0) ? setEnvelope(0xF000, 0x1000) : updateEnvelope();
-    sei();
-}
-// MIDI Channel 6
-else if (chan == 6) { 
-    noteActiveA = 1;
-    noteActiveB = 1;
-    detuneActiveA = 0;
-    noteA = note;
-    noteB = note;
-    arpeggioFlipMe = true;
-    timerTicks = 0;
-    arpeggioCounter = 0;
-    float detuneFactorA = 1.006;
-    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = (envTp00[note -12]  + detuneValue) * pitchBendFactor * detuneFactorA;
-    periodB = (envTp02[note]  + detuneValue) * pitchBendFactor;
-    byte LSB = (periodA & 0x00FF);
-    byte MSB = ((periodA >> 8) & 0x000F);
-    byte BLSB = (periodB & 0x00FF);
-    byte BMSB = ((periodB >> 8) & 0x000F);
-    cli();
-    setMixer(true, false, true, false, false, false);
-    send_data(0x00, LSB);
-    send_data(0x01, MSB);
-    send_data(0x02, LSB);
-    send_data(0x03, MSB);
-    //send_data(0x0B, BLSB);
-    //send_data(0x0C, BMSB);
-    setVolume(0, defaultVolume, 0);
-    setVolume(1, defaultVolume, -1);
-    (controlValue11 == 0) ? setEnvelope(0xF000, 0x0B) : updateEnvelope();
-    sei();
-}
-// MIDI Channel 7
-else if (chan == 7) { 
-    noteActiveA = 1;
-    detuneActiveA = 0;
-    noteA = note;
-    noteB = note;
-    arpeggioFlipMe = true;
-    timerTicks = 0;
-    arpeggioCounter = 0;
-    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = (tp[note -24]) * pitchBendFactor;
-    periodB = (envTp00[note -12] + detuneValue) * pitchBendFactor;
-    byte LSB = (periodA & 0x00FF);
-    byte MSB = ((periodA >> 8) & 0x000F);
-    byte BLSB = (periodB & 0x00FF);
-    byte BMSB = ((periodB >> 8) & 0x000F);
-    cli();
-    setMixer(true, false, true, false, false, false);
-    send_data(0x00, LSB);
-    send_data(0x01, MSB);
-    send_data(0x02, BLSB);
-    send_data(0x03, BMSB);
-    send_data(0x0B, LSB);
-    send_data(0x0C, MSB);
-    setVolume(0, defaultVolume, 0);
-    setVolume(1, defaultVolume, 0);
-    (controlValue11 == 0) ? setEnvelope(0xF000, 0x08) : updateEnvelope();
-    sei();
-}
-// MIDI Channel 8
-else if (chan == 8) { 
-    noteActiveA = 1;
-    noteActiveB = 1;
-    detuneActiveC = 1;
-    noteA = note;
-    noteB = note;
-    arpeggioFlipMe = true;
-    timerTicks = 0;
-    arpeggioCounter = 0;
-    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = envTp00[note]  * pitchBendFactor;
-    periodB = ((tp[note - 12] + detuneValue) << 1)* pitchBendFactor;
-    byte LSB = (periodA & 0x00FF);
-    byte MSB = ((periodA >> 8) & 0x000F);
-    byte BLSB = (periodB & 0x00FF);
-    byte BMSB = ((periodB >> 8) & 0x000F);
-    cli();
-    setMixer(true, false, true, false, false, false);
-    send_data(0x02, BLSB);
-    send_data(0x03, BMSB);
-    send_data(0x0B, LSB);
-    send_data(0x0C, MSB);
-    setVolume(0, defaultVolume, 0);
-    setVolume(1, defaultVolume, 0);
-    (controlValue11 == 0) ? setEnvelope(0xF000, 0x02) : updateEnvelope();
-    sei();
-}
-// MIDI Channel 9
-else if (chan == 9) {
-    noteActiveA = 1;
-    noteActiveB = 1;
-    detuneActiveB = 1;
-    noteA = note;
-    noteB = note;
-    arpeggioFlipMe = true;
-    timerTicks = 0;
-    arpeggioCounter = 0;
-    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = envTp01[note -24] * pitchBendFactor;
-    periodB = (tp[note - 12]  + detuneValue) * pitchBendFactor;
-    byte LSB = (periodA & 0x00FF);
-    byte MSB = ((periodA >> 8) & 0x000F);
-    byte BLSB = (periodB & 0x00FF);
-    byte BMSB = ((periodB >> 8) & 0x000F);
-    cli();
-    setMixer(true, false, true, false, false, false); 
-    send_data(0x00, LSB);
-    send_data(0x01, MSB);
-    send_data(0x02, BLSB);
-    send_data(0x03, BMSB);
-    send_data(0x0B, LSB);
-    send_data(0x0C, MSB);
-    setVolume(0, defaultVolume, 0);
-    setVolume(1, defaultVolume, 0);
-    (controlValue11 == 0) ? setEnvelope(0xF000, 0x09) : updateEnvelope();
-    sei();
-}
-// MIDI Channel 11
-else if (chan == 11) {
-    noteActiveA = 1;
-    noteActiveC = 1;
-    detuneActiveA = 0;
-    noteA = note;
-    noteC = note;
-    arpeggioFlipMe = true;
-    timerTicks = 0;
-    arpeggioCounter = 0;
-    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = (envTp00[note]   + detuneValue) * pitchBendFactor;
-    periodC = tp[note -12] * pitchBendFactor;
-    byte LSB = (periodA & 0x00FF);
-    byte MSB = ((periodA >> 8) & 0x000F);
-    byte CLSB = (periodC & 0x00FF);
-    byte CMSB = ((periodC >> 8) & 0x000F);
-    cli();
-    setMixer(true, false, false, false, true, false);
-    send_data(0x00, LSB);
-    send_data(0x01, MSB);
-    send_data(0x04, CLSB);
-    send_data(0x05, CMSB);
-    setVolume(0, defaultVolume, 0);
-    setVolume(2, defaultVolume, -3);
-    (controlValue11 == 0) ? setEnvelope(0x0001, 0x0D) : updateEnvelope();
-    sei();
-}
-// MIDI Channel 12
-else if (chan == 12) 
-{
-    noteActiveA = 1;
-    noteActiveB = 1;
-    noteActiveC = 1;
-    detuneActiveC = 0;
-    arpeggioFlipMe = true;
-    timerTicks = 0;
-    arpeggioCounter = 0;
-    noteA = note;
-    noteB = note;
-    noteC = note;
-    float detuneFactor = 1.10;
-    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = (tp[note - 12]  + detuneValue)  * pitchBendFactor;
-    periodB = tp[note + 12] * pitchBendFactor * detuneFactor;
-    periodC = tp[note] * pitchBendFactor;  
-    byte ALSB = (periodA & 0x00FF);
-    byte AMSB = ((periodA >> 8) & 0x000F);
-    byte BLSB = (periodB & 0x00FF);
-    byte BMSB = ((periodB >> 8) & 0x000F);
-    byte CLSB = (periodC & 0x00FF);
-    byte CMSB = ((periodC >> 8) & 0x000F);
-    cli();
-    setMixer(true, false, true, false, true, false);
-    send_data(0x08, 0x10);
-    send_data(0x0B, BLSB);
-    send_data(0x0C, BMSB);
-    send_data(0x00, ALSB);
-    send_data(0x01, AMSB);
-    send_data(0x04, CLSB);
-    send_data(0x05, CMSB);
-    setVolume(0, defaultVolume, -2);
-    setVolume(1, defaultVolume, 0);
-    setVolume(2, defaultVolume, 0);
-    (controlValue11 == 0) ? setEnvelope(0xF000, 0x00) : updateEnvelope();
-    sei();
-}
-// MIDI Channel 13
-else if (chan == 13)
-{
-    noteActiveA = 1;
-    noteActiveB = 1;
-    noteActiveC = 1;
-    detuneActiveC = 0;
-    arpeggioFlipMe = true;
-    timerTicks = 0;
-    arpeggioCounter = 0;
-    noteA = note;
-    noteB = note;
-    noteC = note;
-    float detuneFactorA = 1.017;
-    float detuneFactorB = 1.01;
-    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    periodA = (tp[note - 12]  + detuneValue) * pitchBendFactor;
-    periodB = tp[note - 12] * pitchBendFactor * detuneFactorA;
-    periodC = tp[note] * pitchBendFactor * detuneFactorB;
-    byte ALSB = (periodA & 0x00FF);
-    byte AMSB = ((periodA >> 8) & 0x000F);
-    byte BLSB = (periodB & 0x00FF);
-    byte BMSB = ((periodB >> 8) & 0x000F);
-    byte CLSB = (periodC & 0x00FF);
-    byte CMSB = ((periodC >> 8) & 0x000F);
-    cli();
-    setMixer(true, false, true, false, true, false);
-    send_data(0x0B, BLSB);
-    send_data(0x0C, BMSB);
-    send_data(0x00, ALSB);
-    send_data(0x01, AMSB);
-    send_data(0x04, CLSB);
-    send_data(0x05, CMSB);
-    setVolume(0, defaultVolume, 0);
-    setVolume(1, defaultVolume, 0);
-    setVolume(2, defaultVolume, 0);
-    (controlValue11 == 0) ? setEnvelope(0xF000, 0x02) : updateEnvelope();
-    sei();
-}
-// MIDI Channel 14
-else if (chan == 14)
-{
-    noteActiveA = 1;
-    noteActiveB = 1;
-    noteActiveC = 1;
-    detuneActiveC = 1;
-    arpeggioFlipMe = true;
-    timerTicks = 0;
-    arpeggioCounter = 0;
-    noteA = note;
-    noteB = note;
-    noteC = note;
-    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
-    int periodA = (tp[note]) * pitchBendFactor;
-    int periodB = (tp[note]) * pitchBendFactor;
-    int periodC = (tp[note] + detuneValue) * pitchBendFactor;
-    
-    byte ALSB = (periodA & 0x00FF);
-    byte AMSB = ((periodA >> 8) & 0x000F);
-    byte BLSB = (periodB & 0x00FF);
-    byte BMSB = ((periodB >> 8) & 0x000F);
-    byte CLSB = (periodC & 0x00FF);
-    byte CMSB = ((periodC >> 8) & 0x000F);
-
-    cli();
-    setMixer(true, false, true, false, true, false);
-    send_data(0x00, ALSB);
-    send_data(0x01, AMSB);
-    send_data(0x02, BLSB);
-    send_data(0x03, BMSB);
-    send_data(0x04, CLSB);
-    send_data(0x05, CMSB);
-    setVolume(0, defaultVolume, 0);
-    setVolume(1, defaultVolume, 0);
-    setVolume(2, defaultVolume, 0);
-    (controlValue11 == 0) ? setEnvelope(0xF000, 0x02) : updateEnvelope();
-    sei();
-}
-}
-
-/**
- * @brief Stops a MIDI note for a specified channel.
+/*
+ * Arduino YM2149 MIDI Synth v0.8
+ * 
+ * Original code developed by yukimizake.
+ * Video demonstration: Soon.
+ * Schematics: Soon.
+ * Based on re-factored code by Dansfing / dansfing.uk (https://dansfing.uk/YM_v2_1b/YM_MIDI_lib_Screen_buttons/YM_MIDI_lib_Screen_buttons.ino)
+ * Updated PCB design and modifications for 2024 by crunchypotato for HobbyChop.
+ * OLED display not initially supported in this version but the pins are available on the PCB headers.
+ * Replaced 2 samples for Channel 10 with smaller samples.
+ * Added comments to playNote code.
+ * Remapped velocity 1-127 to 64-127 and implemented velocity examples in MIDI CH. 1 and 4. 
+ * Future progress will be in commit messages.
  *
- * This function resets the note and period for the specified MIDI channel
- * and sends commands to stop the sound associated with that note.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * @param note The MIDI note number to stop.
- * @param chan The MIDI channel number corresponding to the note.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-void stopNote(byte note, byte chan)
+
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <Arduino.h>
+
+void playNote(byte note, byte velocity, byte channel, int detune);
+void playNoteB(byte note, byte velocity, byte channel, int detune);
+void stopNote();
+void stopNoteB();
+
+//Port settings
+const int ad0 = 8;
+const int ad1 = 9;
+const int ad2 = 2;
+const int ad3 = 3;
+const int ad4 = 4;
+const int ad5 = 5;
+const int ad6 = 6;
+const int ad7 = 7;
+const int pinBC1 = 10;   
+const int pinBDIR = 11;
+//BC2 to +5V
+const int pinYMReset = 12;
+
+// Buttons on Analogue Pin A1
+#define buttonPin A1 // analog input pin to use as a digital input
+
+//banks
+bool setBankB;
+  
+//voicing
+byte noteA = 0;
+byte noteB = 0;
+byte noteC = 0;
+int periodA = 0;
+int periodB = 0;
+int periodC = 0;
+
+//detune
+int detuneValue = 0;
+int detuneActiveA = 0;
+int detuneActiveB = 0;
+int detuneActiveC = 0;
+
+//arpeggio settings
+byte pattern1[] = {0, 7, 12};          // Pattern 1: Root, Perfect Fifth, Octave
+byte pattern2[] = {12, 7, 0};          // Pattern 2: Octave, Perfect Fifth, Root
+byte pattern3[] = {0, 12, 7};          // Pattern 3: Root, Octave, Perfect Fifth
+byte pattern4[] = {0, 3, 7};           // Pattern 4: Root, Minor Third, Perfect Fifth
+byte pattern5[] = {0, 7, 3};           // Pattern 5: Root, Perfect Fifth, Minor Third
+byte pattern6[] = {0, 12, 3};          // Pattern 6: Root, Octave, Minor Third
+byte pattern7[] = {0, 5, 7};           // Pattern 7: Root, Perfect Fourth, Perfect Fifth
+byte pattern8[] = {0, 4, 7};           // Pattern 8: Root, Major Third, Perfect Fifth
+byte pattern9[] = {0, 2, 5};           // Pattern 9: Root, Major Second, Perfect Fourth
+byte pattern10[] = {0, 3, 10};         // Pattern 10: Root, Minor Third, Minor Seventh
+byte pattern11[] = {0, 4, 8};          // Pattern 11: Root, Major Third, Minor Sixth
+byte pattern12[] = {0, 4, 11};         // Pattern 12: Root, Major Third, Major Sixth
+byte pattern13[] = {0, 7, 9};          // Pattern 13: Root, Perfect Fifth, Minor Seventh
+byte pattern14[] = {0, 5, 11};         // Pattern 14: Root, Perfect Fourth, Major Sixth
+byte pattern15[] = {0, 4, 8};          // Pattern 15: Root, Major Third, Augmented Fifth
+byte pattern16[] = {0, 9, 12};         // Pattern 16: Root, Major Sixth, Octave
+
+
+byte* currentPattern = pattern1; // Pointer to the currently active pattern
+byte arpeggioLength = sizeof(pattern1); // Length of the active pattern
+byte arpeggioCounter = 0;
+boolean arpeggioFlipMe = false;
+int currentArpNote;
+int arpMod = 0;
+int octaveOffset = 0;
+
+byte defaultLevel = 10;
+
+//pitch bend
+int pitchBendValue = 0;
+float pitchBendRange = 16384.0; // multiple of 8192.0, the smaller the more the bend range.
+
+//volume
+byte volume;
+byte defaultVolume = 0x0F;
+const uint8_t voltbl[16] = {2, 4, 6, 6, 7, 8, 8, 10, 10, 11, 11, 12, 12, 14, 15, 16};
+
+//velocity
+byte velo;
+int velocityValue = 127;
+int velocityStatus = 0;
+
+//envelop
+byte envelopeShape = 0;
+uint16_t envFreq;
+uint8_t envShape;
+const byte envelopeShapes[] = {
+};
+
+//short notes
+int noteLength = 100;
+int noteLengthDelay = 0;
+
+//vibrato
+int vibratoRate = 0;
+int vibratoDepth = 0; 
+int vibratoCounter = 0;
+boolean vibratoOn = false;
+
+//note activity
+int noteActiveA = 0;
+int noteActiveB = 0;
+int noteActiveC = 0;
+
+//cc Controls
+int controlValue1;
+int controlValue2;
+int controlValue3;
+int controlValue4;
+int controlValue5;
+int controlValue6;
+int controlValue7;
+int controlValue8;
+int controlValue9;
+int controlValue10;
+int controlValue11;
+int controlValue12;
+
+//Fast pin switching macros
+//#define CLR(x,y) (x&=(~(1<<y)))
+//#define SET(x,y) (x|=(1<<y))
+//#define SET(PORT, PIN) ((PORT) |= (1 << (PIN)))
+//#define CLR(PORT, PIN) ((PORT) &= ~(1 << (PIN)))
+
+void setPinHigh(volatile uint8_t &port, uint8_t pin) {
+    asm volatile(
+        "sbi %[port], %[pin]"
+        : // No output
+        : [port] "I" (_SFR_IO_ADDR(port)), [pin] "I" (pin)
+    );
+}
+
+void setPinLow(volatile uint8_t &port, uint8_t pin) {
+    asm volatile(
+        "cbi %[port], %[pin]"
+        : // No output
+        : [port] "I" (_SFR_IO_ADDR(port)), [pin] "I" (pin)
+    );
+}
+
+#define __BCPORT__ PORTB
+#define __BC1__ 2
+#define __BDIR__ 3
+
+#define __LEDPORT__ PORTB
+#define __LED__ 5
+
+#define CLEAR(port, pin) (port &= ~(1 << pin))
+
+const int ledPin = 13;
+
+const int tp[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4050,
+                   3822, 3608, 3405, 3214, 3034, 2863, 2703, 2551, 2408, 2273, 2145, 4050, 3822,
+                   3608, 3405, 3214, 3034, 2863, 2703, 2551, 2408, 2273, 2145, 2025, 1911, 1804, 1703,
+                   1607, 1517, 1432, 1351, 1276, 1204, 1136, 1073, 1012, 956, 902, 851, 804, 758,
+                   716, 676, 638, 602, 568, 536, 506, 478, 451, 426, 402, 379, 358, 338, 319, 301,
+                   284, 268, 253, 239, 225, 213, 201, 190, 179, 169, 159, 150, 142, 134, 127, 119,
+                   113, 106, 100, 95, 89, 84, 80, 75, 71, 67, 63, 60, 56, 53, 50, 47, 45, 42, 40,
+                   38, 36, 34, 32, 30, 28, 27, 25, 24, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 13,
+                   12, 11, 11, 10, 19, 18, 17, 16, 15, 14, 13, 13,
+                   12, 11, 11, 10 };
+
+// Samples C3-E3                            
+const int envTp00[] = {3822, 3608, 3405, 3214, 3034, 2863, 2703, 2551, 2408, 2273, 2145, 2025, 1911, 1804, 1703, 1607, 1517, 1432, 1351, 1276, 1204, 1136, 1073, 1012, 956, 902, 851, 804, 758, 716, 676, 638, 602, 568, 536, 506, 478, 451, 426, 402, 379, 358, 338, 319, 301, 284, 268, 253, 239, 225, 213, 201, 190, 179, 169, 159, 150, 142, 134, 127, 119, 113, 106, 100, 95, 89, 84, 80, 75, 71, 67, 63, 60, 56, 53, 50, 47, 45, 42, 40, 38, 36, 34, 32, 30, 28, 27, 25, 24, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 13, 12, 11, 11, 10, 9, 9, 8, 8, 7, 7, 7, 6, 6, 6, 5, 5, 5, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 2};
+
+const int envTp01[] = {
+    int(3822 * pow(1.05, 0)), int(3608 * pow(1.05, 1)), int(3405 * pow(1.05, 2)),
+    int(3214 * pow(1.05, 3)), int(3034 * pow(1.05, 4)),
+};
+
+const int envTp02[] = {
+    int(3822 * (0.9 + (rand() % 21) / 100.0)), 
+    int(3608 * (0.9 + (rand() % 21) / 100.0)), 
+    int(3405 * (0.9 + (rand() % 21) / 100.0)),
+};
+
+const int envTp03[] = {
+    3822 / 2, 3608 / 2, 3405 / 2, 3214 / 2, 3034 / 2,
+    /* Continue halving */
+};
+
+PROGMEM const char s0[] = {13, 14, 14, 13, 14, 15, 12, 14, 10, 14, 12, 14, 14, 13, 14, 12, 14, 13, 14, 12, 13, 12, 13, 11, 13, 12, 13, 12, 14, 13, 14, 14, 14, 15, 14, 15, 15, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 13, 12, 12, 11, 9, 7, 0, 0, 0, 0, 0, 5, 9, 11, 12, 12, 12, 13, 13, 14, 14, 13, 14, 14, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 13, 13, 12, 12, 11, 12, 10, 12, 11, 10, 12, 10, 12, 9, 11, 9, 8, 6, 8, 0, 5, 5, 6, 0, 4, 4, 10, 10, 12, 12, 13, 13, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 14, 14, 13, 13, 12, 12, 11, 11, 10, 9, 9, 8, 7, 7, 8, 7, 8, 7, 11, 0, 11, 8, 10, 10, 10, 11, 9, 12, 9, 12, 11, 12, 12, 12, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 12, 12, 13, 12, 13, 12, 12, 13, 12, 12, 12, 13, 12, 12, 12, 12, 12, 12, 13, 12, 13, 12, 12, 12, 13, 12, 12, 13, 13, 12, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 12, 12, 11, 11, 11, 11, 9, 9, 9, 8, 8, 5, 7, 5, 4, 4, 3, 6, 1, 4, 0, 6, 7, 7, 8, 9, 9, 10, 11, 11, 12, 12, 13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 13, 13, 12, 13, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 13, 12, 13, 12, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 13, 14, 13, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 14, 14, 14, 13, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 14, 13, 14, 14, 13, 13, 14, 13, 14, 13, 13, 13, 13, 13, 13, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 12, 11, 10};
+const int s0Length = 931;
+PROGMEM const char s1[] = {13, 14, 14, 14, 14, 14, 14, 13, 14, 14, 14, 13, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 13, 14, 13, 14, 14, 14, 14, 14, 13, 14, 14, 13, 13, 14, 14, 15, 14, 15, 15, 15, 15, 15, 14, 14, 13, 12, 11, 9, 0, 0, 0, 0, 0, 0, 0, 5, 0, 13, 12, 14, 0, 15, 14, 9, 15, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 13, 12, 12, 10, 9, 7, 0, 0, 0, 0, 0, 0, 4, 6, 8, 0, 0, 0, 0, 0, 0, 2, 9, 11, 13, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 13, 11, 11, 6, 0, 0, 0, 0, 0, 7, 8, 0, 0, 0, 10, 12, 11, 13, 13, 13, 13, 12, 10, 11, 10, 12, 13, 13, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 15, 14, 15, 13, 12, 14, 13, 13, 14, 14, 13, 13, 12, 9, 12, 12, 11, 11, 8, 8, 7, 0, 0, 4, 9, 10, 11, 12, 13, 13, 13, 13, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 13, 14, 13, 13, 14, 13, 13, 12, 12, 11, 9, 8, 6, 0, 0, 0, 0, 0, 0, 4, 9, 11, 13, 13, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 12, 11, 11, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 2, 9, 11, 11, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 12, 13, 13, 12, 13, 12, 12, 12, 12, 11, 9, 9, 12, 11, 12, 8, 6, 11, 4, 10, 11, 10, 11, 13, 13, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 13, 14, 13, 13, 14, 13, 13, 14, 13, 14, 13, 13, 14, 14, 14, 13, 12, 12, 12, 12, 12, 11, 11, 10, 11, 10, 11, 12, 12, 13, 13, 13, 13, 14, 14, 15, 14, 15, 15, 15, 15, 15, 15, 15, 14, 15, 14, 14, 14, 14, 14, 14, 13, 14, 14, 13, 14, 13, 12, 13, 12, 12, 13, 13, 13, 10, 11, 10, 12, 10, 10, 12, 12, 13, 13, 13, 14, 13, 14, 14, 14, 14, 14, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 15, 14, 14, 14, 15, 14, 14, 14, 14, 13, 13, 13, 14, 13, 13, 14, 13, 13, 12, 13, 13, 11, 12, 12, 12, 12, 12, 12, 12, 12, 13, 12, 12, 13, 13, 14, 14, 14, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15, 14, 15, 14, 14, 14, 13, 13, 12, 12, 12, 13, 12, 12, 13, 13, 13, 13, 14, 13, 13, 13, 13, 12, 12, 12, 13, 13, 12, 13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 15, 15, 15, 15, 14, 14, 14, 14, 14, 14, 14, 13, 14, 13, 13, 12, 13, 12, 12, 11, 12, 11, 12, 12, 11, 12, 11, 12, 12, 12, 12, 13, 12, 13, 13, 13, 13, 14, 14, 15, 15, 15, 14, 14, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 14, 13, 13, 12, 13, 12, 12, 12, 13, 13, 12, 12, 13, 12, 12, 12, 12, 11, 11, 10, 11, 11, 11, 12, 13, 13, 14, 14, 14, 14, 15, 14, 15, 15, 14, 14, 15, 15, 15, 15, 15, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 12, 13, 12, 11, 12, 12, 12, 12, 11, 12, 11, 12, 13, 12, 13, 14, 13, 13, 14, 14, 14, 14, 14, 15, 14, 15, 15, 15, 15, 15, 15, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 12, 12, 12, 9, 11, 11, 10, 12, 12, 12, 12, 12, 12, 13, 12, 12, 13, 13, 14, 14, 14, 14, 14, 14, 14, 15, 15, 14, 15, 15, 15, 15, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 12, 13, 12, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 14, 13, 13, 14, 14, 14, 15, 14, 14, 14, 13, 14, 14, 14, 14, 14, 13, 14, 13, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 12, 13, 13, 13, 13, 12, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 15, 15, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 13, 12, 12, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 14, 14, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 13, 14, 13, 13, 13, 13, 13, 13, 14, 14, 13, 14, 14, 14, 13, 14, 14, 14, 14, 14, 13, 13, 14, 13, 13, 14, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 13, 13, 12, 13, 12, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 14, 14, 13, 13, 14, 13, 14, 14, 13, 13, 13, 13, 13, 13, 13, 13, 12, 13, 12, 12, 13, 12, 13, 13, 13, 13, 14, 14, 14, 14, 14, 15, 14, 15, 15, 15, 14, 14, 14, 14, 13, 14, 14, 13, 13, 13, 13, 12, 13, 12, 12, 12, 12, 12, 13, 13, 13, 13, 13, 13, 13, 13, 14, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 14, 14, 14, 14, 13, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 12, 13, 12, 12, 13, 13, 13, 13, 13, 14, 14, 14, 14, 13, 14, 14, 14, 14, 14, 14, 14, 13, 14, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 12, 12, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 12, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 13, 14, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 14, 13, 13, 14, 13, 13, 13, 12, 13, 12, 12, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 12, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 14, 14, 13, 13, 14, 13, 13, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 14, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 13, 13, 14, 14, 14, 14, 14, 14, 14, 13, 14, 13, 13, 14, 14, 13, 14, 13, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 13, 14, 13, 14, 14, 13, 14, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 14, 13, 13, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 13, 13, 14, 14, 13, 13, 14, 13};
+const int s1Length = 1780;
+PROGMEM const char s2[] = {15, 13, 12, 13, 13, 14, 13, 15, 14, 13, 14, 13, 13, 14, 13, 14, 14, 13, 14, 12, 14, 14, 13, 13, 14, 13, 13, 13, 13, 14, 13, 14, 13, 13, 13, 14, 13, 13, 13, 13, 13, 14, 14, 13, 13, 14, 13, 13, 13, 13, 15, 13, 14, 13, 14, 13, 14, 12, 14, 13, 14, 13, 13, 14, 13, 13, 13, 13, 13, 13, 13, 14, 14, 15, 12, 15, 13, 14, 15, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 13, 13, 14, 13, 13, 13, 14, 13, 14, 13, 14, 13, 13, 13, 15, 14, 13, 14, 14, 14, 13, 14, 13, 14, 13, 13, 13, 14, 14, 13, 13, 13, 14, 13, 13, 13, 14, 13, 13, 13, 14, 14, 13, 14, 13, 14, 13, 14, 14, 14, 13, 14, 13, 14, 13, 14, 13, 14, 13, 13, 14, 13, 14, 13, 13, 13, 14, 13, 14, 13, 14, 13, 14, 13, 13, 13, 13, 13, 14, 14, 13, 14, 13, 13, 14, 13, 13, 14, 13, 14, 14, 13, 13, 13, 13, 13, 13, 14, 13, 13, 13, 13, 13, 14, 13, 13, 13, 14, 14, 14, 13, 13, 13, 14, 13, 14, 13, 13, 13, 13, 13, 14, 14, 13, 13, 13, 13, 13, 14, 13, 13, 14, 13, 13, 13, 13, 13, 14, 13, 13, 14, 13, 13, 14, 14, 13, 14, 13, 13, 13, 13, 14, 13, 13, 13, 14, 13, 13, 13, 14, 14, 14, 13, 13, 13, 14, 14, 13, 13, 14, 13, 13, 13, 13, 14, 13, 14, 13, 14, 13, 14, 14, 14, 13, 13, 13, 14, 13, 14, 14, 13, 14, 13, 14, 13, 13, 13, 14, 14, 13, 13, 13, 14, 13, 13, 14, 13, 14, 13, 13, 14, 13, 13, 13, 14, 13, 13, 13, 13, 14, 14, 13, 13, 13, 13, 14, 13, 13, 14, 13, 14, 13, 13, 14, 13, 14, 14, 13, 13, 14, 14, 13, 13, 14, 13, 14, 13, 14, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 13, 13, 13, 13, 13, 13, 14, 13, 13, 14, 14, 13, 14, 13, 14, 13, 13, 13, 14, 13, 13, 13, 13, 14, 13, 13, 13, 13, 13, 13, 13, 14, 13, 13, 13, 13, 13, 14, 13, 13, 13, 14, 13, 14, 13, 14, 14, 13, 14, 13, 14, 13, 14, 13, 14, 13, 13, 13, 13, 13, 13, 14, 13, 13, 13, 13, 14, 13, 13, 14, 13, 13, 14, 14, 13, 14, 13, 13, 14, 13, 14, 14, 13, 14, 13, 13, 13, 13, 13, 13, 14, 13, 14, 13, 13, 13, 13, 13, 14, 13, 13, 14, 13, 13};
+const int s2Length = 463;
+PROGMEM const char s3[] = {7, 6, 7, 7, 8, 8, 8, 8, 9, 9, 9, 10, 10, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 10, 10, 10, 10, 10, 10, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 6, 6, 6, 6, 5, 5, 5, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 14, 13, 13, 13, 12, 12, 11, 11, 10, 10, 10, 10, 9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 10, 10, 10, 10, 10, 9, 9, 9, 9, 9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 6, 6, 6, 5, 5, 5, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 9, 9, 10, 10, 11, 11, 11, 12, 12, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 12, 12, 12, 11, 11, 11, 11, 10, 10, 9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 11, 11, 11, 10, 10, 10, 10, 10, 10, 10, 10, 10, 9, 9, 9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 10, 10, 11, 12, 12, 12, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 12, 12, 12, 11, 11, 10, 10, 9, 9, 9, 8, 8, 8, 7, 7, 7, 7, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 10, 10, 10, 11, 11, 11, 11, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 11, 11, 11, 10, 10, 10, 9, 9, 9, 9, 8, 8, 8, 8, 7, 7, 7, 7, 7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 5, 5, 5, 5, 4, 4, 4, 3, 3, 2, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 2, 3, 4, 5, 6, 7, 8, 9, 9, 10, 11, 12, 12, 13, 13, 14, 14, 15, 15, 15, 15, 15, 14, 14, 14, 13, 13, 12, 12, 11, 11, 10, 9, 9, 9, 9, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 10, 10, 10, 10, 11, 11, 11, 12, 12, 12, 12, 13, 13, 13, 12, 12, 12, 12, 12, 12, 11, 11, 11, 10, 10, 9, 8, 8, 8, 7, 7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 6, 6, 5, 4, 4, 3, 3, 2, 2, 2, 1, 1, 1, 1, 1, 2, 2, 3, 3, 4, 4, 5, 6, 7, 7, 8, 9, 10, 11, 11, 12, 12, 12, 13, 13, 13, 13, 13, 12, 12, 12, 11, 11, 11, 10, 10, 9, 9, 8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 10, 10, 10, 11, 11, 12, 12, 12, 13, 13, 13, 13, 13, 13, 13, 13, 12, 12, 12, 11, 11, 11, 10, 10, 9, 9, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 5, 6, 7, 7, 8, 9, 10, 11, 12, 12, 12, 13, 13, 13, 13, 14, 13, 13, 13, 13, 12, 12, 11, 11, 10, 10, 10, 9, 9, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 9, 9, 10, 10, 10, 11, 11, 11, 11, 12, 12, 12, 12, 12, 12, 11, 11, 11, 10, 10, 9, 9, 8, 8, 8, 7, 7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 8, 8, 7, 7, 7, 6, 5, 5, 4, 4, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 6, 7, 8, 9, 9, 10, 11, 11, 11, 12, 12, 12, 12, 13, 13, 12, 12, 12, 12, 11, 11, 10, 10, 9, 9, 9, 8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11, 11, 12, 12, 12, 12, 13, 13, 13, 13, 13, 12, 12, 12, 11, 11, 10, 10, 9, 9, 8, 8, 7, 7, 7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 4, 3, 3, 2, 2, 2, 2, 2, 3, 3, 3, 4, 4, 5, 6, 7, 8, 9, 10, 11, 11, 12, 12, 12, 13, 13, 13, 14, 14, 13, 13, 13, 12, 12, 11, 11, 11, 10, 10, 10, 9, 9, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 11, 11, 11, 12, 12, 12, 12, 12, 12, 11, 11, 11, 10, 10, 9, 9, 8, 8, 8, 7, 7, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 8, 8, 7, 7, 6, 5, 5, 5, 4, 3, 3, 3, 2, 2, 2, 2, 2, 2, 3, 3, 4, 4, 5, 6, 7, 7, 8, 9, 10, 10, 11, 11, 11, 12, 12, 13, 13, 13, 13, 12, 12, 12, 11, 11, 10, 10, 10, 9, 9, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 10, 11, 11, 11, 12, 12, 12, 12, 13, 13, 13, 12, 12, 12, 12, 11, 11, 10, 10, 9, 9, 8, 8, 8, 7, 7, 6, 6, 6, 6, 6, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 10, 10, 9, 9, 9, 9, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 2, 2, 2, 2, 3, 3, 4, 5, 5, 6, 7, 8, 9, 10, 11, 11, 11, 12, 12, 13, 13, 13, 13, 13, 13, 12, 12, 11, 11, 10, 10, 10, 9, 9, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 11, 11, 11, 11, 12, 12, 12, 11, 11, 11, 11, 10, 10, 10, 9, 9, 8, 8, 7, 7, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 7, 7, 8, 8, 8, 9, 9, 10, 10, 10, 10, 11, 11, 11, 11, 10, 10, 10, 10, 9, 9, 8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 3, 3, 3, 3, 4, 4, 4, 5, 6, 7, 7, 8, 9, 10, 10, 11, 11, 11, 12, 12, 12, 12, 12, 12, 12, 12, 11, 11, 10, 10, 9, 9, 8, 8, 8, 7, 7, 7, 6, 6, 6, 6, 6, 6, 6, 5, 5, 5, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 9, 9, 10, 10, 10, 11, 11, 11, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 11, 11, 10, 10, 9, 9, 8, 8, 7, 7, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 9, 9, 9, 9, 8, 8, 7, 7, 7, 6, 6, 5, 5, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 5, 6, 7, 8, 9, 10, 11, 11, 12, 13, 13, 13, 14, 14, 14, 14, 14, 13, 13, 12, 12, 11, 10, 9, 9, 8, 7, 6, 6, 6, 5, 5, 5, 4, 4, 4, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 9, 9, 9, 10, 10, 11, 11, 11, 12, 12, 12, 12, 13, 13, 13, 13, 13, 13, 12, 12, 12, 12, 11, 11, 10, 9, 9, 8, 7, 7, 7, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 7, 7, 8, 8, 9, 9, 9, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 9, 9, 9, 8, 8, 7, 7, 6, 6, 6, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 6, 7, 7, 8, 8, 9, 9, 10, 11, 11, 11, 12, 12, 12, 13, 13, 12, 12, 12, 12, 12, 11, 10, 10, 9, 9, 8, 8, 7, 6, 6, 6, 5, 5, 5, 5, 4, 4, 5, 5, 5, 5, 6, 6, 6, 7, 7, 8, 8, 9, 9, 9, 10, 10, 11, 11, 11, 11, 12, 12, 12, 12, 12, 12, 12, 11, 11, 11, 11, 10, 10, 10, 10, 9, 9, 8, 8, 8, 7, 7, 7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 10, 10, 11, 11, 11, 11, 10, 10, 10, 9, 9, 9, 8, 8, 7, 7, 6, 6, 6, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 6, 6, 7, 8, 9, 10, 10, 11, 11, 12, 12, 13, 13, 13, 13, 13, 13, 13, 13, 12, 12, 11, 10, 10, 9, 8, 7, 7, 6, 6, 6, 5, 5, 5, 4, 4, 4, 5, 5, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 9, 10, 10, 11, 11, 11, 11, 11, 11, 12, 12, 11, 11, 11, 11, 11, 11, 10, 10, 10, 10, 9, 9, 9, 8, 8, 7, 7, 7, 6, 6, 6, 6, 5, 5, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 9, 9, 10, 10, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 10, 10, 10, 9, 9, 9, 9, 8, 8, 8, 7, 7, 7, 7, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 7, 8, 8, 8, 9, 9, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 9, 9, 9, 8, 8, 7, 7, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 7, 7, 8, 8, 9, 9, 9, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 9, 9, 9, 9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 10, 10, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 10, 10, 10, 9, 9, 9, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 6, 6, 6, 6, 5, 5, 5, 5, 4, 4, 4, 4, 4, 5, 5, 5, 6, 6, 7, 8, 8, 9, 9, 9, 10, 11, 11, 11, 11, 11, 11, 11, 11, 10, 10, 9, 9, 8, 8, 8, 7, 7, 7, 7, 7, 7, 6, 6, 6, 7, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 9, 9, 8, 8, 8, 7, 7, 7, 7, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 8, 9, 9, 9, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 8, 9, 9, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 8, 8, 7, 7, 6, 6, 5, 5, 5, 5, 5, 5, 6, 7, 7, 8, 9, 9, 10, 10, 11, 11, 11, 11, 12, 12, 12, 12, 11, 11, 10, 10, 9, 9, 8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 8, 8, 7, 7, 7, 6, 6, 6, 6, 6, 5, 5, 5, 6, 6, 6, 7, 7, 7, 7, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 10, 10, 10, 9, 9, 9, 9, 9, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 10, 10, 9, 9, 9, 9, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 10, 10, 10, 9, 9, 9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8};
+const int s3Length = 2982;
+PROGMEM const char s4[] = {0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+const int s4Length = 741;
+ 
+//Timer
+const char* sampleOffset;
+int sampleCounter = 0;
+int sampleLength = 0;
+int timerTicks = 0;
+
+bool toggleVibrato = true;
+
+ISR(TIMER1_COMPA_vect)
 {
-chan = chan + 1;
-// MIDI Channel 1
-    if (chan == 1 && note == noteA) {
-        noteActiveA = 0;
-        arpeggioFlipMe = false;
-        timerTicks = 0;
-        noteA = periodA = 0;
-        cli();
-        send_data(0x00, 0);
-        send_data(0x01, 0);
-        setVolume(0, 0, 0); 
-        setEnvelope(0x0000, 0x00);
-        sei();
+  timerTicks++;
+  if (sampleCounter < sampleLength) {
+    send_data(0x0A, pgm_read_byte_near(sampleOffset + sampleCounter++));
+  }
+
+  if (controlValue2 == 0) {
+    vibratoCounter = 0;
+    vibratoDepth = 0;
+    vibratoRate = 0;
+  }
+
+ int modulatedPeriodA;
+ int modulatedPeriodB;
+ int modulatedPeriodC;
+
+int vibratoOffset = vibratoDepth * sin(vibratoCounter * vibratoRate);
+  
+  if (toggleVibrato) {
+    // Handle vibrato for each active note
+    if (noteActiveA && controlValue2 >= 1) {
+        float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
+        vibratoOffset = vibratoDepth * sin(vibratoCounter * vibratoRate);
+                if (controlValue5 == 0) { 
+        modulatedPeriodA = ((tp[noteA]  + detuneValue) + vibratoOffset) / pitchBendFactor; } else { 
+        modulatedPeriodA = ((tp[currentArpNote] + detuneValue) + vibratoOffset);  
+        }
+        send_data(0x00, modulatedPeriodA & 0xFF);
+        send_data(0x01, (modulatedPeriodA >> 8) & 0x0F);
+        vibratoCounter += vibratoRate;
+        if (vibratoCounter >= 360) vibratoCounter -= 360;  // Reset to prevent overflow
     }
-// MIDI Channel 2
-    else if (chan == 2 && note == noteB) {
-        noteActiveB = 0;
-        arpeggioFlipMe = false;
-        timerTicks = 0;
-        noteB = periodB = 0;
-        cli();
-        send_data(0x02, 0);
-        send_data(0x03, 0);
-        setVolume(1, 0, 0); 
-        setEnvelope(0x0000, 0x00);
-        sei();
+
+    else if (noteActiveB && controlValue2 >= 1) {
+        float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
+        vibratoOffset = vibratoDepth * sin(vibratoCounter * vibratoRate);
+                if (controlValue5 == 0) { 
+        modulatedPeriodB = ((tp[noteB] + detuneValue) + vibratoOffset) / pitchBendFactor; } else { 
+        modulatedPeriodB = ((tp[currentArpNote] + detuneValue) + vibratoOffset);  
+        }
+        send_data(0x02, modulatedPeriodB & 0xFF);
+        send_data(0x03, (modulatedPeriodB >> 8) & 0x0F);
+        vibratoCounter += vibratoRate;
+        if (vibratoCounter >= 360) vibratoCounter -= 360;  // Reset to prevent overflow
     }
-// MIDI Channel 3
-    else if (chan == 3 && note == noteC) {
-        noteActiveC = 0;
-        arpeggioFlipMe = false;
-        timerTicks = 0;
-        noteC = periodC = 0;
-        cli();
-        send_data(0x04, 0);
-        send_data(0x05, 0); 
-        setVolume(2, 0, 0); 
-        setEnvelope(0x0000, 0x00);
-        sei();
+
+    else if (noteActiveC && controlValue2 >= 1) {
+        float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
+        vibratoOffset = vibratoDepth * sin(vibratoCounter * vibratoRate);
+        if (controlValue5 == 0) { 
+        modulatedPeriodC = ((tp[noteC]  + detuneValue) + vibratoOffset) / pitchBendFactor; } else { 
+        modulatedPeriodC = ((tp[currentArpNote]  + detuneValue) + vibratoOffset);  
+        }
+        send_data(0x04, modulatedPeriodC & 0xFF);
+        send_data(0x05, (modulatedPeriodC >> 8) & 0x0F);
+        vibratoCounter += vibratoRate;
+        if (vibratoCounter >= 360) vibratoCounter -= 360;  // Reset to prevent overflow
     }
-// MIDI Channel 4
-    else if (chan == 4 && note == noteA) {
-        noteActiveA = 0;
-        noteActiveB = 0;
-        noteActiveC = 0;
-        arpeggioFlipMe = false;
-        timerTicks = 0;
-        noteA = periodA = 0;
-        noteB = periodB = 0;
-        noteC = periodC = 0;
-        cli();
-        send_data(0x00, 0);
-        send_data(0x01, 0);
-        send_data(0x02, 0);
-        send_data(0x03, 0);
-        send_data(0x04, 0);
-        send_data(0x05, 0);
-        setEnvelope(0x0000, 0x00);
-        setVolume(0, 0, 0);
-        setVolume(1, 0, 0);
-        setVolume(2, 0, 0);
-        sei();
+    
+    if (vibratoCounter >= 360) vibratoCounter -= 360;
+  } else {
+    // Handle arpeggio for each active note
+    int arpeggioSpeed = map(controlValue5, 0, 127, 50, 1);
+
+if (timerTicks >= arpeggioSpeed) {
+  timerTicks = 0;
+
+  if (noteActiveA && controlValue5 >= 1) {
+float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
+int adjustedNoteA = (noteA + octaveOffset) / pitchBendFactor;
+int indexA = adjustedNoteA + currentPattern[arpeggioCounter];
+    periodA = tp[indexA]; 
+    currentArpNote = indexA;
+
+    byte LSB = (periodA & 0x00FF); 
+    byte MSB = ((periodA & 0x0F00) >> 8); 
+    send_data(0x00, periodA & 0xFF);
+    send_data(0x01, (periodA >> 8) & 0x0F);
+    if (controlValue7 > 64) setVolume(0, defaultVolume, 0);
+  }
+
+  else if (noteActiveB && controlValue5 >= 1) {
+    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
+    int adjustedNoteB = (noteB + octaveOffset) / pitchBendFactor;
+    int indexB = adjustedNoteB + currentPattern[arpeggioCounter];
+    periodB = tp[indexB]; 
+    currentArpNote = indexB;
+
+    byte LSB = (periodB & 0x00FF);
+    byte MSB = ((periodB >> 8) & 0x000F);
+    send_data(0x02, periodB & 0xFF);
+    send_data(0x03, (periodB >> 8) & 0x0F);
+    if (controlValue7 > 64) setVolume(1, defaultVolume, 0);
+  }
+
+  else if (noteActiveC && controlValue5 >= 1) {
+    float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
+    int adjustedNoteC = (noteC + octaveOffset) / pitchBendFactor;
+    int indexC = adjustedNoteC + currentPattern[arpeggioCounter];
+    periodC = tp[indexC]; 
+    currentArpNote = indexC;
+
+    byte LSB = (periodC & 0x00FF);
+    byte MSB = ((periodC >> 8) & 0x000F);
+    send_data(0x04, periodC & 0xFF);
+    send_data(0x05, (periodC >> 8) & 0x0F);
+    if (controlValue7 > 64) setVolume(2, defaultVolume, 0);
+  }
+      
+      arpeggioCounter++;
+      if (arpeggioCounter == arpeggioLength) arpeggioCounter = 0;
     }
-// MIDI Channel 5
-    else if (chan == 5 && note == noteA) {
-        timerTicks = 0;
-        noteActiveA = 0;
-        noteActiveB = 0;
-        noteActiveC = 0;
-        noteA = periodA = 0;
-        noteB = periodB = 0;
-        noteC = periodC = 0;
-        arpeggioFlipMe = false;
-        cli();
-        send_data(0x00, 0);
-        send_data(0x01, 0);
-        send_data(0x02, 0);
-        send_data(0x03, 0);
-        send_data(0x04, 0);
-        send_data(0x05, 0);
-        setEnvelope(0x0000, 0x00);
-        setVolume(0, 0, 0);
-        setVolume(1, 0, 0);
-        setVolume(2, 0, 0);
-        sei();
+ }
+
+  toggleVibrato = !toggleVibrato;
+}
+
+ISR(TIMER2_COMPA_vect) {
+  if (sampleCounter < sampleLength) //send current sample
+  {
+    send_data(0x0A, pgm_read_byte_near(sampleOffset + sampleCounter++));
+  }
+}
+
+bool setupOCR1A = false;
+
+void setup(){
+  //init pins
+  pinMode(ad0, OUTPUT);
+  pinMode(ad1, OUTPUT);
+  pinMode(ad2, OUTPUT);
+  pinMode(ad3, OUTPUT);
+  pinMode(ad4, OUTPUT);
+  pinMode(ad5, OUTPUT);
+  pinMode(ad6, OUTPUT);
+  pinMode(ad7, OUTPUT);
+  pinMode(pinBC1, OUTPUT);
+  pinMode(pinBDIR, OUTPUT);
+  pinMode(pinYMReset, OUTPUT);
+  pinMode(ledPin, OUTPUT);
+  pinMode(buttonPin, INPUT);
+  
+  resetYM();
+
+  //serial init
+  Serial.begin(31250);
+  
+  //timer1 : Arp and vibrato
+  cli();
+  TCCR1A = 0;
+  TCCR1B = 0; 
+  OCR1A = 1250;
+  TCCR1B |= (1 << WGM12); 
+  TCCR1B |= (1 << CS12);  
+  TCCR1B |= (1 << CS10);  
+  TIMSK1 |= (1 << OCIE1A); 
+  //timer2 : sample timer 
+  TCCR2A = 0;
+  TCCR2B = 0; 
+  TCCR2A |= (1 << WGM21); 
+  OCR2A = 1450; 
+  TIMSK2 |= (1 << OCIE2A);
+  TCCR2B |= (1 << CS21); 
+  sei();
+
+// HELLO!
+playNote(78, 127, 1, 0);  // F#5
+delay(30);   
+playNote(76, 127, 1, 0);  // E5
+delay(30);
+playNote(74, 127, 1, 0);  // D5
+delay(30);
+playNote(72, 127, 1, 0);  // C5
+delay(30);
+playNote(70, 127, 1, 0);  // B4
+delay(30);
+playNote(69, 127, 1, 0);  // A4
+delay(30);
+playNote(67, 127, 1, 0);  // G4
+delay(30);
+playNote(65, 127, 1, 0);  // F4
+delay(30);
+playNote(64, 127, 1, 0);  // E4
+delay(30);
+playNote(62, 127, 1, 0);  // D4
+delay(30);
+stopNote(62, 1);       // Stop D4       // Stop D4
+}//END OF SETUP
+
+// Main Loop
+void loop() {
+  byte command = getSerialByte();
+  byte commandMSB = command & 0xF0;
+  byte midiChannel = command & 0x0F;
+
+  switch (commandMSB) {
+    case 0x80: { // Note Off
+      byte note = getSerialByte();
+      if (setBankB) stopNoteB(note, midiChannel);
+      else stopNote(note, midiChannel);
+      break;
     }
-// MIDI Channel 6
-    else if (chan == 6 && note == noteA) {
-        noteActiveA = 0;
-        arpeggioFlipMe = false;
-        timerTicks = 0;
-        noteA = periodA = 0;
-        cli();
-        send_data(0x00, 0);
-        send_data(0x01, 0);
-        send_data(0x02, 0);
-        send_data(0x03, 0);
-        setEnvelope(0x0000, 0x00);
-        setVolume(0, 0, 0);
-        setVolume(1, 0, 0);
-        sei();
+    
+    case 0x90: { // Note On
+      byte note = getSerialByte();
+      byte velo = getSerialByte();
+      setupOCR1AOnce();
+      velo = constrainVelocity(velo);
+      velocityValue = velo;
+
+      if (midiChannel == 0x09 && velo != 0) {
+        playDigidrum(note, velo);
+      } else if (velo != 0) {
+        if (setBankB) {
+          playNoteB(note, velo, midiChannel, pitchBendValue);
+          applyNoteLengthDelay(stopNoteB, note, midiChannel);
+        } else {
+          playNote(note, velo, midiChannel, pitchBendValue);
+          applyNoteLengthDelay(stopNote, note, midiChannel);
+        }
+      } else {
+        if (setBankB) stopNoteB(note, midiChannel);
+        else stopNote(note, midiChannel);
+      }
+      break;
     }
-// MIDI Channel 7
-    else if (chan == 7 && note == noteA) {
-        noteActiveA = 0;
-        arpeggioFlipMe = false;
-        timerTicks = 0;
-        noteA = periodA = 0;
-        cli();
-        send_data(0x00, 0);
-        send_data(0x01, 0);
-        send_data(0x02, 0);
-        send_data(0x03, 0);
-        setEnvelope(0x0000, 0x00);
-        setVolume(0, 0, 0);
-        setVolume(1, 0, 0);
-        sei();
+
+    case 0xA0: // Key Pressure
+    case 0xC0: // Program Change
+    case 0xD0: // Channel Pressure
+      getSerialByte(); // Ignore the extra bytes for these commands
+      getSerialByte();
+      break;
+
+    case 0xB0: // Control Change
+      handleControlChange(midiChannel);
+      break;
+
+    case 0xE0: // Pitch Bend
+      handlePitchBend(midiChannel);
+      break;
+  }
+}
+
+void setupOCR1AOnce() {
+  if (!setupOCR1A) {
+    cli();
+    OCR1A = 75;
+    setupOCR1A = true;
+    sei();
+  }
+}
+
+byte constrainVelocity(byte velo) {
+    velo = constrain(velo, 0, 127); // Ensure velocity is within the MIDI range
+    if (controlValue4 == 0) {
+        return 127; // No sensitivity: Max velocity
+    } else {
+        // Dynamically map velocity based on controlValue4
+        return map(velo, 0, 127, map(controlValue4, 1, 127, 96, 64), 127);
     }
-// MIDI Channel 8
-    else if (chan == 8 && note == noteA) {
-        noteActiveA = 0;
-        noteActiveB = 0;
-        arpeggioFlipMe = false;
-        timerTicks = 0;
-        noteA = periodA = 0;
-        noteB = periodB = 0;
-        cli();
-        send_data(0x00, 0);
-        send_data(0x01, 0);
-        send_data(0x02, 0);
-        send_data(0x03, 0);
-        send_data(0x0B, 0);
-        send_data(0x0C, 0);
-        setEnvelope(0x0000, 0x00);
-        setVolume(0, 0, 0);
-        setVolume(1, 0, 0);
-        sei();
+}
+
+void applyNoteLengthDelay(void (*stopFunction)(byte, byte), byte note, byte midiChannel) {
+  if (controlValue10 > 0) {
+    delay(noteLengthDelay);
+    stopFunction(note, midiChannel);
+  }
+}
+
+void handleControlChange(byte midiChannel) {
+  byte controlNumber = getSerialByte();
+  byte controlValue = getSerialByte();
+
+  switch (controlNumber) {
+    case 1: // Detune
+      controlValue1 = controlValue;
+      detuneValue = map(controlValue1, 0, 127, -256, 252) / 4;
+      applyDetuneToActiveNotes(midiChannel);
+      break;
+    case 2: controlValue2 = controlValue; vibratoRate = map(controlValue2, 1, 127, 1, 10); break;
+    case 3: controlValue3 = controlValue; vibratoDepth = map(controlValue3, 1, 127, 0, 12); break;
+    case 4: controlValue4 = controlValue; break;
+    case 5: controlValue5 = controlValue; break;
+    case 6: handlePatternChange(controlValue); break;
+    case 7: controlValue7 = controlValue; break;
+    case 8: handleOctaveOffset(controlValue); break;
+    case 9: setBankB = (controlValue > 64); break;
+    case 10: controlValue10 = controlValue; noteLength = map(controlValue, 0, 127, 300, 2000); break;
+
+    // New cases for envelope frequency and shape
+    case 11: 
+      controlValue11 = controlValue; 
+      updateEnvelope(); 
+      break;
+    case 12: 
+      controlValue12 = controlValue; 
+      updateEnvelope(); 
+      break;
+  }
+}
+
+void handlePatternChange(byte controlValue) {
+  const byte *patterns[] = {pattern1, pattern2, pattern3, pattern4, pattern5, pattern6, pattern7, pattern8, pattern9, pattern10,
+                            pattern11, pattern12, pattern13, pattern14, pattern15, pattern16};
+  int patternIndex = controlValue / 8;
+  currentPattern = patterns[patternIndex];
+  arpeggioLength = sizeof(patterns[patternIndex]);
+}
+
+void handleOctaveOffset(byte controlValue) {
+  if (controlValue == 0) octaveOffset = 0;
+  else if (controlValue <= 21) octaveOffset = -36;
+  else if (controlValue <= 43) octaveOffset = -24;
+  else if (controlValue <= 63) octaveOffset = -12;
+  else if (controlValue <= 84) octaveOffset = 0;
+  else if (controlValue <= 105) octaveOffset = 12;
+  else if (controlValue <= 126) octaveOffset = 24;
+  else octaveOffset = 36;
+}
+
+void handlePitchBend(byte midiChannel) {
+  setPinHigh(__LEDPORT__, __LED__);
+  byte pitchBendLSB = getSerialByte();
+  byte pitchBendMSB = getSerialByte();
+  pitchBendValue = -(((pitchBendMSB << 7) | pitchBendLSB) - 8192);
+  if (noteActiveA) (setBankB ? playNoteB : playNote)(noteA, velocityValue, midiChannel, pitchBendValue);
+  if (noteActiveB) (setBankB ? playNoteB : playNote)(noteB, velocityValue, midiChannel, pitchBendValue);
+  if (noteActiveC) (setBankB ? playNoteB : playNote)(noteC, velocityValue, midiChannel, pitchBendValue);
+  
+  CLEAR(__LEDPORT__, __LED__);
+}
+
+void applyDetuneToActiveNotes(byte midiChannel) {
+  byte notes[] = {noteA, noteB, noteC};
+  bool noteActives[] = {noteActiveA, noteActiveB, noteActiveC};
+  bool detuneActives[] = {detuneActiveA, detuneActiveB, detuneActiveC};
+
+  for (int i = 0; i < 3; i++) {
+    if (noteActives[i] && detuneActives[i]) {
+      if (setBankB) playNoteB(notes[i], velocityValue, midiChannel, pitchBendValue);
+      else playNote(notes[i], velocityValue, midiChannel, pitchBendValue);
     }
-// MIDI Channel 9
-    else if (chan == 9 && note == noteA) {
-        noteActiveA = 0;
-        noteActiveB = 0;
-        arpeggioFlipMe = false;
-        timerTicks = 0;
-        noteA = periodA = 0;
-        noteB = periodB = 0;
-        cli();
-        send_data(0x00, 0);
-        send_data(0x01, 0);
-        send_data(0x02, 0);
-        send_data(0x03, 0);
-        send_data(0x0B, 0);
-        send_data(0x0C, 0);
-        setEnvelope(0x0000, 0x00);
-        setVolume(0, 0, 0);
-        setVolume(1, 0, 0);
-        sei();
+  }
+}
+
+// Drums
+void playDigidrum(byte index, byte velo)
+{
+  if (index == 64)
+  {
+    cli();
+    
+    sampleOffset = s0;
+    sampleLength = s0Length;
+    sampleCounter = 0;
+    sei();
+  }
+  else if (index == 63)
+  {
+    cli();
+ 
+    sampleOffset = s1;
+    sampleLength = s1Length;
+    sampleCounter = 0;
+    sei();
+  }
+  else if (index == 62)
+  {
+    cli();
+
+    sampleOffset = s2;
+    sampleLength = s2Length;
+    sampleCounter = 0;
+    sei();
+  }
+  else if (index == 61)
+  {
+    cli();
+ 
+    sampleOffset = s3;
+    sampleLength = s3Length;
+    sampleCounter = 0;
+    sei();
+  }
+  else if (index == 60)
+  {
+    cli();
+  
+    sampleOffset = s4;
+    sampleLength = s4Length;
+    sampleCounter = 0;
+    sei();
+  }
+}
+
+void setVolume(uint8_t channel, uint8_t volume, int8_t offset) {
+    uint8_t volReg;
+
+    // Determine the register for the channel
+    if (channel == 0) volReg = 0x08;
+    else if (channel == 1) volReg = 0x09;
+    else if (channel == 2) volReg = 0x0A;
+    else return;
+
+    // Adjust volume using velocity and offset
+    uint8_t scaledVolume = map(velocityValue, 0, 127, 0, volume & 0x0F); // Scale to 4 bits
+    int8_t adjustedVolume = scaledVolume + offset; // Apply the offset
+    adjustedVolume = constrain(adjustedVolume, 0, 15); // Ensure within valid range
+
+    uint8_t volumeValue = voltbl[adjustedVolume]; // Map to YM2149F-compatible value
+
+    send_data(volReg, volumeValue); // Send the adjusted volume
+}
+
+void setMixer(bool toneA, bool noiseA, bool toneB, bool noiseB, bool toneC, bool noiseC) {
+    uint8_t mixerValue = 0;
+
+    if (!toneA) mixerValue |= 0x01; // Disable tone on Channel A
+    if (!toneB) mixerValue |= 0x02; // Disable tone on Channel B
+    if (!toneC) mixerValue |= 0x04; // Disable tone on Channel C
+    if (!noiseA) mixerValue |= 0x08; // Disable noise on Channel A
+    if (!noiseB) mixerValue |= 0x10; // Disable noise on Channel B
+    if (!noiseC) mixerValue |= 0x20; // Disable noise on Channel C
+
+    send_data(0x07, mixerValue);
+}
+
+void setEnvelope(uint16_t envFreq, uint8_t envShape) {
+    // Avoid invalid frequencies (0x0000 produces no envelope)
+    if (envFreq == 0) envFreq = 0x0001;
+
+    // Send envelope frequency
+    send_data(0x0B, envFreq & 0xFF); // LSB
+    send_data(0x0C, (envFreq >> 8) & 0xFF); // MSB
+
+    // Send envelope shape
+    send_data(0x0D, envShape & 0x0F); // Only the lower 4 bits are valid
+}
+
+void updateEnvelope() {
+    // Map controlValue11 (0-127) to the envelope frequency range (0x0000-0xFFFF)
+    uint16_t envFreq = map(controlValue11, 1, 127, 0x0001, 0xFFFF);
+
+    // Map controlValue12 (0-127) to the envelope shape range (0x00-0x0F)
+    uint8_t envShape = map(controlValue12, 0, 127, 0x01, 0x0F);
+
+    // Update the envelope using the setEnvelope function
+    setEnvelope(envFreq, envShape);
+}
+
+void resetYM()
+{
+    digitalWrite(pinYMReset, LOW);
+    digitalWrite(pinYMReset, HIGH);
+    delay(1);
+    send_data(0x07, 0b00111000);
+    for (byte i=0; i <= defaultLevel; i++)
+    {
+      send_data(0x08, i);
+      send_data(0x09, i);
+      send_data(0x0A, i);
+      delay(1);
     }
-// MIDI Channel 11
-    else if (chan == 11 && note == noteA) {
-        timerTicks = 0;
-        noteActiveA = 0;
-        noteActiveC = 0;
-        noteA = periodA = 0;
-        noteC = periodC = 0;
-        arpeggioFlipMe = false;
-        cli();
-        send_data(0x00, 0);
-        send_data(0x01, 0);
-        send_data(0x04, 0);
-        send_data(0x05, 0);
-        setEnvelope(0x0000, 0x00);
-        setVolume(0, 0, 0);
-        setVolume(2, 0, 0);
-        sei();
+}
+
+void send_data(unsigned char address, unsigned char data) {
+    boolean value[8];
+    for (int i = 0; i < 8; i++) {
+        value[i] = ((address & 0x01) == 1);
+        address >>= 1;
     }
-// MIDI Channel 12
-    else if (chan == 12 && note == noteA) {        
-        noteActiveA = 0;
-        noteActiveB = 0;
-        noteActiveC = 0;
-        arpeggioFlipMe = false;
-        timerTicks = 0;
-        noteA = periodA = 0;
-        noteB = periodB = 0;
-        noteC = periodC = 0;
-        cli();
-        send_data(0x00, 0);
-        send_data(0x01, 0);
-        send_data(0x02, 0);
-        send_data(0x03, 0); 
-        send_data(0x04, 0); 
-        send_data(0x05, 0); 
-        setEnvelope(0x0000, 0x00); 
-        setVolume(0, 0, 0); 
-        setVolume(1, 0, 0); 
-        setVolume(2, 0, 0); 
-        sei(); 
+    outputToYM(value);
+    __BCPORT__ |= (1 << __BDIR__) | (1 << __BC1__);
+    delayMicroseconds(1);
+    __BCPORT__ &= ~((1 << __BDIR__) | (1 << __BC1__));
+    for (int i = 0; i < 8; i++) {
+        value[i] = ((data & 0x01) == 1);
+        data >>= 1;
     }
-// MIDI Channel 13
-    else if (chan == 13 && note == noteA) {
-        noteActiveA = 0;
-        noteActiveB = 0;
-        noteActiveC = 0;
-        arpeggioFlipMe = false;
-        timerTicks = 0;
-        noteA = periodA = 0;
-        noteB = periodB = 0;
-        noteC = periodC = 0;
-        cli();
-        send_data(0x00, 0);
-        send_data(0x01, 0);
-        send_data(0x02, 0);
-        send_data(0x03, 0);
-        send_data(0x04, 0); 
-        send_data(0x05, 0); 
-        setEnvelope(0x0000, 0x00); 
-        setVolume(0, 0, 0); 
-        setVolume(1, 0, 0); 
-        setVolume(2, 0, 0); 
-        sei(); 
-    }
-// MIDI Channel 14
-    else if (chan == 14 && note == noteA) {
-        noteActiveA = 0;
-        noteActiveB = 0;
-        noteActiveC = 0;
-        arpeggioFlipMe = false;
-        timerTicks = 0;
-        noteA = periodA = 0;
-        noteB = periodB = 0;
-        noteC = periodC = 0; 
-        cli();
-        send_data(0x00, 0);
-        send_data(0x01, 0);
-        send_data(0x02, 0);
-        send_data(0x03, 0);
-        send_data(0x04, 0);
-        send_data(0x05, 0);
-        setEnvelope(0x0000, 0x00); 
-        setVolume(0, 0, 0); 
-        setVolume(1, 0, 0); 
-        setVolume(2, 0, 0); 
-        sei();
-    }
+    outputToYM(value);
+    setPinHigh(__BCPORT__, __BDIR__);
+    delayMicroseconds(1);
+    setPinLow(__BCPORT__, __BDIR__);
+    setPinLow(__LEDPORT__, __LED__);
+}
+
+void outputToYM(boolean value[])
+{
+  setPinState(PORTB, 0, value[0]);
+  setPinState(PORTB, 1, value[1]);
+  setPinState(PORTD, 2, value[2]);
+  setPinState(PORTD, 3, value[3]);
+  setPinState(PORTD, 4, value[4]);
+  setPinState(PORTD, 5, value[5]);
+  setPinState(PORTD, 6, value[6]);
+  setPinState(PORTD, 7, value[7]);
+}
+
+void setPinState(volatile uint8_t &port, uint8_t pin, bool state)
+{
+  if (state)
+    setPinHigh(port, pin);
+  else
+    setPinLow(port, pin);
+}
+
+byte getSerialByte()
+{
+  while(Serial.available() < 1) __asm__("nop\n\t");
+  return Serial.read();
 }
