@@ -1,5 +1,6 @@
 void playNoteB(byte note, byte velo, byte chan, int pitchBendValue) {
 chan = chan + 1;
+
 const uint8_t voltbl[32] = {0x00, 0x01, 0x01, 0x02, 0x02, 0x03, 0x03, 0x04, 0x05, 0x06, 0x07, 0x09,
                             0x0B, 0x0D, 0x0F, 0x12, 0x16, 0x1A, 0x1F, 0x25, 0x2D, 0x35, 0x3F, 0x4C,
                             0x5A, 0x6A, 0x7F, 0x97, 0xB4, 0xD6, 0xFF, 0xFF};
@@ -25,7 +26,7 @@ const uint8_t voltbl[32] = {0x00, 0x01, 0x01, 0x02, 0x02, 0x03, 0x03, 0x04, 0x05
     send_data(0x00, LSB);
     send_data(0x01, MSB);
     setVolume(0, defaultVolume, 0);
-    setEnvelope(0x6000, 0x4000); 
+    (controlValue11 == 0) ? setEnvelope(0x6000, 0x4000) : updateEnvelope();
     sei();
     }
 // MIDI Channel 2
@@ -45,7 +46,7 @@ const uint8_t voltbl[32] = {0x00, 0x01, 0x01, 0x02, 0x02, 0x03, 0x03, 0x04, 0x05
     send_data(0x02, LSB);
     send_data(0x03, MSB);
     setVolume(1, defaultVolume, 0);
-    setEnvelope(0x00, 0x0E); 
+    (controlValue11 == 0) ? setEnvelope(0x00, 0x0E) : updateEnvelope();
     sei(); 
     }
  // MIDI Channel 3
@@ -65,7 +66,7 @@ const uint8_t voltbl[32] = {0x00, 0x01, 0x01, 0x02, 0x02, 0x03, 0x03, 0x04, 0x05
     send_data(0x04, LSB);
     send_data(0x05, MSB);
     setVolume(2, defaultVolume, 0);
-    setEnvelope(0x0800, 0x09);
+    (controlValue11 == 0) ? setEnvelope(0x0800, 0x09) : updateEnvelope();
     sei();
     }
 // MIDI Channel 4
@@ -94,7 +95,7 @@ const uint8_t voltbl[32] = {0x00, 0x01, 0x01, 0x02, 0x02, 0x03, 0x03, 0x04, 0x05
             setVolume(0, defaultVolume, 0);
             setVolume(1, defaultVolume, 0);
             setVolume(2, defaultVolume, 0);
-            setEnvelope(0x6000, 0x4000);
+            (controlValue11 == 0) ? setEnvelope(0x6000, 0x4000) : updateEnvelope();
             sei();
     }
 // MIDI Channel 5
@@ -112,7 +113,7 @@ else if (chan == 5) {
     float pitchBendFactor = pow(2.0, pitchBendValue / pitchBendRange);
     int periodA = (tp[note] - 12) * pitchBendFactor;
     int periodB = (tp[note]) * pitchBendFactor;
-    int periodC = (tp[note] + (detuneValue  + 1)) * pitchBendFactor;
+    int periodC = (tp[note] + (detuneValue)) * pitchBendFactor;
     byte ALSB = (periodA & 0x00FF);
     byte AMSB = ((periodA >> 8) & 0x000F);
     byte BLSB = (periodB & 0x00FF);
@@ -127,10 +128,10 @@ else if (chan == 5) {
     send_data(0x03, BMSB);
     send_data(0x04, CLSB);
     send_data(0x05, CMSB);
-    setVolume(0, defaultVolume, -1);
+    setVolume(0, defaultVolume, 0);
     setVolume(1, defaultVolume, 0);
-    setVolume(2, defaultVolume, -2);
-    setEnvelope(0xF000, 0x0A);
+    setVolume(2, defaultVolume, 0);
+    (controlValue11 == 0) ? setEnvelope(0xF000, 0x0A) : updateEnvelope();
     sei();
 }
 // MIDI Channel 6
@@ -152,7 +153,7 @@ else if (chan == 6) {
     send_data(0x0B, LSB);
     send_data(0x0C, MSB);
     setVolume(0, defaultVolume, 0);
-    setEnvelope(0x4000, 0x08);
+    (controlValue11 == 0) ? setEnvelope(0x4000, 0x08) : updateEnvelope();
     sei();
 }
 // MIDI Channel 7
@@ -179,7 +180,7 @@ else if (chan == 7) {
     send_data(0x0C, MSB);
     setVolume(0, defaultVolume, 0);
     setVolume(1, defaultVolume, 0);
-    setEnvelope(0x4000, 0x08);
+    (controlValue11 == 0) ? setEnvelope(0x4000, 0x08) : updateEnvelope();
     sei();
 }
 // MIDI Channel 8
@@ -207,7 +208,7 @@ else if (chan == 8) {
     send_data(0x0C, MSB);
     setVolume(0, defaultVolume, 0);
     setVolume(1, defaultVolume, 0);
-    setEnvelope(0x2000, 0x02);
+    (controlValue11 == 0) ? setEnvelope(0x2000, 0x02) : updateEnvelope();
     sei();
 }
 // MIDI Channel 9
@@ -235,7 +236,7 @@ else if (chan == 9) {
     send_data(0x0C, MSB);
     setVolume(0, defaultVolume, -2);
     setVolume(1, defaultVolume, 0);
-    setEnvelope(0x2000, 0x0F);
+    (controlValue11 == 0) ? setEnvelope(0x2000, 0x0F) : updateEnvelope();
     sei();
 }
 // MIDI Channel 11
@@ -255,7 +256,7 @@ else if (chan == 11) {
     send_data(0x00, LSB);
     send_data(0x01, MSB);
     setVolume(0, defaultVolume, 0);
-    setEnvelope(0x2000, 0x0F);
+    (controlValue11 == 0) ? setEnvelope(0x2000, 0x0F) : updateEnvelope();
     sei();
 }
 // MIDI Channel 12
@@ -293,7 +294,7 @@ else if (chan == 12)
     setVolume(0, defaultVolume, 0);
     setVolume(1, defaultVolume, 0);
     setVolume(2, defaultVolume, 0);
-    setEnvelope(0x4000, 0x06);
+    (controlValue11 == 0) ? setEnvelope(0x4000, 0x06) : updateEnvelope();
     sei();
 }
 // MIDI Channel 13
@@ -331,7 +332,7 @@ else if (chan == 13)
     setVolume(0, defaultVolume, 0);
     setVolume(1, defaultVolume, 0);
     setVolume(2, defaultVolume, 0);
-    setEnvelope(0x2000, 0x02);
+    (controlValue11 == 0) ? setEnvelope(0x2000, 0x02) : updateEnvelope();
     sei();
 }
 // MIDI Channel 14
@@ -351,7 +352,7 @@ else if (chan == 14)
     send_data(0x00, LSB);
     send_data(0x01, MSB);
     setVolume(0, defaultVolume, 0);
-    setEnvelope(0x3000, 0x0F); 
+    (controlValue11 == 0) ? setEnvelope(0x3000, 0x0F) : updateEnvelope();
     sei();
 }
 }
