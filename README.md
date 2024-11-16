@@ -115,7 +115,11 @@ CC8 - Arpeggiation Octave
 
 CC9 - Preset Bank Change, 1-64 Bank A or 65-127 Bank B
 
-CC10 - Short notes (work in progress)
+CC10 - unused
+
+CC11 - Decay (0 = Off)
+
+CC12 - Attack  (CC11: 0 = Off)
 
 
 ## Arpeggiation Patterns
