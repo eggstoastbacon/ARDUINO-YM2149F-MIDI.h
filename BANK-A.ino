@@ -2,7 +2,6 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
     chan = chan + 1;
     if (note < 24) return; // Invalid note, exit function
     setPinHigh(__LEDPORT__, __LED__);
-    volume = map(velo, 0, 127, 0, 14);
 
 // MIDI Channel 1
     if (chan == 1) {
@@ -17,10 +16,10 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
     byte LSB = (periodA & 0xFF);
     byte MSB = ((periodA >> 8) & 0x0F);
     cli();
-    setMixer(true, false, false, false, false, false);
+    //setMixer(true, false, false, false, false, false);
     send_data(0x00, LSB);
     send_data(0x01, MSB);
-    setVolume(0, defaultVolume, 0);
+    setVolume(0, defaultVolume, -2);
     (controlValue11 == 0) ? setEnvelope(0xF000, 0x1000) : updateEnvelope();
     sei();
     }
@@ -37,11 +36,11 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
     byte LSB = (periodB & 0xFF);
     byte MSB = ((periodB >> 8) & 0x0F);
     cli();
-    setMixer(false, false, true, false, false, false);
+    //setMixer(false, false, true, false, false, false);
     send_data(0x02, LSB);
     send_data(0x03, MSB);
-    setVolume(1, defaultVolume, 0);
-    (controlValue11 == 0) ? setEnvelope(0xF000, 0x1000) : updateEnvelope();
+    setVolume(1, defaultVolume, -2);
+   (controlValue11 == 0) ? setEnvelope(0xF000, 0x1000) : updateEnvelope();
     sei();
     }
 // MIDI Channel 3
@@ -57,11 +56,11 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
     byte LSB = (periodC & 0xFF);
     byte MSB = ((periodC >> 8) & 0x0F);
     cli();
-    setMixer(false, false, false, false, true, false);
+    //setMixer(false, false, false, false, true, false);
     send_data(0x04, LSB);
     send_data(0x05, MSB);
-    setVolume(2, defaultVolume, 0);
-        (controlValue11 == 0) ? setEnvelope(0xF000, 0x1000) : updateEnvelope();
+    setVolume(2, defaultVolume, -2);
+    (controlValue11 == 0) ? setEnvelope(0xF000, 0x1000) : updateEnvelope();
     sei();
     }
 // MIDI Channel 4
@@ -442,7 +441,7 @@ chan = chan + 1;
         send_data(0x04, 0);
         send_data(0x05, 0); 
         setVolume(2, 0, 0); 
-        setEnvelope(0x0000, 0x00);
+        //setEnvelope(0x0000, 0x00);
         sei();
     }
 // MIDI Channel 4
