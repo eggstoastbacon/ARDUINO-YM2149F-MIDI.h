@@ -114,6 +114,8 @@ int velocityStatus = 0;
 
 //envelop
 byte envelopeShape = 0;
+uint16_t envFreq;
+uint8_t envShape;
 const byte envelopeShapes[] = {
 };
 
@@ -143,6 +145,8 @@ int controlValue7;
 int controlValue8;
 int controlValue9;
 int controlValue10;
+int controlValue11;
+int controlValue12;
 
 //Fast pin switching macros
 //#define CLR(x,y) (x&=(~(1<<y)))
@@ -500,6 +504,16 @@ void handleControlChange(byte midiChannel) {
     case 8: handleOctaveOffset(controlValue); break;
     case 9: setBankB = (controlValue > 64); break;
     case 10: controlValue10 = controlValue; noteLength = map(controlValue, 0, 127, 300, 2000); break;
+
+    // New cases for envelope frequency and shape
+    case 11: 
+      controlValue11 = controlValue; 
+      updateEnvelope(); 
+      break;
+    case 12: 
+      controlValue12 = controlValue; 
+      updateEnvelope(); 
+      break;
   }
 }
 
@@ -630,12 +644,26 @@ void setMixer(bool toneA, bool noiseA, bool toneB, bool noiseB, bool toneC, bool
 }
 
 void setEnvelope(uint16_t envFreq, uint8_t envShape) {
-    // Set envelope frequency
+    // Avoid invalid frequencies (0x0000 produces no envelope)
+    if (envFreq == 0) envFreq = 0x0001;
+
+    // Send envelope frequency
     send_data(0x0B, envFreq & 0xFF); // LSB
     send_data(0x0C, (envFreq >> 8) & 0xFF); // MSB
 
-    // Set envelope shape
-    send_data(0x0D, envShape);
+    // Send envelope shape
+    send_data(0x0D, envShape & 0x0F); // Only the lower 4 bits are valid
+}
+
+void updateEnvelope() {
+    // Map controlValue11 (0-127) to the envelope frequency range (0x0000-0xFFFF)
+    uint16_t envFreq = map(controlValue11, 1, 127, 0x0001, 0xFFFF);
+
+    // Map controlValue12 (0-127) to the envelope shape range (0x00-0x0F)
+    uint8_t envShape = map(controlValue12, 0, 127, 0x01, 0x0F);
+
+    // Update the envelope using the setEnvelope function
+    setEnvelope(envFreq, envShape);
 }
 
 void resetYM()
