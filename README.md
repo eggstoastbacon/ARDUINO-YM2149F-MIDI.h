@@ -102,7 +102,7 @@ CC2 - Vibrato Rate (0 = off)
 
 CC3 - Vibrato Amount
 
-CC4 - Velocity Sensitivity, (0 = 0ff), 1 - 127 Adjust Range (1 has the least sensitivity) (0 = off)
+CC4 - Velocity Sensitivity, (0 = 0ff), 1 - 127 Adjust Range (1 has the least sensitivity) (0 = off) - Will override all envelope settings.
 
 CC5 - Arpeggiation Rate (0 = off)
 
