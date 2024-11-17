@@ -55,10 +55,15 @@ Control Interface: It uses a simple data and address bus interface, making it re
 
 **ARDUINO-YM2149.ino, BANK-A.ino, BANK-B.ino** - for the hardware:
 
-1. Clone this repository.
+1. Clone this repository. Or download the files as a .zip (https://github.com/Chiptune-Anamnesis/ARDUINO-YM2149F/archive/refs/heads/main.zip)
 2. Flip switch (PGM/MIDI) to PGM for programming mode.
-3. Connect the USB-C cable to your computer and use the Arduino IDE: (https://docs.arduino.cc/software/ide/) set to Arduino Uno to program the chip with the .ino file.
-4. Flip switch (PGM/MIDI) to MIDI.
+3. Connect the USB-C cable to your computer
+4. Use the Arduino IDE: (https://docs.arduino.cc/software/ide/) and open ARDUINO-YM2149.ino, it should by default also open BANK-A.ino and BANK-B.ino.
+5. Select Tools > Board > Arduino UNO
+6. Tools > Port > Select the port it's using (Could be tricky, you can check the ports, unplug the device and then check the ports again to see which one disapears, when you plug it back in that would be the one to choose.)
+7. Choose Sketch > Upload. It will compile the files and flash it, wait for the success message.
+4. Flip switch (PGM/MIDI) back to MIDI.
+
 
 **ym2149-wave.py** - creating your own samples:
 
