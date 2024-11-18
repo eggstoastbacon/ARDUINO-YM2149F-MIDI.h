@@ -29,7 +29,7 @@ I first discovered the YM2149F through one of my favorite musicians and YouTube 
 
 ## Project Goals
 
-This project aims to create a plug-and-play YM2149F interface with as many direct MIDI controls as possible, including velocity, pitch, and envelope adjustments. The code will be detailed to allow others to modify existing sounds or create their own from scratch. I want users to be able to create and import custom sound samples easily. I may also add an OLED display, similar to Dansfing’s setup. I would like to try and get a working vibrato and arpeggiator in the future.
+This project aims to create a plug-and-play YM2149F interface with as many direct MIDI controls as possible, including velocity, pitch, and envelope adjustments. The code will be detailed to allow others to modify existing sounds or create their own from scratch. I want users to be able to create and import custom sound samples easily.
 
 ## YM2149F Hardware Description
 
