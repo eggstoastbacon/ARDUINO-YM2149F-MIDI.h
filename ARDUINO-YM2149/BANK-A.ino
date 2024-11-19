@@ -16,7 +16,7 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
     byte LSB = (periodA & 0xFF);
     byte MSB = ((periodA >> 8) & 0x0F);
     cli();
-    //setMixer(true, false, false, false, false, false);
+    setMixer(true, false, false, false, false, false);
     send_data(0x00, LSB);
     send_data(0x01, MSB);
     setVolume(0, defaultVolume, -2);
@@ -36,7 +36,7 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
     byte LSB = (periodB & 0xFF);
     byte MSB = ((periodB >> 8) & 0x0F);
     cli();
-    //setMixer(false, false, true, false, false, false);
+    setMixer(false, false, true, false, false, false);
     send_data(0x02, LSB);
     send_data(0x03, MSB);
     setVolume(1, defaultVolume, -2);
@@ -56,7 +56,7 @@ void playNote(byte note, byte velo, byte chan, int pitchBendValue) {
     byte LSB = (periodC & 0xFF);
     byte MSB = ((periodC >> 8) & 0x0F);
     cli();
-    //setMixer(false, false, false, false, true, false);
+    setMixer(false, false, false, false, true, false);
     send_data(0x04, LSB);
     send_data(0x05, MSB);
     setVolume(2, defaultVolume, -2);
