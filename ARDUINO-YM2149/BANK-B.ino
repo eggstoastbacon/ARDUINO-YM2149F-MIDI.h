@@ -424,7 +424,6 @@ chan = chan + 1;
         setEnvelope(0x0000, 0x00);
         setVolume(0, 0, 0);
         setVolume(1, 0, 0);
-        setVolume(2, 0, 0);
         sei();
     }
     // MIDI Channel 5
