@@ -120,7 +120,7 @@ CC8 - Arpeggiation Octave
 
 CC9 - Preset Bank Change, 1-64 Bank A or 65-127 Bank B
 
-CC10 - Allow to play voices simulataeously, but disables envelope and lowers the volume. ( 0-64 = Off, 65-127 = On)
+CC10 - Allow to play voices simultaneously (Can play A with a B,C preset or an A, B and C, together, etc.) , but disables envelope and lowers the volume. ( 0-64 = Off, 65-127 = On)
 
 CC11 - Decay (0 = Off)
 
