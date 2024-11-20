@@ -448,23 +448,18 @@ chan = chan + 1;
     else if (chan == 4 && note == noteA) {
         noteActiveA = 0;
         noteActiveB = 0;
-        noteActiveC = 0;
         arpeggioFlipMe = false;
         timerTicks = 0;
         noteA = periodA = 0;
         noteB = periodB = 0;
-        noteC = periodC = 0;
         cli();
         send_data(0x00, 0);
         send_data(0x01, 0);
         send_data(0x02, 0);
         send_data(0x03, 0);
-        send_data(0x04, 0);
-        send_data(0x05, 0);
         setEnvelope(0x0000, 0x00);
         setVolume(0, 0, 0);
         setVolume(1, 0, 0);
-        setVolume(2, 0, 0);
         sei();
     }
 // MIDI Channel 5
