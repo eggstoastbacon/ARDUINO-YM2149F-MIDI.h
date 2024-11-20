@@ -97,6 +97,7 @@ float pitchBendRange = 16384.0; // multiple of 8192.0, the smaller the more the 
 
 //volume
 byte defaultVolume = 0x0F;
+int mixerVolumeOffset = 4;
 const uint8_t voltbl[16] = {2, 4, 6, 6, 7, 8, 8, 10, 10, 11, 11, 12, 12, 14, 15, 16};
 
 //velocity
@@ -426,10 +427,10 @@ void loop() {
       } else if (velo != 0) {
         if (setBankB) {
           playNoteB(note, velo, midiChannel, pitchBendValue);
-          applyNoteLengthDelay(stopNoteB, note, midiChannel);
+          //applyNoteLengthDelay(stopNoteB, note, midiChannel);
         } else {
           playNote(note, velo, midiChannel, pitchBendValue);
-          applyNoteLengthDelay(stopNote, note, midiChannel);
+          //applyNoteLengthDelay(stopNote, note, midiChannel);
         }
       } else {
         if (setBankB) stopNoteB(note, midiChannel);
@@ -474,13 +475,6 @@ byte constrainVelocity(byte velo) {
     }
 }
 
-void applyNoteLengthDelay(void (*stopFunction)(byte, byte), byte note, byte midiChannel) {
-  if (controlValue10 > 0) {
-    delay(noteLengthDelay);
-    stopFunction(note, midiChannel);
-  }
-}
-
 void handleControlChange(byte midiChannel) {
   byte controlNumber = getSerialByte();
   byte controlValue = getSerialByte();
@@ -499,7 +493,7 @@ void handleControlChange(byte midiChannel) {
     case 7: controlValue7 = controlValue; break;
     case 8: handleOctaveOffset(controlValue); break;
     case 9: setBankB = (controlValue > 64); break;
-    case 10: controlValue10 = controlValue; noteLength = map(controlValue, 0, 127, 300, 2000); break;
+    case 10: controlValue10 = controlValue; break;
 
     // New cases for envelope frequency and shape
     case 11: 
@@ -616,6 +610,11 @@ void setVolume(uint8_t channel, uint8_t volume, int8_t offset) {
     else if (channel == 2) volReg = 0x0A;
     else return;
 
+    // Apply additional offset if controlValue10 > 64
+    if (controlValue10 > 64) {
+        offset -= mixerVolumeOffset; // Decrease volume by 5 steps
+    }
+
     // Adjust volume using velocity and offset
     uint8_t scaledVolume = map(velocityValue, 0, 127, 0, volume & 0x0F); // Scale to 4 bits
     int8_t adjustedVolume = scaledVolume + offset; // Apply the offset
@@ -627,6 +626,13 @@ void setVolume(uint8_t channel, uint8_t volume, int8_t offset) {
 }
 
 void setMixer(bool toneA, bool noiseA, bool toneB, bool noiseB, bool toneC, bool noiseC) {
+    if (controlValue10 > 64) {
+        // Turn all tones on when controlValue10 > 64
+        uint8_t allTonesOn = 0x38; // Disable all noises and enable all tones
+        send_data(0x07, allTonesOn);
+        return;
+    }
+
     uint8_t mixerValue = 0;
 
     if (!toneA) mixerValue |= 0x01; // Disable tone on Channel A
